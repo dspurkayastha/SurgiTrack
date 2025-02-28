@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Appointment" representedClassName="Appointment" syncable="YES" codeGenerationType="class">
+        <attribute name="appointmentType" optional="YES" attributeType="String"/>
+        <attribute name="endTime" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="startTime" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="title" attributeType="String"/>
+        <relationship name="patient" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="appointments" inverseEntity="Patient"/>
+        <relationship name="relatedTests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="appointment" inverseEntity="MedicalTest"/>
+        <relationship name="surgeon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Surgeon" inverseName="appointments" inverseEntity="Surgeon"/>
+    </entity>
+    <entity name="Attachment" representedClassName="Attachment" syncable="YES" codeGenerationType="class">
+        <attribute name="attachmentType" optional="YES" attributeType="String"/>
+        <attribute name="contentType" optional="YES" attributeType="String"/>
+        <attribute name="data" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="dateCreated" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="filename" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <relationship name="followUp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FollowUp" inverseName="attachments" inverseEntity="FollowUp"/>
+        <relationship name="medicalTest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="attachments" inverseEntity="MedicalTest"/>
+        <relationship name="operativeData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="OperativeData" inverseName="attachments" inverseEntity="OperativeData"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="attachments" inverseEntity="Patient"/>
+    </entity>
+    <entity name="DischargeSummary" representedClassName="DischargeSummary" syncable="YES" codeGenerationType="class">
+        <attribute name="activityRestrictions" optional="YES" attributeType="String"/>
+        <attribute name="additionalNotes" optional="YES" attributeType="String"/>
+        <attribute name="dietaryInstructions" optional="YES" attributeType="String"/>
+        <attribute name="dischargeDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dischargeMedications" optional="YES" attributeType="String"/>
+        <attribute name="dischargingPhysician" optional="YES" attributeType="String"/>
+        <attribute name="followUpAppointmentScheduled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="followUpInstructions" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="medicalDevicesProvided" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="medicationsAtDischarge" optional="YES" attributeType="String"/>
+        <attribute name="medicationsReconciled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="patientEducationCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="primaryDiagnosis" optional="YES" attributeType="String"/>
+        <attribute name="procedures" optional="YES" attributeType="String"/>
+        <attribute name="returnPrecautions" optional="YES" attributeType="String"/>
+        <attribute name="secondaryDiagnoses" optional="YES" attributeType="String"/>
+        <attribute name="transportationArranged" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="treatmentSummary" optional="YES" attributeType="String"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="dischargeSummary" inverseEntity="Patient"/>
+    </entity>
+    <entity name="FollowUp" representedClassName="FollowUp" syncable="YES" codeGenerationType="class">
+        <attribute name="additionalTests" optional="YES" attributeType="String"/>
+        <attribute name="complications" optional="YES" attributeType="String"/>
+        <attribute name="followUpDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="followUpNotes" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="medicationChanges" optional="YES" attributeType="String"/>
+        <attribute name="nextAppointment" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="outcomeAssessment" optional="YES" attributeType="String"/>
+        <attribute name="vitalSigns" optional="YES" attributeType="String"/>
+        <attribute name="woundHealingStatus" optional="YES" attributeType="String"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="followUp" inverseEntity="Attachment"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="followUps" inverseEntity="Patient"/>
+        <relationship name="relatedTests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="followUp" inverseEntity="MedicalTest"/>
+        <relationship name="storedCalculation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StoredCalculation" inverseName="followUp" inverseEntity="StoredCalculation"/>
+    </entity>
+    <entity name="InitialPresentation" representedClassName="InitialPresentation" syncable="YES" codeGenerationType="class">
+        <attribute name="allergies" optional="YES" attributeType="String"/>
+        <attribute name="chiefComplaint" optional="YES" attributeType="String"/>
+        <attribute name="historyOfPresentIllness" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imagingReports" optional="YES" attributeType="String"/>
+        <attribute name="initialDiagnosis" optional="YES" attributeType="String"/>
+        <attribute name="labTests" optional="YES" attributeType="String"/>
+        <attribute name="medications" optional="YES" attributeType="String"/>
+        <attribute name="pastMedicalHistory" optional="YES" attributeType="String"/>
+        <attribute name="physicalExamination" optional="YES" attributeType="String"/>
+        <attribute name="presentationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="initialPresentation" inverseEntity="Patient"/>
+    </entity>
+    <entity name="MedicalTest" representedClassName="MedicalTest" syncable="YES" codeGenerationType="class">
+        <attribute name="details" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isAbnormal" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="laboratory" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="resultEntryDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="summary" optional="YES" attributeType="String"/>
+        <attribute name="testCategory" optional="YES" attributeType="String"/>
+        <attribute name="testDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="testType" attributeType="String"/>
+        <relationship name="appointment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Appointment" inverseName="relatedTests" inverseEntity="Appointment"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="medicalTest" inverseEntity="Attachment"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestCategory" inverseName="tests" inverseEntity="TestCategory"/>
+        <relationship name="followUp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FollowUp" inverseName="relatedTests" inverseEntity="FollowUp"/>
+        <relationship name="operativeData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="OperativeData" inverseName="relatedTests" inverseEntity="OperativeData"/>
+        <relationship name="orderingPhysician" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="medicalTests" inverseEntity="UserProfile"/>
+        <relationship name="parentTest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="relatedTests" inverseEntity="MedicalTest"/>
+        <relationship name="patient" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="medicalTests" inverseEntity="Patient"/>
+        <relationship name="relatedTests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="parentTest" inverseEntity="MedicalTest"/>
+        <relationship name="testParameters" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TestParameter" inverseName="medicalTest" inverseEntity="TestParameter"/>
+    </entity>
+    <entity name="OperativeData" representedClassName="OperativeData" syncable="YES" codeGenerationType="class">
+        <attribute name="additionalComments" optional="YES" attributeType="String"/>
+        <attribute name="anaesthesiaType" optional="YES" attributeType="String"/>
+        <attribute name="anaesthetistName" optional="YES" attributeType="String"/>
+        <attribute name="antibiotics" optional="YES" attributeType="String"/>
+        <attribute name="assistants" optional="YES" attributeType="String"/>
+        <attribute name="comorbidityCodes" optional="YES" attributeType="String"/>
+        <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="estimatedBloodLoss" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID"/>
+        <attribute name="indication" optional="YES" attributeType="String"/>
+        <attribute name="intraoperativeComplications" optional="YES" attributeType="String"/>
+        <attribute name="operationDate" optional="YES" attributeType="Date"/>
+        <attribute name="operationNarrative" optional="YES" attributeType="String"/>
+        <attribute name="operationType" optional="YES" attributeType="String"/>
+        <attribute name="operativeFindings" optional="YES" attributeType="String"/>
+        <attribute name="operativeNotes" optional="YES" attributeType="String"/>
+        <attribute name="painManagement" optional="YES" attributeType="String"/>
+        <attribute name="patientPositioning" optional="YES" attributeType="String"/>
+        <attribute name="patientWarming" optional="YES" attributeType="String"/>
+        <attribute name="postOpDiagnosis" optional="YES" attributeType="String"/>
+        <attribute name="postoperativeOrders" optional="YES" attributeType="String"/>
+        <attribute name="preOpDiagnosis" optional="YES" attributeType="String"/>
+        <attribute name="procedureDetails" optional="YES" attributeType="String"/>
+        <attribute name="procedureName" optional="YES" attributeType="String"/>
+        <attribute name="skinPreparation" optional="YES" attributeType="String"/>
+        <attribute name="surgeonName" optional="YES" attributeType="String"/>
+        <attribute name="vteProphylaxis" optional="YES" attributeType="String"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="operativeData" inverseEntity="Attachment"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Patient" inverseName="operativeData" inverseEntity="Patient"/>
+        <relationship name="relatedTests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="operativeData" inverseEntity="MedicalTest"/>
+        <relationship name="storedCalculation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StoredCalculation" inverseName="operativeData" inverseEntity="StoredCalculation"/>
+        <relationship name="surgeon" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Surgeon" inverseName="procedures" inverseEntity="Surgeon"/>
+    </entity>
+    <entity name="Patient" representedClassName="Patient" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="bedNumber" optional="YES" attributeType="String"/>
+        <attribute name="bloodType" optional="YES" attributeType="String"/>
+        <attribute name="contactInfo" optional="YES" attributeType="String"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateModified" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateOfBirth" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="emergencyContactName" optional="YES" attributeType="String"/>
+        <attribute name="emergencyContactPhone" optional="YES" attributeType="String"/>
+        <attribute name="firstName" optional="YES" attributeType="String"/>
+        <attribute name="gender" optional="YES" attributeType="String"/>
+        <attribute name="height" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="insuranceDetails" optional="YES" attributeType="String"/>
+        <attribute name="insurancePolicyNumber" optional="YES" attributeType="String"/>
+        <attribute name="insuranceProvider" optional="YES" attributeType="String"/>
+        <attribute name="isDischargedStatus" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastName" optional="YES" attributeType="String"/>
+        <attribute name="medicalRecordNumber" optional="YES" attributeType="String"/>
+        <attribute name="phone" optional="YES" attributeType="String"/>
+        <attribute name="profileImageData" optional="YES" attributeType="Binary"/>
+        <attribute name="weight" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="appointments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Appointment" inverseName="patient" inverseEntity="Appointment"/>
+        <relationship name="attachments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attachment" inverseName="patient" inverseEntity="Attachment"/>
+        <relationship name="dischargeSummary" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DischargeSummary" inverseName="patient" inverseEntity="DischargeSummary"/>
+        <relationship name="followUps" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FollowUp" inverseName="patient" inverseEntity="FollowUp"/>
+        <relationship name="initialPresentation" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="InitialPresentation" inverseName="patient" inverseEntity="InitialPresentation"/>
+        <relationship name="medicalTests" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MedicalTest" inverseName="patient" inverseEntity="MedicalTest"/>
+        <relationship name="operativeData" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="OperativeData" inverseName="patient" inverseEntity="OperativeData"/>
+        <relationship name="reportTemplates" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ReportTemplate" inverseName="patient" inverseEntity="ReportTemplate"/>
+        <relationship name="storedCalculation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StoredCalculation" inverseName="patient" inverseEntity="StoredCalculation"/>
+	<relationship name="prescriptions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Prescription" inverseName="patient" inverseEntity="Prescription"/>
+    </entity>
+    <entity name="Prescription" representedClassName="Prescription" syncable="YES" codeGenerationType="class">
+        <attribute name="dateCreated" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="generalInstructions" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="prescribingPhysician" optional="YES" attributeType="String"/>
+        <attribute name="status" attributeType="String" defaultValueString="active"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PrescriptionItem" inverseName="prescription" inverseEntity="PrescriptionItem"/>
+        <relationship name="patient" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="prescriptions" inverseEntity="Patient"/>
+    </entity>
+    <entity name="PrescriptionItem" representedClassName="PrescriptionItem" syncable="YES" codeGenerationType="class">
+        <attribute name="dosage" attributeType="String"/>
+        <attribute name="drugName" attributeType="String"/>
+        <attribute name="duration" optional="YES" attributeType="String"/>
+        <attribute name="frequency" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="route" attributeType="String"/>
+        <attribute name="specialInstructions" optional="YES" attributeType="String"/>
+        <attribute name="strength" optional="YES" attributeType="String"/>
+        <relationship name="prescription" maxCount="1" deletionRule="Nullify" destinationEntity="Prescription" inverseName="items" inverseEntity="Prescription"/>
+        <relationship name="product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="prescriptionItems" inverseEntity="Product"/>
+    </entity>
+    <entity name="Product" representedClassName="Product" syncable="YES" codeGenerationType="class">
+        <attribute name="activeIngredient" optional="YES" attributeType="String"/>
+        <attribute name="applNo" optional="YES" attributeType="String"/>
+        <attribute name="drugName" optional="YES" attributeType="String"/>
+        <attribute name="form" optional="YES" attributeType="String"/>
+        <attribute name="productNo" optional="YES" attributeType="String"/>
+        <attribute name="referenceDrug" optional="YES" attributeType="String"/>
+        <attribute name="referenceStandard" optional="YES" attributeType="String"/>
+        <attribute name="strength" optional="YES" attributeType="String"/>
+	<relationship name="prescriptionItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="PrescriptionItem" inverseName="product" inverseEntity="PrescriptionItem"/>
+    </entity>
+    <entity name="ReportTemplate" representedClassName="ReportTemplate" syncable="YES" codeGenerationType="class">
+        <attribute name="createdBy" optional="YES" attributeType="String"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateModified" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isDefault" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="reportDescription" optional="YES" attributeType="String"/>
+        <attribute name="templateData" optional="YES" attributeType="Binary"/>
+        <attribute name="templateName" attributeType="String"/>
+        <attribute name="templateType" attributeType="String"/>
+        <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile" inverseName="reportTemplates" inverseEntity="UserProfile"/>
+        <relationship name="parameters" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TemplateParameter" inverseName="template" inverseEntity="TemplateParameter"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="reportTemplates" inverseEntity="Patient"/>
+    </entity>
+    <entity name="StoredCalculation" representedClassName="StoredCalculation" syncable="YES" codeGenerationType="class">
+        <attribute name="calculationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="calculatorName" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="parameterData" optional="YES" attributeType="Binary"/>
+        <attribute name="resultInterpretation" optional="YES" attributeType="String"/>
+        <attribute name="resultPercentage" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="resultScore" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="followUp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FollowUp" inverseName="storedCalculation" inverseEntity="FollowUp"/>
+        <relationship name="operativeData" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="OperativeData" inverseName="storedCalculation" inverseEntity="OperativeData"/>
+        <relationship name="patient" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Patient" inverseName="storedCalculation" inverseEntity="Patient"/>
+    </entity>
+    <entity name="Surgeon" representedClassName="Surgeon" syncable="YES" codeGenerationType="class">
+        <attribute name="contactInfo" optional="YES" attributeType="String"/>
+        <attribute name="firstName" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastName" attributeType="String"/>
+        <attribute name="licenseNumber" optional="YES" attributeType="String"/>
+        <attribute name="profileImageData" optional="YES" attributeType="Binary"/>
+        <attribute name="specialty" optional="YES" attributeType="String"/>
+        <relationship name="appointments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Appointment" inverseName="surgeon" inverseEntity="Appointment"/>
+        <relationship name="procedures" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="OperativeData" inverseName="surgeon" inverseEntity="OperativeData"/>
+    </entity>
+    <entity name="TemplateParameter" representedClassName="TemplateParameter" syncable="YES" codeGenerationType="class">
+        <attribute name="defaultReferenceRangeHigh" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="defaultReferenceRangeLow" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="defaultReferenceText" optional="YES" attributeType="String"/>
+        <attribute name="displayOrder" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isRequired" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="parameterCategory" optional="YES" attributeType="String"/>
+        <attribute name="parameterName" attributeType="String"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <attribute name="valueType" optional="YES" attributeType="String"/>
+        <relationship name="template" maxCount="1" deletionRule="Nullify" destinationEntity="ReportTemplate" inverseName="parameters" inverseEntity="ReportTemplate"/>
+    </entity>
+    <entity name="TestCategory" representedClassName="TestCategory" syncable="YES" codeGenerationType="class">
+        <attribute name="displayOrder" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="testDescription" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="parameters" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestParameter" inverseName="category" inverseEntity="TestParameter"/>
+        <relationship name="tests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="category" inverseEntity="MedicalTest"/>
+    </entity>
+    <entity name="TestParameter" representedClassName="TestParameter" syncable="YES" codeGenerationType="class">
+        <attribute name="displayOrder" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isAbnormal" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="numericValue" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="parameterCategory" optional="YES" attributeType="String"/>
+        <attribute name="parameterName" attributeType="String"/>
+        <attribute name="referenceRangeHigh" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="referenceRangeLow" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="referenceText" optional="YES" attributeType="String"/>
+        <attribute name="trend" optional="YES" attributeType="String"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <attribute name="value" optional="YES" attributeType="String"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestCategory" inverseName="parameters" inverseEntity="TestCategory"/>
+        <relationship name="historicalValues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TestParameter" inverseName="nextValue" inverseEntity="TestParameter"/>
+        <relationship name="medicalTest" maxCount="1" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="testParameters" inverseEntity="MedicalTest"/>
+        <relationship name="nextValue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TestParameter" inverseName="historicalValues" inverseEntity="TestParameter"/>
+    </entity>
+    <entity name="UserProfile" representedClassName="UserProfile" syncable="YES" codeGenerationType="class">
+        <attribute name="bio" optional="YES" attributeType="String"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateModified" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="departmentName" optional="YES" attributeType="String"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="firstName" attributeType="String"/>
+        <attribute name="hospitalAddress" optional="YES" attributeType="String"/>
+        <attribute name="hospitalName" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isCurrentUser" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="lastName" optional="YES" attributeType="String"/>
+        <attribute name="phone" optional="YES" attributeType="String"/>
+        <attribute name="profileImageData" optional="YES" attributeType="Binary"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="unitName" optional="YES" attributeType="String"/>
+        <relationship name="medicalTests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MedicalTest" inverseName="orderingPhysician" inverseEntity="MedicalTest"/>
+        <relationship name="reportTemplates" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ReportTemplate" inverseName="creator" inverseEntity="ReportTemplate"/>
+    </entity>
+</model>
