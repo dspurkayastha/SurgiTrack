@@ -110,13 +110,27 @@ struct MainPageView: View {
     private let animationDelay: Double = 0.2
     private let headerHeight: CGFloat = 120
     
+    // Particle State
+    @State private var particles: [MainPageParticle] = []
+    private let particleCount: Int = 25
+    @State private var particleOpacity: Double = 0
+
+    // Tap Interaction State
+    @State private var lastTapLocation: CGPoint? = nil
+    @State private var attractionActive: Bool = false
+    @State private var attractTimer: Timer? // To reset attraction
+
+    // Timer for Particle Updates
+    @State private var particleUpdateTimer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect() 
+
     // MARK: - Main Body
     var body: some View {
         NavigationView {
             ZStack {
-                // Enhanced Background
-                enhancedBackground
-                
+                // Use the NEW Enhanced Animated Background
+                EnhancedAnimatedGradientBackground() // Updated usage
+                    .environmentObject(appState) // Pass the environment object
+
                 // Main ScrollView Content
                 ScrollView {
                     GeometryReader { geo in
@@ -236,53 +250,6 @@ struct MainPageView: View {
     }
     
     // MARK: - Component Views
-    
-    // New Enhanced Background
-    private var enhancedBackground: some View {
-        ZStack {
-            // Base gradient
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    appState.currentTheme.primaryColor.opacity(0.95),
-                    appState.currentTheme.secondaryColor.opacity(0.85)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            // Animated floating orbs for depth
-            Circle()
-                .fill(appState.currentTheme.primaryColor.opacity(0.4))
-                .frame(width: 250, height: 250)
-                .blur(radius: 80)
-                .offset(x: -120, y: parallaxOffset * 0.4 - 100)
-                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: headerLoaded)
-            
-            Circle()
-                .fill(appState.currentTheme.secondaryColor.opacity(0.35))
-                .frame(width: 320, height: 320)
-                .blur(radius: 90)
-                .offset(x: 150, y: parallaxOffset * 0.3 + 280)
-                .animation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true), value: headerLoaded)
-            
-            // Light gradient overlay for better text contrast
-            VStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.black.opacity(0.2),
-                        Color.black.opacity(0.0)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 180)
-                
-                Spacer()
-            }
-        }
-        .ignoresSafeArea()
-        .animation(.easeOut(duration: 0.5), value: parallaxOffset)
-    }
     
     // Redesigned Welcome Header (welcome, then username, then date)
     private var welcomeHeader: some View {
@@ -908,18 +875,358 @@ struct MainPageView: View {
     }
 }
 
-struct MainPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            MainPageView()
-                .environmentObject(AppState())
-                .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-                .previewDisplayName("Light Mode")
-            MainPageView()
-                .environmentObject(AppState())
-                .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-                .environment(\.colorScheme, .dark)
-                .previewDisplayName("Dark Mode")
+// MARK: - Particle Model (Keep MainPageParticle as is)
+
+/// Represents a single particle for the background effect
+struct MainPageParticle: Identifiable {
+    var id: UUID = UUID()
+    // Current animated state
+    var position: CGPoint
+    var scale: Double
+    var rotation: Double
+    var blur: CGFloat
+    // Target for drifting
+    var driftTargetPosition: CGPoint?
+    // Base properties
+    var content: String // SF Symbol name or "" for Circle
+    var color: Color
+    var size: CGFloat
+    var opacity: Double
+    // Animation timing helper - ADD BACK
+    var duration: Double // Approx time to reach drift target
+}
+
+// MARK: - Original Animated Background View Definition (Commented out or removed)
+/*
+struct AnimatedGradientBackground: View {
+    // ... original implementation ...
+}
+*/
+
+// MARK: - Enhanced Animated Background View Definition
+
+struct EnhancedAnimatedGradientBackground: View {
+    @EnvironmentObject private var appState: AppState
+    @State private var startPoint = UnitPoint.topLeading // Fixed startPoint
+    @State private var endPoint = UnitPoint.bottomTrailing // Fixed endpoint
+    @State private var animatedGradientColors: [Color] = [] // Colors set once
+
+    // Particle State
+    @State private var particles: [MainPageParticle] = []
+    private let particleCount: Int = 25
+    @State private var particleOpacity: Double = 0
+
+    // Tap Interaction State
+    @State private var lastTapLocation: CGPoint? = nil
+    @State private var attractionActive: Bool = false
+    @State private var attractTimer: Timer? // To reset attraction
+
+    // Timer for Particle Updates
+    @State private var particleUpdateTimer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect() 
+
+    var body: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            ZStack {
+                // Base Gradient Layer
+                LinearGradient(
+                    gradient: Gradient(colors: animatedGradientColors),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .blur(radius: 5)
+
+                // Particle Layer
+                ZStack {
+                    ForEach(particles) { particle in
+                        renderParticle(particle)
+                    }
+                }
+                .opacity(particleOpacity)
+                // REMOVED .onChange(of: timelineContext.date)
+                // .drawingGroup() // Keep commented out for now
+
+            }
+            .edgesIgnoringSafeArea(.all)
+            // --- Tap Gesture ---
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onEnded { value in
+                        // Removed context parameter
+                        handleTap(at: value.location, in: size)
+                    }
+            )
+            // --- Lifecycle & Timer ---
+            .onAppear {
+                // Removed context parameter
+                setupInitialState(in: size)
+            }
+            .onChange(of: appState.currentTheme.id) { _ in
+                 // Removed context parameter
+                 handleThemeChange(in: size)
+            }
+            // Reinstate timer receiver
+            .onReceive(particleUpdateTimer) { _ in
+                updateParticles(in: size)
+            }
+            .onDisappear {
+                // Invalidate attraction timer if view disappears
+                attractTimer?.invalidate()
+                attractTimer = nil
+            }
+            // END OF ZStack, REMOVED closing brace for TimelineView
         }
+    }
+
+    // Renders a single particle view
+    @ViewBuilder
+    private func renderParticle(_ particle: MainPageParticle) -> some View {
+        // Simple rendering, ensure NO animation modifiers here
+        Group {
+            if particle.content.isEmpty { // Render Circle
+                 Circle()
+                    .fill(particle.color)
+                    .frame(width: particle.size, height: particle.size)
+            } else { // Render SF Symbol
+                Image(systemName: particle.content)
+                    .font(.system(size: particle.size))
+                    .foregroundColor(particle.color)
+            }
+        }
+        .opacity(particle.opacity) // Use particle's base opacity
+        .blur(radius: particle.blur)
+        .position(particle.position)
+    }
+
+    // MARK: - Setup and State Management
+
+    private func setupInitialState(in size: CGSize) {
+        updateAnimatedGradientColors()
+        generateParticles(in: size)
+        // Assign initial drift targets
+        startDriftingAnimation(in: size)
+        // Fade in particles
+        withAnimation(.easeIn(duration: 1.5).delay(0.5)) {
+            particleOpacity = 1.0
+        }
+    }
+
+    private func handleThemeChange(in size: CGSize) {
+        updateAnimatedGradientColors()
+        // Fade out, regenerate, fade in
+        withAnimation(.easeOut(duration: 0.6)) {
+            particleOpacity = 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.generateParticles(in: size)
+            // Start new animation
+            self.startDriftingAnimation(in: size)
+            withAnimation(.easeIn(duration: 1.2)) {
+                self.particleOpacity = 1.0
+            }
+        }
+    }
+
+    // MARK: - Gradient - Static Gradient Logic (Unchanged)
+
+    private func updateAnimatedGradientColors() {
+        let theme = appState.currentTheme
+        // Set a fixed, non-shuffled array of colors
+        self.animatedGradientColors = [
+            theme.primaryColor.opacity(0.85), // Slightly more opaque start
+            theme.secondaryColor.opacity(0.7),
+            theme.primaryColor.opacity(0.5)
+            // Removed shuffling and the 4th color for simplicity
+        ]
+        // No animation block needed as gradient is static
+    }
+
+    // MARK: - Particle Generation and Regeneration
+
+    private func generateParticles(in size: CGSize) {
+        let theme = appState.currentTheme
+        let possibleContent = ["circle.fill", ""] 
+        var newParticles: [MainPageParticle] = []
+
+        for _ in 0..<particleCount {
+            let content = possibleContent.randomElement()!
+            let isSymbol = !content.isEmpty
+            let particleSize = CGFloat.random(in: isSymbol ? 18...40 : 15...35)
+            let initialPosition = randomPosition(in: size, edgeAffinity: 0.3)
+            let initialScale = Double.random(in: 0.6...1.4)
+            let initialRotation = Double.random(in: -30...30)
+            let initialBlur = CGFloat.random(in: 1...4)
+
+            let particle = MainPageParticle(
+                position: initialPosition,
+                scale: initialScale,
+                rotation: initialRotation,
+                blur: initialBlur,
+                driftTargetPosition: nil,
+                content: content,
+                color: [theme.primaryColor, theme.secondaryColor, theme.primaryColor.opacity(0.8), theme.secondaryColor.opacity(0.8), Color.white, Color.white.opacity(0.7)]
+                    .randomElement()!
+                    .opacity(Double.random(in: 0.3...0.7)),
+                size: particleSize,
+                opacity: 1.0,
+                duration: 0.0 // Assuming a default duration
+            )
+            newParticles.append(particle)
+        }
+        self.particles = newParticles
+    }
+
+    // MARK: - Particle Animation Logic (Manual Timer Based)
+
+    // Assigns initial drift targets
+    private func startDriftingAnimation(in size: CGSize) {
+        print("DEBUG: Assigning Drift Targets")
+        for i in particles.indices {
+            particles[i].driftTargetPosition = randomPosition(in: size)
+            // Removed setting animationStartTime
+        }
+    }
+    
+    // Called frequently by the timer
+    private func updateParticles(in size: CGSize) {
+        let timeInterval: Double = 0.02 // Match timer interval
+        
+        for i in particles.indices {
+            // Target values for this frame - use temporary vars
+            var nextPosition = particles[i].position
+            var nextScale = particles[i].scale
+            var nextRotation = particles[i].rotation
+            var nextBlur = particles[i].blur
+            
+            if attractionActive, let tapLocation = lastTapLocation {
+                // --- Attraction Logic --- 
+                let attractionSpeedFactor: CGFloat = 0.1 // How fast it moves towards tap per frame
+                
+                // Use particle's actual current position for calculation
+                let dx = tapLocation.x - particles[i].position.x 
+                let dy = tapLocation.y - particles[i].position.y
+                
+                // Update temporary position
+                nextPosition.x += dx * attractionSpeedFactor
+                nextPosition.y += dy * attractionSpeedFactor
+                
+                // Interpolate temporary scale towards target
+                let targetScale = 1.4 
+                nextScale += (targetScale - particles[i].scale) * attractionSpeedFactor // Use temporary var
+                
+                // Interpolate temporary rotation towards target
+                let targetRotation: Double = 0
+                let rotationDiff = (targetRotation - particles[i].rotation).truncatingRemainder(dividingBy: 360) // Use temporary var
+                let shortestRotation = rotationDiff > 180 ? rotationDiff - 360 : (rotationDiff < -180 ? rotationDiff + 360 : rotationDiff)
+                nextRotation += shortestRotation * attractionSpeedFactor
+                
+                // Interpolate temporary blur towards target
+                let targetBlur: CGFloat = 0.5
+                nextBlur += (targetBlur - particles[i].blur) * attractionSpeedFactor // Use temporary var
+                
+            } else {
+                // --- Drifting Logic --- 
+                guard let targetPosition = particles[i].driftTargetPosition else {
+                    particles[i].driftTargetPosition = randomPosition(in: size)
+                    continue // Skip update this frame if target was missing
+                }
+                
+                // Calculate distance from the ACTUAL current position
+                let currentActualPosition = particles[i].position 
+                let dx = targetPosition.x - currentActualPosition.x
+                let dy = targetPosition.y - currentActualPosition.y
+                let distance = sqrt(dx*dx + dy*dy) // Use distance calculated from actual position
+                
+                // Calculate speed based on duration (points per second)
+                let speed = (particles[i].duration > 0) ? (distance / CGFloat(particles[i].duration)) : 0
+                let stepDistance = speed * CGFloat(timeInterval)
+                
+                if distance < 5 { // Close enough to target, assign a new one
+                    particles[i].driftTargetPosition = randomPosition(in: size)
+                     // Move temporary vars towards neutral state
+                     nextScale += (1.0 - particles[i].scale) * 0.02 // Use temporary var
+                     nextRotation += (0.0 - particles[i].rotation).truncatingRemainder(dividingBy: 360) * 0.02 // Use temporary var
+                     nextBlur += (2.0 - particles[i].blur) * 0.02 // Use temporary var
+                     // Keep nextPosition as is for this frame
+                } else {
+                    // Move towards target
+                    if distance > 0 { // Avoid division by zero
+                        let moveFactor = min(1.0, stepDistance / distance)
+                        // Update the TEMPORARY position variable
+                        nextPosition.x += dx * moveFactor
+                        nextPosition.y += dy * moveFactor
+                    }
+                    
+                    // Slowly vary TEMPORARY scale/rotation/blur while drifting
+                    nextScale += Double.random(in: -0.005...0.005)
+                    nextRotation += Double.random(in: -0.2...0.2)
+                    nextBlur += CGFloat.random(in: -0.02...0.02)
+                }
+                // Clamp drifting values (applied to TEMPORARY variables)
+                nextScale = max(0.5, min(1.5, nextScale))
+                nextRotation = nextRotation.truncatingRemainder(dividingBy: 360)
+                nextBlur = max(0.5, min(5.0, nextBlur))
+            }
+            
+            // Update actual particle state from temporary variables for the next frame
+            particles[i].position = nextPosition
+            particles[i].scale = nextScale
+            particles[i].rotation = nextRotation
+            particles[i].blur = nextBlur
+        }
+    }
+
+    // Handles tap gesture, initiates attraction
+    private func handleTap(at location: CGPoint, in size: CGSize) {
+        guard !attractionActive else { return } 
+
+        lastTapLocation = location
+        attractionActive = true 
+        Haptics.shared.play(.light)
+        print("DEBUG: Tap detected at \(location), Attraction ACTIVE")
+        
+        // Removed resetting animationStartTime
+
+        attractTimer?.invalidate()
+        attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [self] _ in
+             guard self.attractionActive else { return } 
+             print("DEBUG: Attraction timer finished, Attraction INACTIVE")
+             self.attractionActive = false
+             self.lastTapLocation = nil
+             // Assign new drift targets when attraction ends
+             self.startDriftingAnimation(in: size)
+        }
+    }
+
+    // MARK: - Position Helper
+
+    private func randomPosition(in size: CGSize, edgeAffinity: CGFloat = 0.0) -> CGPoint {
+         // edgeAffinity: 0 = purely random, 1 = strongly towards edges
+         let padding: CGFloat = 50 // How far off-screen particles can go
+         let coreWidth = size.width + 2 * padding
+         let coreHeight = size.height + 2 * padding
+
+         let randomX = CGFloat.random(in: -padding...(size.width + padding))
+         let randomY = CGFloat.random(in: -padding...(size.height + padding))
+
+         // Basic random position for now, can add edge affinity later if needed
+         return CGPoint(x: randomX, y: randomY)
+    }
+}
+
+// MARK: - Helper Struct for Animation Targets - REMOVED
+/*
+struct ParticleTargetState {
+    ...
+}
+*/
+
+
+#Preview {
+    // Ensure preview has necessary environment objects
+    NavigationView {
+        MainPageView()
+            .withThemeBridge(appState: AppState(), colorScheme: .light)
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

@@ -11,13 +11,19 @@
 // Created on 06/03/2025
 
 import SwiftUI
-
+import CoreData
 // Central app state management
 class AppState: ObservableObject {
     @Published var hasCompletedOnboarding = false
     @Published var colorScheme: ColorScheme? = nil
     @Published var currentTheme: AppTheme = .teal
     @Published var notifications: [AppNotification] = []
+    
+    // Toast properties
+    @Published var isShowingToast = false
+    @Published var toastTitle = ""
+    @Published var toastMessage: String?
+    @Published var toastType: ModernToast.ToastType = .info
     
     // Initialize with stored preferences
     init() {
@@ -76,6 +82,37 @@ class AppState: ObservableObject {
             // Your sheet presentation implementation
             // This could store the view and set a flag to show it
         }
+    
+    // Toast methods
+    func showToast(title: String, message: String? = nil, type: ModernToast.ToastType = .info) {
+        toastTitle = title
+        toastMessage = message
+        toastType = type
+        isShowingToast = true
+        
+        // Auto-dismiss after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation {
+                self.isShowingToast = false
+            }
+        }
+    }
+    
+    func showSuccess(_ message: String) {
+        showToast(title: "Success", message: message, type: .success)
+    }
+    
+    func showError(_ message: String) {
+        showToast(title: "Error", message: message, type: .error)
+    }
+    
+    func showWarning(_ message: String) {
+        showToast(title: "Warning", message: message, type: .warning)
+    }
+    
+    func showInfo(_ message: String) {
+        showToast(title: "Info", message: message, type: .info)
+    }
 }
 
 // App Theme options

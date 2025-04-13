@@ -12,6 +12,7 @@ import CoreData
 struct PatientListView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var appState: AppState
+    @Environment(\.colorScheme) private var colorScheme
     
     // Search and filter state
     @State private var searchText = ""
@@ -24,9 +25,6 @@ struct PatientListView: View {
     // Animation states
     @State private var isLoading = true
     @State private var listOpacity = 0.0
-    
-    // Environment values for adaptability
-    @Environment(\.colorScheme) private var colorScheme
     
     // Fetch request and predicate building
     @FetchRequest private var patients: FetchedResults<Patient>
@@ -78,98 +76,80 @@ struct PatientListView: View {
     // MARK: - Body
     
     var body: some View {
-        ZStack {
-            // Background color
-            Color(UIColor.systemGroupedBackground)
-                .ignoresSafeArea()
-            
-            // Main content
-            VStack(spacing: 0) {
-                // Search and filter bar
-                searchAndFilterBar
-                    .zIndex(1) // Keep above list during animations
+        BaseScreenTemplate(
+            title: "Patients",
+            showBackButton: false
+        ) {
+            VStack(spacing: 16) {
+                ModernSearchBar(
+                    placeholder: "Search patients...",
+                    text: $searchText
+                )
+                
+                ModernSegmentedControl(
+                    items: PatientStatusFilter.allCases,
+                    selection: $selectedStatusFilter,
+                    itemTitle: { $0.title }
+                )
                 
                 if isLoading {
-                    loadingView
+                    ModernLoadingIndicator(style: .circular, size: .large)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if patients.isEmpty {
-                    emptyStateView
+                    ModernEmptyState(
+                        title: "No Patients Found",
+                        message: "Add your first patient by tapping the + button",
+                        icon: "person.crop.circle.badge.plus"
+                    )
                 } else {
-                    // Patient list
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(patients, id: \.objectID) { patient in
-                                NavigationLink(destination: AccordionPatientDetailView(patient: patient)) {
-                                    EnhancedPatientCard(patient: patient)
-                                        .matchedGeometryEffect(id: patient.id ?? UUID(), in: listNamespace, isSource: true)
+                    ModernList(style: .insetGrouped) {
+                        ModernListSection(
+                            style: .insetGrouped,
+                            header: { Text("Recent Patients") },
+                            content: {
+                                ForEach(patients, id: \.objectID) { patient in
+                                    ModernListItem(
+                                        title: patient.fullName,
+                                        subtitle: "ID: \(patient.medicalRecordNumber ?? "N/A")",
+                                        leadingIcon: nil,
+                                        trailingIcon: "chevron.right",
+                                        action: {}
+                                    )
                                 }
-                                .buttonStyle(PlainButtonStyle())
-                                .transition(.opacity.combined(with: .move(edge: .leading)))
                             }
-                            .padding(.bottom, 8)
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
+                        )
+                        
+                        ModernListSection(
+                            style: .insetGrouped,
+                            header: { Text("Upcoming Appointments") },
+                            content: {
+                                ForEach(0..<3) { index in
+                                    ModernListItem(
+                                        title: "Appointment \(index + 1)",
+                                        subtitle: "Tomorrow at 10:00 AM",
+                                        leadingIcon: "calendar",
+                                        trailingIcon: "chevron.right",
+                                        action: {}
+                                    )
+                                }
+                            }
+                        )
                     }
-                    .opacity(listOpacity)
-                    .animation(.easeInOut(duration: 0.4), value: listOpacity)
                 }
             }
-            
-            // Floating action button
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        showingAddPatient = true
-                        hapticFeedback(style: .medium)
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                            .frame(width: 56, height: 56)
-                            .background(Circle().fill(appState.currentTheme.primaryColor))
-                            .shadow(color: appState.currentTheme.primaryColor.opacity(0.4), radius: 4, x: 0, y: 2)
-                    }
-                    .padding()
-                    .transition(.scale.combined(with: .opacity))
-                }
-            }
+            .padding(.horizontal)
         }
-        .navigationTitle("Patients")
-        .navigationBarItems(
-            leading: EditButton()
-                .disabled(patients.isEmpty),
-            trailing: sortButton
-        )
+        .withThemeBridge(appState: appState, colorScheme: colorScheme)
         .sheet(isPresented: $showingAddPatient) {
             AddPatientView()
-                .environment(\.managedObjectContext, viewContext)
-        }
-        .alert(item: $alertItem) { alertItem in
-            Alert(
-                title: Text(alertItem.title),
-                message: Text(alertItem.message),
-                dismissButton: .default(Text("OK"))
-            )
-        }
-        .sheet(isPresented: $showingAdvancedFilters) {
-            AdvancedFiltersView(
-                statusFilter: $selectedStatusFilter,
-                sortOption: $selectedSortOption
-            )
         }
         .onAppear {
-            startLoadingAnimation()
-        }
-        .onChange(of: searchText) { newValue in
-            updateSearchResults(searchString: newValue)
-        }
-        .onChange(of: selectedStatusFilter) { newValue in
-            updateSearchResults(statusFilter: newValue)
-        }
-        .onChange(of: selectedSortOption) { newValue in
-            updateSearchResults(sortOption: newValue)
+            // Simulate loading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                withAnimation {
+                    isLoading = false
+                }
+            }
         }
     }
     
@@ -905,5 +885,10 @@ extension View {
     func shimmer(isAnimating: Bool) -> some View {
         self.modifier(ShimmerEffect(isAnimating: isAnimating))
     }
+}
+
+#Preview {
+    PatientListView()
+        .withThemeBridge(appState: AppState(), colorScheme: .light)
 }
 

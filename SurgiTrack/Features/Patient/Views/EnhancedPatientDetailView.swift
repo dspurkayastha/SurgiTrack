@@ -7,12 +7,14 @@ struct AccordionPatientDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var patient: Patient
+    @EnvironmentObject private var appState: AppState
     
     // MARK: - State
     @State private var expandedSections: Set<AccordionSection> = [.demographics, .clinical]
     @State private var expandedCards: Set<String> = ["Overview"]
     @State private var isAnimating = false
     @State private var scrollOffset: CGFloat = 0
+    @State private var isLoading = true
     
     // MARK: - Initialization
     init(patient: Patient) {
@@ -22,91 +24,66 @@ struct AccordionPatientDetailView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            // Background
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // Main scrollable content
-                ScrollView {
-                    ScrollViewReader { scrollProxy in
-                        GeometryReader { geometry in
-                            Color.clear.preference(
-                                key: ScrollOffsetPreferenceKey.self,
-                                value: geometry.frame(in: .named("scrollView")).minY
-                            )
-                        }
-                        .frame(height: 0)
-                        
-                        VStack(spacing: 16) {
-                            // Patient Profile and Status
-                            patientBanner()
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .id("top")
-                            
-                            // Quick stats row
-                            quickStatsRow()
-                                .padding(.horizontal, 16)
-                            
-                            // Accordion sections
-                            ForEach(AccordionSection.allCases, id: \.self) { section in
-                                accordionSection(section)
-                                    .id(section.rawValue)
-                            }
-                            
-                            // Bottom padding for action bar
-                            Spacer(minLength: 100)
-                        }
-                        .padding(.bottom, 16)
-                    }
-                }
-                .coordinateSpace(name: "scrollView")
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                    scrollOffset = value
-                }
-                
-                Spacer()
-            }
-            
-            // Bottom action bar
-            VStack {
-                Spacer()
-                if patient.isDischargedStatus {
-                    dischargedActionBar()
+        BaseScreenTemplate(
+            title: patient.fullName,
+            showBackButton: true
+        ) {
+            ZStack {
+                if isLoading {
+                    ModernLoadingIndicator(style: .circular, size: .large)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    activePatientActionBar()
+                    ScrollView {
+                        ScrollViewReader { scrollProxy in
+                            GeometryReader { geometry in
+                                Color.clear.preference(
+                                    key: ScrollOffsetPreferenceKey.self,
+                                    value: geometry.frame(in: .named("scrollView")).minY
+                                )
+                            }
+                            .frame(height: 0)
+                            
+                            VStack(spacing: 16) {
+                                // Patient Profile and Status
+                                patientBanner()
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .id("top")
+                                
+                                // Quick stats row
+                                quickStatsRow()
+                                    .padding(.horizontal, 16)
+                                
+                                // Accordion sections
+                                ForEach(AccordionSection.allCases, id: \.self) { section in
+                                    accordionSection(section)
+                                        .id(section.rawValue)
+                                }
+                                
+                                // Bottom padding for action bar
+                                Spacer(minLength: 100)
+                            }
+                            .padding(.bottom, 16)
+                        }
+                    }
+                    .coordinateSpace(name: "scrollView")
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                        scrollOffset = value
+                    }
+                    
+                    // Bottom action bar
+                    VStack {
+                        Spacer()
+                        if patient.isDischargedStatus {
+                            dischargedActionBar()
+                        } else {
+                            activePatientActionBar()
+                        }
+                    }
                 }
             }
         }
-        .navigationTitle(patient.fullName)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(
-            trailing: HStack(spacing: 16) {
-                Button(action: {
-                    viewModel.showingAttachments = true
-                }) {
-                    Image(systemName: "paperclip")
-                        .imageScale(.medium)
-                        .foregroundColor(.primary)
-                        .padding(8)
-                        .background(Circle().fill(Color(.secondarySystemBackground)))
-                }
-                
-                Button(action: {
-                    withAnimation {
-                        // Toggle edit mode
-                    }
-                }) {
-                    Image(systemName: "square.and.pencil")
-                        .imageScale(.medium)
-                        .foregroundColor(.primary)
-                        .padding(8)
-                        .background(Circle().fill(Color(.secondarySystemBackground)))
-                }
-            }
-        )
+        .withThemeBridge(appState: appState, colorScheme: colorScheme)
         .sheet(isPresented: $viewModel.showingAddFollowUp) {
             AddFollowUpView(patient: viewModel.patient)
                 .environment(\.managedObjectContext, viewContext)
@@ -155,6 +132,12 @@ struct AccordionPatientDetailView: View {
         }
         .onAppear {
             startAnimations()
+            // Simulate loading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                withAnimation {
+                    isLoading = false
+                }
+            }
         }
     }
     
@@ -164,32 +147,18 @@ struct AccordionPatientDetailView: View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
                 // Patient avatar
-                ZStack {
-                    if let imageData = patient.profileImageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 70, height: 70)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                            .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 3)
-                    } else {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color.blue.opacity(0.7), Color.blue.opacity(0.5)]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 70, height: 70)
-                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                            .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 3)
-                        
-                        Text(patient.initials)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
-                    }
+                if let imageData = patient.profileImageData, let uiImage = UIImage(data: imageData) {
+                    ModernAvatar(
+                        image: Image(uiImage: uiImage),
+                        size: .large,
+                        style: .circle
+                    )
+                } else {
+                    ModernAvatar(
+                        initials: patient.initials,
+                        size: .large,
+                        style: .circle
+                    )
                 }
                 
                 // Patient info
@@ -201,16 +170,11 @@ struct AccordionPatientDetailView: View {
                     
                     HStack(spacing: 10) {
                         // Status indicator
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(patient.isDischargedStatus ? Color.gray : Color.green)
-                                .frame(width: 8, height: 8)
-                            
-                            Text(patient.isDischargedStatus ? "DISCHARGED" : "ACTIVE")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(patient.isDischargedStatus ? .gray : .green)
-                        }
+                        ModernBadge(
+                            text: patient.isDischargedStatus ? "DISCHARGED" : "ACTIVE",
+                            style: patient.isDischargedStatus ? .secondary : .success,
+                            size: .small
+                        )
                         
                         if let mrn = patient.medicalRecordNumber, let dob = patient.dateOfBirth {
                             Text("MRN: \(mrn) • \(calculateAge(from: dob))y • \(patient.gender ?? "Unknown")")
@@ -356,79 +320,72 @@ struct AccordionPatientDetailView: View {
     
     @ViewBuilder
     private func accordionSection(_ section: AccordionSection) -> some View {
-        VStack(spacing: 0) {
-            // Section header
-            Button(action: {
-                toggleSection(section)
-            }) {
-                HStack {
-                    // Section icon and left highlight bar
-                    Rectangle()
-                        .fill(section.color)
-                        .frame(width: 4, height: 24)
-                        .padding(.trailing, 12)
-                    
-                    Image(systemName: section.iconName)
-                        .foregroundColor(section.color)
-                        .font(.system(size: 18))
-                    
-                    Text(section.rawValue)
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    // Badge count if applicable
-                    if let count = getSectionCount(section), count > 0 {
-                        Text("\(count)")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(10)
-                            .padding(.trailing, 4)
-                    }
-                    
-                    // Chevron indicator
-                    Image(systemName: expandedSections.contains(section) ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 14, weight: .semibold))
-                        .animation(.spring(), value: expandedSections.contains(section))
-                }
-                .padding(.vertical, 16)
-                .padding(.horizontal, 16)
-                .background(Color(.systemBackground))
-                .cornerRadius(16)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .shadow(color: colorScheme == .dark ? Color.black.opacity(0.25) : Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(colorScheme == .dark ? Color.gray.opacity(0.3) : Color.clear, lineWidth: 1)
-            )
-            
-            // Section content (cards)
-            if expandedSections.contains(section) {
-                VStack(spacing: 12) {
-                    Group {
-                        switch section {
-                        case .demographics:
-                            demographicsContent()
-                        case .clinical:
-                            clinicalContent()
-                        case .procedures:
-                            proceduresContent()
-                        case .followUp:
-                            followUpContent()
-                        case .documents:
-                            documentsContent()
+        ModernList(style: .insetGrouped) {
+            ModernListSection {
+                // Section header
+                Button(action: {
+                    toggleSection(section)
+                }) {
+                    HStack {
+                        // Section icon and left highlight bar
+                        Rectangle()
+                            .fill(section.color)
+                            .frame(width: 4, height: 24)
+                            .padding(.trailing, 12)
+                        
+                        Image(systemName: section.iconName)
+                            .foregroundColor(section.color)
+                            .font(.system(size: 18))
+                        
+                        Text(section.rawValue)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                        
+                        // Badge count if applicable
+                        if let count = getSectionCount(section), count > 0 {
+                            ModernBadge(
+                                text: "\(count)",
+                                style: .secondary,
+                                size: .small
+                            )
                         }
+                        
+                        // Chevron indicator
+                        Image(systemName: expandedSections.contains(section) ? "chevron.down" : "chevron.right")
+                            .foregroundColor(.secondary)
+                            .font(.system(size: 14, weight: .semibold))
+                            .animation(.spring(), value: expandedSections.contains(section))
                     }
-                    .padding(.top, 12)
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 16)
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .animation(.spring(response: 0.35, dampingFraction: 0.65), value: expandedSections.contains(section))
+                .buttonStyle(PlainButtonStyle())
+                
+                // Section content (cards)
+                if expandedSections.contains(section) {
+                    VStack(spacing: 12) {
+                        Group {
+                            switch section {
+                            case .demographics:
+                                demographicsContent()
+                            case .clinical:
+                                clinicalContent()
+                            case .procedures:
+                                proceduresContent()
+                            case .followUp:
+                                followUpContent()
+                            case .documents:
+                                documentsContent()
+                            }
+                        }
+                        .padding(.top, 12)
+                    }
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.spring(response: 0.35, dampingFraction: 0.65), value: expandedSections.contains(section))
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -460,22 +417,19 @@ struct AccordionPatientDetailView: View {
                     
                     // Badge if needed
                     if let count = badgeCount, count > 0 {
-                        Text("\(count)")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(10)
+                        ModernBadge(
+                            text: "\(count)",
+                            style: .secondary,
+                            size: .small
+                        )
                     }
                     
                     if let text = badgeText, !text.isEmpty {
-                        Text(text)
-                            .font(.caption2)
-                            .foregroundColor(badgeColor)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(badgeColor.opacity(0.1))
-                            .cornerRadius(10)
+                        ModernBadge(
+                            text: text,
+                            style: .error,
+                            size: .small
+                        )
                     }
                     
                     // Chevron

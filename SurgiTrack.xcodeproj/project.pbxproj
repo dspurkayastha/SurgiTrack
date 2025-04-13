@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D72B2CAC2D7A156F008E81AA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D75F78352D74EFDA008C2429 /* Lottie */; };
+		D754F9902DADA035000FC37F /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = D754F98F2DADA035000FC37F /* Clerk */; };
 		D7C346212D78D80C00A4C680 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D7C346202D78D80C00A4C680 /* Lottie */; };
 		D7C346232D78D80C00A4C680 /* Lottie-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = D7C346222D78D80C00A4C680 /* Lottie-Dynamic */; };
 /* End PBXBuildFile section */
@@ -44,20 +45,6 @@
 			);
 			target = D783E7CE2D72071D00E2E878 /* SurgiTrack */;
 		};
-		D7B1FC602D74FBC000FA0B5B /* Exceptions for "SurgiTrack" folder in "SurgiTrackTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				1.json,
-			);
-			target = D783E7E32D72071F00E2E878 /* SurgiTrackTests */;
-		};
-		D7B1FC612D74FBC000FA0B5B /* Exceptions for "SurgiTrack" folder in "SurgiTrackUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				1.json,
-			);
-			target = D783E7ED2D72071F00E2E878 /* SurgiTrackUITests */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -65,8 +52,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				D75F78132D74D66A008C2429 /* Exceptions for "SurgiTrack" folder in "SurgiTrack" target */,
-				D7B1FC602D74FBC000FA0B5B /* Exceptions for "SurgiTrack" folder in "SurgiTrackTests" target */,
-				D7B1FC612D74FBC000FA0B5B /* Exceptions for "SurgiTrack" folder in "SurgiTrackUITests" target */,
 			);
 			path = SurgiTrack;
 			sourceTree = "<group>";
@@ -104,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D754F9902DADA035000FC37F /* Clerk in Frameworks */,
 				D72B2CAC2D7A156F008E81AA /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -154,6 +140,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D754F98E2DADA02C000FC37F /* PBXTargetDependency */,
 				D7066E532D78D69B006E7BE4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
@@ -163,6 +150,7 @@
 			packageProductDependencies = (
 				D75F78352D74EFDA008C2429 /* Lottie */,
 				D75F78372D74EFDA008C2429 /* Lottie-Dynamic */,
+				D754F98F2DADA035000FC37F /* Clerk */,
 			);
 			productName = SurgiTrack;
 			productReference = D783E7CF2D72071D00E2E878 /* SurgiTrack.app */;
@@ -250,6 +238,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D75F78342D74EFDA008C2429 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				D754F98C2DAD9FC9000FC37F /* XCRemoteSwiftPackageReference "clerk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D783E7D02D72071D00E2E878 /* Products */;
@@ -315,6 +304,10 @@
 		D7066E532D78D69B006E7BE4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = D7066E522D78D69B006E7BE4 /* Lottie */;
+		};
+		D754F98E2DADA02C000FC37F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = D754F98D2DADA02C000FC37F /* Clerk */;
 		};
 		D783E7E62D72071F00E2E878 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -622,6 +615,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D754F98C2DAD9FC9000FC37F /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/clerk/clerk-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.55.0;
+			};
+		};
 		D75F78342D74EFDA008C2429 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios";
@@ -637,6 +638,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D75F78342D74EFDA008C2429 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		D754F98D2DADA02C000FC37F /* Clerk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D754F98C2DAD9FC9000FC37F /* XCRemoteSwiftPackageReference "clerk-ios" */;
+			productName = Clerk;
+		};
+		D754F98F2DADA035000FC37F /* Clerk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D754F98C2DAD9FC9000FC37F /* XCRemoteSwiftPackageReference "clerk-ios" */;
+			productName = Clerk;
 		};
 		D75F78352D74EFDA008C2429 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;

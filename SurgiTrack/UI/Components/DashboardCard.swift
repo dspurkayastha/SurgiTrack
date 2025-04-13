@@ -24,8 +24,11 @@ struct DashboardCard<Content: View>: View {
     let content: Content
     var showExpandButton: Bool = true
     var onExpand: (() -> Void)? = nil
+    var showDivider: Bool = true
     
     @State private var isHovering = false
+    @State private var isPressed = false
+    @State private var offset: CGSize = .zero
     
     init(title: String,
          subtitle: String? = nil,
@@ -33,6 +36,7 @@ struct DashboardCard<Content: View>: View {
          gradient: [Color],
          showExpandButton: Bool = true,
          onExpand: (() -> Void)? = nil,
+         showDivider: Bool = true,
          @ViewBuilder content: () -> Content) {
         
         self.title = title
@@ -41,110 +45,50 @@ struct DashboardCard<Content: View>: View {
         self.gradient = gradient
         self.showExpandButton = showExpandButton
         self.onExpand = onExpand
+        self.showDivider = showDivider
         self.content = content()
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // MARK: - Card Header
-            HStack(spacing: 12) {
-                // Larger icon w/ subtle drop shadow
-                ZStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: iconName)
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.6), radius: 2, x: 0, y: 1)
-                }
+        VStack(alignment: .leading, spacing: Theme.spacing.sm) {
+            VStack(alignment: .leading, spacing: Theme.spacing.xxs) {
+                Text(title)
+                    .font(Theme.typography.h3)
+                    .foregroundColor(Theme.colors.text)
                 
-                // Title & subtitle with soft glow
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .shadow(color: .white.opacity(0.3), radius: 2, x: 0, y: 0)  // soft glow
-                    if let subtitle = subtitle {
-                        Text(subtitle)
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.85))
-                            .shadow(color: .white.opacity(0.2), radius: 1, x: 0, y: 0)
-                    }
-                }
-                
-                Spacer()
-                
-                // Expand/collapse button
-                if showExpandButton {
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            onExpand?()
-                        }
-                    } label: {
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-                            .frame(width: 32, height: 32)
-                            .background(Color.white.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                    .opacity(isHovering ? 1.0 : 0.8)
-                    .scaleEffect(isHovering ? 1.05 : 1.0)
-                    .animation(.easeInOut(duration: 0.2), value: isHovering)
-                    .onHover { hovering in
-                        isHovering = hovering
-                    }
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(Theme.typography.bodySmall)
+                        .foregroundColor(Theme.colors.textSecondary)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .background(
-                //  Use your multi-stop array from topLeading to bottomTrailing
-                LinearGradient(
-                    gradient: Gradient(colors: gradient),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            // overlay for extra highlight or reflection
-            .overlay(
-                ZStack {
-                    // Subtle diagonal highlight from top-left
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: .white.opacity(0.3), location: 0.0),
-                            .init(color: .clear, location: 0.3)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .center
-                    )
-                    .blendMode(.screen)
-                    
-                    // Another from bottom-right
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: .white.opacity(0.15), location: 0.0),
-                            .init(color: .clear, location: 0.4)
-                        ]),
-                        startPoint: .bottomTrailing,
-                        endPoint: .center
-                    )
-                    .blendMode(.overlay)
-                }
-                .allowsHitTesting(false)
-            )
             
-            // MARK: - Card Content
+            if showDivider {
+                Divider()
+                    .background(Theme.colors.textSecondary.opacity(0.2))
+            }
+            
             content
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .background(Color(.systemBackground))
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        .padding(Theme.spacing.md)
+        .glassmorphic()
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .offset(offset)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { gesture in
+                    withAnimation(Theme.animation.spring) {
+                        isPressed = true
+                        offset = gesture.translation
+                    }
+                }
+                .onEnded { _ in
+                    withAnimation(Theme.animation.spring) {
+                        isPressed = false
+                        offset = .zero
+                    }
+                }
+        )
     }
 }
 
@@ -504,5 +448,84 @@ extension Color {
             blue:  Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+// MARK: - Preview
+struct DashboardCard_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            // Use LegacyThemeColors for preview consistency
+            LegacyThemeColors.background
+                .ignoresSafeArea()
+            
+            VStack(spacing: ThemeSpacing.lg) { // Use ThemeSpacing
+                // Fix this call to match the defined init
+                DashboardCard(
+                    title: "Patient Overview",
+                    subtitle: "Last updated 2 hours ago",
+                    iconName: "person.3.fill", // Provide default icon
+                    gradient: CardGradients.overview // Provide default gradient
+                ) {
+                    VStack(alignment: .leading, spacing: ThemeSpacing.sm) {
+                        HStack {
+                            Text("Total Patients")
+                                .font(ThemeTypography.bodyMedium) // Use ThemeTypography
+                                .foregroundColor(LegacyThemeColors.textSecondary)
+                            
+                            Spacer()
+                            
+                            Text("156")
+                                .font(ThemeTypography.h2)
+                                .foregroundColor(LegacyThemeColors.primary)
+                        }
+                        
+                        HStack {
+                            Text("Active Cases")
+                                .font(ThemeTypography.bodyMedium)
+                                .foregroundColor(LegacyThemeColors.textSecondary)
+                            
+                            Spacer()
+                            
+                            Text("23")
+                                .font(ThemeTypography.h2)
+                                .foregroundColor(LegacyThemeColors.secondary)
+                        }
+                    }
+                }
+                
+                // Fix this call too
+                DashboardCard(
+                    title: "Recent Activity",
+                    subtitle: "Last 24 hours",
+                    iconName: "clock.arrow.circlepath", // Provide default icon
+                    gradient: CardGradients.timeline // Provide default gradient
+                ) {
+                    VStack(alignment: .leading, spacing: ThemeSpacing.sm) {
+                        ForEach(0..<3) { _ in
+                            HStack {
+                                Circle()
+                                    .fill(LegacyThemeColors.primary)
+                                    .frame(width: 8, height: 8)
+                                
+                                Text("New patient admitted")
+                                    .font(ThemeTypography.bodyMedium)
+                                    .foregroundColor(LegacyThemeColors.text)
+                                
+                                Spacer()
+                                
+                                Text("2h ago")
+                                    .font(ThemeTypography.caption)
+                                    .foregroundColor(LegacyThemeColors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        // Note: DashboardCard currently uses static Legacy theme values,
+        // so applying the modern theme bridge here won't affect it directly.
+        // .withThemeBridge(appState: AppState(), colorScheme: .light) 
     }
 }
