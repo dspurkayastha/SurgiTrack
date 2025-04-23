@@ -7,7 +7,7 @@ struct SurgiTrackApp: App {
     @Environment(\.colorScheme) private var colorScheme
     
     init() {
-        Clerk.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+        Clerk.shared.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
     }
     
     var body: some Scene {

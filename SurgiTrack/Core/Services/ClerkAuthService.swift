@@ -16,48 +16,27 @@ class ClerkAuthService {
     }
     
     // MARK: - Sign Up
-    func signUp(email: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Clerk.shared.signUp(email: email, password: password) { result in
-            switch result {
-            case .success(_):
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func signUp(email: String, password: String) async throws {
+        _ = try await SignUp.create(strategy: .standard(emailAddress: email, password: password))
     }
     
     // MARK: - Sign In
-    func signIn(email: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        Clerk.shared.signIn(email: email, password: password) { result in
-            switch result {
-            case .success(_):
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func signIn(email: String, password: String) async throws {
+        try await SignIn.create(strategy: .identifier(email, password: password))
     }
     
     // MARK: - Sign Out
-    func signOut(completion: @escaping (Result<Void, Error>) -> Void) {
-        Clerk.shared.signOut { result in
-            switch result {
-            case .success(_):
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func signOut() async throws {
+        try await Clerk.shared.signOut()
     }
     
     // MARK: - Session
-    func isSignedIn() -> Bool {
-        return Clerk.shared.isSignedIn
+    func isSignedIn() async -> Bool {
+        return try await Clerk.shared.isUserSignedIn()
     }
     
-    func getCurrentUserEmail() -> String? {
-        return Clerk.shared.currentUser?.email
+    func getCurrentUserEmail() async -> String? {
+        return try? await Clerk.shared.getCurrentUser()?.email
     }
 }
 
