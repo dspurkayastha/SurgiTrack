@@ -7,13 +7,7 @@ struct SurgiTrackApp: App {
     @Environment(\.colorScheme) private var colorScheme
     
     init() {
-        Clerk.configure { error in
-             if let error = error {
-                print("🚨 Clerk configuration failed: \(error)")
-             } else {
-                print("✅ Clerk configured successfully.")
-             }
-        }
+        Clerk.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
     }
     
     var body: some Scene {
@@ -22,7 +16,6 @@ struct SurgiTrackApp: App {
                 .environment(\.managedObjectContext, environment.persistenceController.container.viewContext)
                 .environmentObject(environment)
                 .environmentObject(environment.appState)
-                .environmentObject(environment.authManager)
                 .withThemeBridge(appState: environment.appState, colorScheme: colorScheme)
                 .overlay(
                     Group {
