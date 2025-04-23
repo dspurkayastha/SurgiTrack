@@ -8,87 +8,44 @@ import Clerk
 
 /// A SwiftUI view that presents Clerk's hosted sign-up page for user registration.
 struct ClerkSignUpView: View {
-    @State private var email = ""
-    @State private var password = ""
-    @State private var code = ""
-    @State private var isVerifying = false
-    @State private var error: String? = nil
-    @State private var isLoading = false
+    @EnvironmentObject private var appState: AppState
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Sign Up")
-                .font(.title.bold())
-            if isVerifying {
-                TextField("Verification Code", text: $code)
-                    .keyboardType(.numberPad)
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
-                Button("Verify") {
-                    Task { await verify(code: code) }
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            } else {
-                TextField("Email", text: $email)
-                    .autocapitalization(.none)
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
-                SecureField("Password", text: $password)
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
-                Button("Continue") {
-                    Task { await signUp(email: email, password: password) }
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-            }
-            if let error = error {
-                Text(error)
-                    .foregroundColor(.red)
-            }
-        }
-        .padding()
-    }
+        VStack(spacing: 32) {
+            // App Title as Text Logo
+            Text("SurgiTrack")
+                .font(.largeTitle.bold())
+                .foregroundColor(appState.currentTheme.primaryColor)
+                .padding(.top, 32)
 
-    func signUp(email: String, password: String) async {
-        isLoading = true
-        do {
-            let signUp = try await SignUp.create(strategy: .standard(emailAddress: email, password: password))
-            isVerifying = true
-            error = nil
-        } catch {
-            self.error = "Sign up failed: \(error.localizedDescription)"
-        }
-        isLoading = false
-    }
+            Text("Create your SurgiTrack account")
+                .font(.title2)
+                .foregroundColor(.secondary)
 
-    func verify(code: String) async {
-        isLoading = true
-        do {
-            guard let signUp = Clerk.shared.client?.signUp else {
-                error = "Sign up session not found."
-                isVerifying = false
-                isLoading = false
-                return
-            }
-            try await signUp.attemptVerification(strategy: .emailCode(code: code))
-            error = nil
-        } catch {
-            self.error = "Verification failed: \(error.localizedDescription)"
+            // Clerk's prebuilt sign-up view (2025 SDK)
+            SignUpView(
+                appearance: .init(
+                    primaryColor: appState.currentTheme.primaryColor,
+                    backgroundColor: colorScheme == .dark ? .black : .white,
+                    cornerRadius: 14
+                ),
+                showSocialButtons: true,
+                onSignUp: { session in
+                    // Optionally handle successful sign-up
+                },
+                onError: { error in
+                    // Optionally handle error
+                }
+            )
+            .frame(maxWidth: 400)
+            .padding()
+
+            Spacer()
         }
-        isLoading = false
+        .background(
+            (colorScheme == .dark ? Color.black : Color(.systemGroupedBackground)).ignoresSafeArea()
+        )
     }
 }
 

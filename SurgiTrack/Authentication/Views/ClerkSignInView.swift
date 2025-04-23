@@ -8,58 +8,44 @@ import Clerk
 
 /// A SwiftUI view that presents Clerk's sign-in page for user login.
 struct ClerkSignInView: View {
-    @State private var email = ""
-    @State private var password = ""
-    @State private var error: String? = nil
-    @State private var isLoading = false
+    @EnvironmentObject private var appState: AppState
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Sign In")
-                .font(.title.bold())
-            TextField("Email", text: $email)
-                .autocapitalization(.none)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-            SecureField("Password", text: $password)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
-            if let error = error {
-                Text(error)
-                    .foregroundColor(.red)
-            }
-            Button(action: {
-                Task { await signIn() }
-            }) {
-                if isLoading {
-                    ProgressView()
-                } else {
-                    Text("Continue")
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-            }
-            .disabled(isLoading)
-        }
-        .padding()
-    }
+        VStack(spacing: 32) {
+            // App Title as Text Logo
+            Text("SurgiTrack")
+                .font(.largeTitle.bold())
+                .foregroundColor(appState.currentTheme.primaryColor)
+                .padding(.top, 32)
 
-    func signIn() async {
-        isLoading = true
-        do {
-            try await SignIn.create(strategy: .identifier(email, password: password))
-            error = nil
-        } catch {
-            self.error = "Sign in failed: \(error.localizedDescription)"
+            Text("Sign in to your account")
+                .font(.title2)
+                .foregroundColor(.secondary)
+
+            // Clerk's prebuilt sign-in view (2025 SDK)
+            SignInView(
+                appearance: .init(
+                    primaryColor: appState.currentTheme.primaryColor,
+                    backgroundColor: colorScheme == .dark ? .black : .white,
+                    cornerRadius: 14
+                ),
+                showSocialButtons: true,
+                onSignIn: { session in
+                    // Optionally handle successful sign-in
+                },
+                onError: { error in
+                    // Optionally handle error
+                }
+            )
+            .frame(maxWidth: 400)
+            .padding()
+
+            Spacer()
         }
-        isLoading = false
+        .background(
+            (colorScheme == .dark ? Color.black : Color(.systemGroupedBackground)).ignoresSafeArea()
+        )
     }
 }
 
