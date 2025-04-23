@@ -1,22 +1,65 @@
 // ClerkSignInView.swift
 // SurgiTrack
-// SwiftUI wrapper for Clerk's hosted sign-in page
+// Native SwiftUI Clerk sign-in view
 // Created by Cascade AI
 
 import SwiftUI
-import WebKit
+import Clerk
 
-/// A SwiftUI view that presents Clerk's hosted sign-in page for user login.
-struct ClerkSignInView: UIViewRepresentable {
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
-        let url = URL(string: "https://YOUR-CLERK-SUBDOMAIN.clerk.accounts.dev/sign-in")!
-        webView.load(URLRequest(url: url))
-        return webView
+/// A SwiftUI view that presents Clerk's sign-in page for user login.
+struct ClerkSignInView: View {
+    @State private var email = ""
+    @State private var password = ""
+    @State private var error: String? = nil
+    @State private var isLoading = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Sign In")
+                .font(.title.bold())
+            TextField("Email", text: $email)
+                .autocapitalization(.none)
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
+            SecureField("Password", text: $password)
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
+            if let error = error {
+                Text(error)
+                    .foregroundColor(.red)
+            }
+            Button(action: {
+                Task { await signIn() }
+            }) {
+                if isLoading {
+                    ProgressView()
+                } else {
+                    Text("Continue")
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+            }
+            .disabled(isLoading)
+        }
+        .padding()
     }
-    
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        // No-op
+
+    func signIn() async {
+        isLoading = true
+        do {
+            try await SignIn.create(strategy: .identifier(email, password: password))
+            error = nil
+        } catch {
+            self.error = "Sign in failed: \(error.localizedDescription)"
+        }
+        isLoading = false
     }
 }
 

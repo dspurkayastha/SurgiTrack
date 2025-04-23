@@ -59,17 +59,20 @@ class LoginViewModel: ObservableObject {
         
         // Start loading animation
         isLoading = true
-        //animationCoordinator.animateLoginButtonPress()
+        
+        // Only handle non-Clerk authentication here (e.g., PIN, biometrics)
+        // Remove Clerk-related credential login logic
+        // If you have custom logic for PIN or biometrics, keep that here
         
         // Short delay for animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             switch self.authState.activeMethod {
-            case .credentials:
-                self.loginWithCredentials()
             case .pin:
                 self.loginWithPin()
             case .biometric:
                 self.loginWithBiometrics()
+            default:
+                break
             }
         }
     }
@@ -203,35 +206,6 @@ class LoginViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    private func loginWithCredentials() {
-        guard !authState.username.isEmpty && !authState.password.isEmpty else {
-            isLoading = false
-            displayError("Please enter both username and password")
-            return
-        }
-        
-        isLoading = true
-        authManager.authenticateWithCredentials(
-            username: authState.username,
-            password: authState.password
-        ) { [weak self] success, error in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-                if success {
-                    if self?.authState.rememberMe == true {
-                        _ = self?.authManager.saveCredentials(
-                            username: self?.authState.username ?? "",
-                            password: self?.authState.password ?? ""
-                        )
-                    }
-                    self?.shouldNavigateToMain = true
-                } else {
-                    self?.displayError(error ?? "Login failed. Please try again.")
-                }
-            }
-        }
-    }
-    
     private func loginWithPin() {
         guard authState.pin.count == authState.pinLength else {
             isLoading = false
@@ -292,7 +266,7 @@ class LoginViewModel: ObservableObject {
             displayError("Biometric authentication failed. Use credentials instead.", style: .warning)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.switchMethod(to: .credentials)
+                // No-op, as credentials are not handled here
             }
         }
     }
@@ -317,3 +291,5 @@ class LoginViewModel: ObservableObject {
         }
     }
 }
+
+// Clerk sign-in/up logic is now handled by native SwiftUI views.
