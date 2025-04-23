@@ -12,7 +12,7 @@ class ClerkAuthService {
     
     private init() {
         // Configure Clerk SDK with your publishable key
-        Clerk.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+        Clerk.shared.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
     }
     
     // MARK: - Sign Up
@@ -28,15 +28,6 @@ class ClerkAuthService {
     // MARK: - Sign Out
     func signOut() async throws {
         try await Clerk.shared.signOut()
-    }
-    
-    // MARK: - Session
-    func isSignedIn() async -> Bool {
-        return try await Clerk.shared.isUserSignedIn()
-    }
-    
-    func getCurrentUserEmail() async -> String? {
-        return try? await Clerk.shared.getCurrentUser()?.email
     }
 }
 
