@@ -5,7 +5,7 @@
 import Foundation
 import LocalAuthentication
 import SwiftUI
-import ClerkSDK
+import Clerk
 
 class AuthManager: ObservableObject {
     // Authentication states

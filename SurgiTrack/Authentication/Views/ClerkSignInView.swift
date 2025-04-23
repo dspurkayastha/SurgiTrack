@@ -4,7 +4,7 @@
 // Created by Cascade AI
 
 import SwiftUI
-import ClerkSDK
+import Clerk
 
 /// A SwiftUI view that presents Clerk's prebuilt SignInViewController for user login.
 struct ClerkSignInView: UIViewControllerRepresentable {

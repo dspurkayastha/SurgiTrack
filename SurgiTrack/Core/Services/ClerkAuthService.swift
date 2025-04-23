@@ -4,7 +4,7 @@
 // Created by Cascade AI
 
 import Foundation
-import ClerkSDK // This import assumes Clerk Swift SDK is added via SPM
+import Clerk // This import assumes Clerk Swift SDK is added via SPM
 
 /// A service that wraps Clerk authentication APIs for login, signup, and session management.
 class ClerkAuthService {
@@ -63,4 +63,4 @@ class ClerkAuthService {
 
 // NOTE: You must add Clerk Swift SDK to your project using Swift Package Manager.
 // In Xcode: File > Add Packages... > https://github.com/clerkinc/clerk-ios
-// After adding the package, replace 'ClerkSDK' with the correct module name if needed.
+// After adding the package, replace 'Clerk' with the correct module name if needed.

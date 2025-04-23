@@ -10,7 +10,7 @@
 // Refactored on 03/20/2025
 
 import SwiftUI
-import ClerkSDK
+import Clerk
 
 struct CredentialsLoginView: View {
     // MARK: - Bindings
