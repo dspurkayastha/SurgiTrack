@@ -6,10 +6,6 @@ struct SurgiTrackApp: App {
     @StateObject private var environment = AppEnvironment.shared
     @Environment(\.colorScheme) private var colorScheme
     
-    init() {
-        Clerk.shared.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
-    }
-    
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -34,6 +30,9 @@ struct SurgiTrackApp: App {
                         }
                     }
                 )
+                .task {
+                    await Clerk.shared.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+                }
         }
     }
 }
