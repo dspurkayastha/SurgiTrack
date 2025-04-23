@@ -1,32 +1,21 @@
 // ClerkSignUpView.swift
 // SurgiTrack
-// SwiftUI wrapper for Clerk's SignUpViewController
+// SwiftUI wrapper for Clerk's hosted sign-up page
 // Created by Cascade AI
 
 import SwiftUI
-import Clerk
+import WebKit
 
-/// A SwiftUI view that presents Clerk's prebuilt SignUpViewController for user registration.
-struct ClerkSignUpView: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> UIViewController {
-        // Create Clerk's SignUpViewController
-        let signUpVC = SignUpViewController()
-        // Add a text logo at the top using a UILabel overlay
-        let logoLabel = UILabel()
-        logoLabel.text = "SurgiTrack™"
-        logoLabel.font = UIFont.systemFont(ofSize: 28, weight: .bold)
-        logoLabel.textAlignment = .center
-        logoLabel.textColor = UIColor.systemBlue
-        logoLabel.translatesAutoresizingMaskIntoConstraints = false
-        signUpVC.view.addSubview(logoLabel)
-        NSLayoutConstraint.activate([
-            logoLabel.topAnchor.constraint(equalTo: signUpVC.view.safeAreaLayoutGuide.topAnchor, constant: 28),
-            logoLabel.centerXAnchor.constraint(equalTo: signUpVC.view.centerXAnchor)
-        ])
-        return signUpVC
+/// A SwiftUI view that presents Clerk's hosted sign-up page for user registration.
+struct ClerkSignUpView: UIViewRepresentable {
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        let url = URL(string: "https://YOUR-CLERK-SUBDOMAIN.clerk.accounts.dev/sign-up")!
+        webView.load(URLRequest(url: url))
+        return webView
     }
     
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+    func updateUIView(_ uiView: WKWebView, context: Context) {
         // No-op
     }
 }

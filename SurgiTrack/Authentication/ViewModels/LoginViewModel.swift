@@ -210,26 +210,25 @@ class LoginViewModel: ObservableObject {
             return
         }
         
-        let success = authManager.authenticateWithCredentials(
+        isLoading = true
+        authManager.authenticateWithCredentials(
             username: authState.username,
             password: authState.password
-        )
-        
-        if success {
-            if authState.rememberMe {
-                _ = authManager.saveCredentials(
-                    username: authState.username,
-                    password: authState.password,
-                    rememberMe: authState.rememberMe
-                )
+        ) { [weak self] success, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if success {
+                    if self?.authState.rememberMe == true {
+                        _ = self?.authManager.saveCredentials(
+                            username: self?.authState.username ?? "",
+                            password: self?.authState.password ?? ""
+                        )
+                    }
+                    self?.shouldNavigateToMain = true
+                } else {
+                    self?.displayError(error ?? "Login failed. Please try again.")
+                }
             }
-            
-            // Clear password for security
-            authState.password = ""
-        } else {
-            // Error is already handled by authManager publisher
-            isLoading = false
-            authState.animatePinError()
         }
     }
     
