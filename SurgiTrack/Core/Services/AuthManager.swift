@@ -5,6 +5,7 @@
 import Foundation
 import LocalAuthentication
 import SwiftUI
+import ClerkSDK
 
 class AuthManager: ObservableObject {
     // Authentication states
@@ -109,31 +110,37 @@ class AuthManager: ObservableObject {
         }
     }
     
-    func authenticateWithCredentials(username: String, password: String) -> Bool {
-        guard !isLockedOut() else {
-            authError = "Too many failed attempts. Try again later."
-            return false
-        }
-        
-        // Simplified credential check for now - would use proper auth in production
-        // In a real system, you'd likely call an API or check a secure store
-        
-        // For demo, we'll accept admin/admin or any saved credentials
-        if (username == "admin" && password == "admin") ||
-           checkSavedCredentials(username: username, password: password) {
-            isAuthenticated = true
-            loginAttempts = 0
-            authError = nil
-            return true
-        } else {
-            loginAttempts += 1
-            
-            if loginAttempts >= maxLoginAttempts {
-                setLockout()
+    func authenticateWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
+        ClerkAuthService.shared.signIn(email: username, password: password) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.isAuthenticated = true
+                    self.loginAttempts = 0
+                    self.authError = nil
+                    completion(true, nil)
+                case .failure(let error):
+                    self.loginAttempts += 1
+                    if self.loginAttempts >= self.maxLoginAttempts {
+                        self.setLockout()
+                    }
+                    self.authError = error.localizedDescription
+                    completion(false, error.localizedDescription)
+                }
             }
-            
-            authError = "Invalid username or password"
-            return false
+        }
+    }
+    
+    func registerWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
+        ClerkAuthService.shared.signUp(email: username, password: password) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    completion(true, nil)
+                case .failure(let error):
+                    completion(false, error.localizedDescription)
+                }
+            }
         }
     }
     

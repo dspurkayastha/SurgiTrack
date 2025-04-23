@@ -5,12 +5,12 @@
 //  Created by Devraj Shome Purkayastha on 20/03/25.
 //
 
-
 // CredentialsLoginView.swift
 // SurgiTrack
 // Refactored on 03/20/2025
 
 import SwiftUI
+import ClerkSDK
 
 struct CredentialsLoginView: View {
     // MARK: - Bindings
@@ -25,6 +25,8 @@ struct CredentialsLoginView: View {
     @State private var usernameFieldFocused = false
     @State private var passwordFieldFocused = false
     @State private var isPasswordVisible = false
+    @State private var showSignUpSheet = false
+    @State private var showSignInSheet = false
     
     // MARK: - Environment
     @EnvironmentObject private var appState: AppState
@@ -47,6 +49,27 @@ struct CredentialsLoginView: View {
             // MARK: - Login Form
             GlassmorphicCard {
                 VStack(spacing: 20) {
+                    Button(action: {
+                        HapticFeedback.buttonPress()
+                        showSignInSheet = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.fill.checkmark")
+                                .font(.system(size: 14))
+                            Text("Sign In with Clerk")
+                        }
+                        .font(.headline)
+                        .foregroundColor(appState.currentTheme.primaryColor)
+                        .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity)
+                        .background(Color(.systemBackground).opacity(0.7))
+                        .cornerRadius(10)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .sheet(isPresented: $showSignInSheet) {
+                        ClerkSignInView()
+                    }
+                    
                     // Username field
                     inputField(
                         title: "Username",
@@ -147,6 +170,7 @@ struct CredentialsLoginView: View {
                         Button(action: {
                             // Would navigate to registration flow
                             HapticFeedback.buttonPress()
+                            showSignUpSheet = true
                         }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "person.badge.plus")
@@ -157,6 +181,9 @@ struct CredentialsLoginView: View {
                             .foregroundColor(appState.currentTheme.primaryColor)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .sheet(isPresented: $showSignUpSheet) {
+                            ClerkSignUpView()
+                        }
                     }
                     .padding(.horizontal, 4)
                 }
