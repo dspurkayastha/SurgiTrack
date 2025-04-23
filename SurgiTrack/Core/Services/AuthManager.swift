@@ -111,15 +111,17 @@ class AuthManager: ObservableObject {
     }
     
     func authenticateWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
-        ClerkAuthService.shared.signIn(email: username, password: password) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
+        Task {
+            do {
+                try await ClerkAuthService.shared.signIn(email: username, password: password)
+                DispatchQueue.main.async {
                     self.isAuthenticated = true
                     self.loginAttempts = 0
                     self.authError = nil
                     completion(true, nil)
-                case .failure(let error):
+                }
+            } catch {
+                DispatchQueue.main.async {
                     self.loginAttempts += 1
                     if self.loginAttempts >= self.maxLoginAttempts {
                         self.setLockout()
@@ -132,12 +134,14 @@ class AuthManager: ObservableObject {
     }
     
     func registerWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
-        ClerkAuthService.shared.signUp(email: username, password: password) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
+        Task {
+            do {
+                try await ClerkAuthService.shared.signUp(email: username, password: password)
+                DispatchQueue.main.async {
                     completion(true, nil)
-                case .failure(let error):
+                }
+            } catch {
+                DispatchQueue.main.async {
                     completion(false, error.localizedDescription)
                 }
             }
