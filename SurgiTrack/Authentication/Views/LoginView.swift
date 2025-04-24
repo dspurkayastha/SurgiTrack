@@ -52,9 +52,15 @@ struct LoginView: View {
                     ZStack {
                         // Only show one at a time to prevent rendering conflicts
                         if viewModel.authState.activeMethod == .credentials {
-                            credentialsView
-                                .transition(.opacity)
-                                .zIndex(1)
+                            CredentialsLoginView(
+                                username: $viewModel.authState.username,
+                                password: $viewModel.authState.password,
+                                rememberMe: $viewModel.authState.rememberMe,
+                                onLogin: { viewModel.login() },
+                                viewModel: viewModel
+                            )
+                            .transition(.opacity)
+                            .zIndex(1)
                         } else if viewModel.authState.activeMethod == .pin {
                             pinView
                                 .transition(.opacity)
@@ -173,7 +179,8 @@ struct LoginView: View {
             username: $viewModel.authState.username,
             password: $viewModel.authState.password,
             rememberMe: $viewModel.authState.rememberMe,
-            onLogin: viewModel.login
+            onLogin: viewModel.login,
+            viewModel: viewModel
         )
     }
     

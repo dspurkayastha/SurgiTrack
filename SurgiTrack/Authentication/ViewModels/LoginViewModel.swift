@@ -60,9 +60,19 @@ class LoginViewModel: ObservableObject {
         // Start loading animation
         isLoading = true
         
-        // Only handle non-Clerk authentication here (e.g., PIN, biometrics)
-        // Remove Clerk-related credential login logic
-        // If you have custom logic for PIN or biometrics, keep that here
+        // Clerk credential login
+        if authState.activeMethod == .credentials {
+            Task {
+                do {
+                    try await ClerkAuthService.shared.signIn(email: authState.username, password: authState.password)
+                    handleSuccessfulAuthentication()
+                } catch {
+                    isLoading = false
+                    displayError("Login failed: \(error.localizedDescription)")
+                }
+            }
+            return
+        }
         
         // Short delay for animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -165,6 +175,23 @@ class LoginViewModel: ObservableObject {
         // Restart animations
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.animationCoordinator.startEntryAnimations()
+        }
+    }
+    
+    /// Attempt Clerk sign up with user profile fields
+    func signUpWithProfile(firstName: String, lastName: String, title: String, unitName: String, departmentName: String, hospitalName: String, hospitalAddress: String, email: String, phone: String, bio: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        clearError()
+        isLoading = true
+        Task {
+            do {
+                try await ClerkAuthService.shared.signUp(email: email, password: password)
+                // Optionally, save profile fields to your backend or CoreData here
+                completion(.success(()))
+            } catch {
+                isLoading = false
+                displayError("Sign up failed: \(error.localizedDescription)")
+                completion(.failure(error))
+            }
         }
     }
     

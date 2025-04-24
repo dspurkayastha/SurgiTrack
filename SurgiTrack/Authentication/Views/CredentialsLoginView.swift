@@ -20,6 +20,7 @@ struct CredentialsLoginView: View {
     
     // MARK: - Properties
     var onLogin: () -> Void
+    var viewModel: LoginViewModel
     
     // MARK: - UI State
     @State private var usernameFieldFocused = false
@@ -182,7 +183,9 @@ struct CredentialsLoginView: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                         .sheet(isPresented: $showSignUpSheet) {
-                            ClerkSignUpView()
+                            ClerkProfileSignUpView(viewModel: viewModel)
+                                .environmentObject(appState)
+                                .environment(\.managedObjectContext, appState.managedObjectContext)
                         }
                     }
                     .padding(.horizontal, 4)
