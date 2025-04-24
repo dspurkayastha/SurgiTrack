@@ -50,27 +50,6 @@ struct CredentialsLoginView: View {
             // MARK: - Login Form
             GlassmorphicCard {
                 VStack(spacing: 20) {
-                    Button(action: {
-                        HapticFeedback.buttonPress()
-                        showSignInSheet = true
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.fill.checkmark")
-                                .font(.system(size: 14))
-                            Text("Sign In with Clerk")
-                        }
-                        .font(.headline)
-                        .foregroundColor(appState.currentTheme.primaryColor)
-                        .padding(.vertical, 8)
-                        .frame(maxWidth: .infinity)
-                        .background(Color(.systemBackground).opacity(0.7))
-                        .cornerRadius(10)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .sheet(isPresented: $showSignInSheet) {
-                        ClerkSignInView()
-                    }
-                    
                     // Username field
                     inputField(
                         title: "Username",
