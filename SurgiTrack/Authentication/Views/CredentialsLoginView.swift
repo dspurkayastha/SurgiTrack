@@ -32,6 +32,7 @@ struct CredentialsLoginView: View {
     // MARK: - Environment
     @EnvironmentObject private var appState: AppState
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appEnvironment) private var appEnvironment
     
     // MARK: - Body
     var body: some View {
@@ -164,7 +165,7 @@ struct CredentialsLoginView: View {
                         .sheet(isPresented: $showSignUpSheet) {
                             ClerkProfileSignUpView(viewModel: viewModel)
                                 .environmentObject(appState)
-                                .environment(\.managedObjectContext, appState.managedObjectContext)
+                                .environment(\.managedObjectContext, appEnvironment.persistenceController.container.viewContext)
                         }
                     }
                     .padding(.horizontal, 4)
