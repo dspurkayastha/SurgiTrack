@@ -1,5 +1,5 @@
 {
-  "originHash" : "76b47fb0e7d8df97d94f28c7f831e8dfcf0807bb93cb58330d55dd039495f6dc",
+  "originHash" : "208df723d94d170ff6d20f114905ccc33182cd394ce063112a5a364466113574",
   "pins" : [
     {
       "identity" : "clerk-ios",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "776c4a6db74d5c6c143974be91c383680d468630",
         "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "svgview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/exyte/SVGView.git",
+      "state" : {
+        "revision" : "6465962facdd25cb96eaebc35603afa2f15d2c0d",
+        "version" : "1.0.6"
       }
     }
   ],

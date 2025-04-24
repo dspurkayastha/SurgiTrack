@@ -19,4 +19,11 @@ extension UserProfile {
         let lInitial = (lastName ?? "").first.map { String($0) } ?? ""
         return (fInitial + lInitial).uppercased()
     }
+    
+    var isValid: Bool {
+        // Only firstName, title (designation), and email are compulsory
+        !(firstName?.isEmpty ?? true) &&
+        !(title?.isEmpty ?? true) &&
+        !(email?.isEmpty ?? true)
+    }
 }

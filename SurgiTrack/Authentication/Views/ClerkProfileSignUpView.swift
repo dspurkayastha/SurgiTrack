@@ -108,17 +108,25 @@ struct ClerkProfileSignUpView: View {
             showError = true
             return
         }
+        // Create or update a UserProfile instance
+        let profile = UserProfile(context: viewContext)
+        profile.firstName = firstName
+        profile.lastName = lastName
+        profile.title = title
+        profile.unitName = unitName
+        profile.departmentName = departmentName
+        profile.hospitalName = hospitalName
+        profile.hospitalAddress = hospitalAddress
+        profile.email = email
+        profile.phone = phone
+        profile.bio = bio
+        // Optionally set other fields, e.g., dateCreated
+        profile.dateCreated = Date()
+        profile.id = UUID() // Ensure required id is set
+        
         viewModel.signUpWithProfile(
-            firstName: firstName,
-            lastName: lastName,
-            title: title,
-            unitName: unitName,
-            departmentName: departmentName,
-            hospitalName: hospitalName,
-            hospitalAddress: hospitalAddress,
+            profile: profile,
             email: email,
-            phone: phone,
-            bio: bio,
             password: password
         ) { result in
             DispatchQueue.main.async {

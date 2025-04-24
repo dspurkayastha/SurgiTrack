@@ -178,21 +178,49 @@ class LoginViewModel: ObservableObject {
         }
     }
     
-    /// Attempt Clerk sign up with user profile fields
-    func signUpWithProfile(firstName: String, lastName: String, title: String, unitName: String, departmentName: String, hospitalName: String, hospitalAddress: String, email: String, phone: String, bio: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        clearError()
-        isLoading = true
-        Task {
-            do {
-                try await ClerkAuthService.shared.signUp(email: email, password: password)
-                // Optionally, save profile fields to your backend or CoreData here
-                completion(.success(()))
-            } catch {
-                isLoading = false
-                displayError("Sign up failed: \(error.localizedDescription)")
-                completion(.failure(error))
-            }
+    @MainActor
+    func signUpWithProfile(
+      profile: UserProfile,
+      email: String,
+      password: String,
+      completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+      clearError()
+      
+      // 1. Basic validation
+      guard !email.isEmpty,
+            !password.isEmpty,
+            profile.isValid else {
+        displayError("All fields are required")
+        return
+      }
+      
+      isLoading = true
+      print("[ClerkSignUp] Starting sign up for email: \(email)")
+      
+      Task { [weak self] in
+        guard let self = self else { return }
+        do {
+          // 2. Sign up with Clerk
+          try await ClerkAuthService.shared.signUp(email: email, password: password)
+          print("[ClerkSignUp] Succeeded for email: \(email)")
+          
+          // 3. Save profile (Core Data save)
+          // try await BackendService.shared.saveUserProfile(profile, email: email)
+          if let context = profile.managedObjectContext {
+            try context.save()
+          }
+          
+          // 4. Update UI
+          self.isLoading = false
+          completion(.success(()))
+        } catch {
+          print("[ClerkSignUp] Failed: \(error)")
+          self.isLoading = false
+          self.displayError("Sign up failed: \(error.localizedDescription)")
+          completion(.failure(error))
         }
+      }
     }
     
     // MARK: - Helper Methods

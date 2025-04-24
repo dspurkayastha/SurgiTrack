@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D72B2CAC2D7A156F008E81AA /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D75F78352D74EFDA008C2429 /* Lottie */; };
 		D754F9902DADA035000FC37F /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = D754F98F2DADA035000FC37F /* Clerk */; };
+		D7ABC2B92DBA6D8D009DC20B /* SVGView in Frameworks */ = {isa = PBXBuildFile; productRef = D7ABC2B82DBA6D8D009DC20B /* SVGView */; };
 		D7C346212D78D80C00A4C680 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D7C346202D78D80C00A4C680 /* Lottie */; };
 		D7C346232D78D80C00A4C680 /* Lottie-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = D7C346222D78D80C00A4C680 /* Lottie-Dynamic */; };
 /* End PBXBuildFile section */
@@ -90,6 +91,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D754F9902DADA035000FC37F /* Clerk in Frameworks */,
+				D7ABC2B92DBA6D8D009DC20B /* SVGView in Frameworks */,
 				D72B2CAC2D7A156F008E81AA /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,6 +153,7 @@
 				D75F78352D74EFDA008C2429 /* Lottie */,
 				D75F78372D74EFDA008C2429 /* Lottie-Dynamic */,
 				D754F98F2DADA035000FC37F /* Clerk */,
+				D7ABC2B82DBA6D8D009DC20B /* SVGView */,
 			);
 			productName = SurgiTrack;
 			productReference = D783E7CF2D72071D00E2E878 /* SurgiTrack.app */;
@@ -239,6 +242,7 @@
 			packageReferences = (
 				D75F78342D74EFDA008C2429 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				D754F98C2DAD9FC9000FC37F /* XCRemoteSwiftPackageReference "clerk-ios" */,
+				D7ABC2B72DBA6D8D009DC20B /* XCRemoteSwiftPackageReference "SVGView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D783E7D02D72071D00E2E878 /* Products */;
@@ -631,6 +635,14 @@
 				minimumVersion = 4.5.1;
 			};
 		};
+		D7ABC2B72DBA6D8D009DC20B /* XCRemoteSwiftPackageReference "SVGView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/SVGView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.6;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -658,6 +670,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D75F78342D74EFDA008C2429 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = "Lottie-Dynamic";
+		};
+		D7ABC2B82DBA6D8D009DC20B /* SVGView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7ABC2B72DBA6D8D009DC20B /* XCRemoteSwiftPackageReference "SVGView" */;
+			productName = SVGView;
 		};
 		D7C346202D78D80C00A4C680 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
