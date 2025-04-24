@@ -1,0 +1,3 @@
+[2025-04-24 11:30:24+05:30] Updated LoginViewModel.swift: Made signUpWithProfile robust by ensuring isLoading is set to false on both success and failure, and added print logging for Xcode debugging. This prevents the registration UI from being stuck in a loading state and provides better traceability for Clerk sign-up events.
+
+[2025-04-24 18:25:29+05:30] Launch screen and branding: Created a new animated SVG logo for launch screen (circular, oblique magenta-to-light blue gradient, large stethoscope with red-glowing ECG). App icon will use the user's original design, but recolored and resized for all required iOS sizes. Integrated new SVG as launch screen asset. No changes to app icon artwork, only color and sizing.
