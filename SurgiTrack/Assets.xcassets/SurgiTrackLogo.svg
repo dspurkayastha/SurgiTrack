@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <defs>
+    <!-- Oblique gradient: darkest to midtone to lightest purple at an angle -->
+    <linearGradient id="obliquePurpleGradient" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#380038"/>
+      <stop offset="60%" stop-color="#530053"/>
+      <stop offset="100%" stop-color="#8bb3ff"/>
+    </linearGradient>
+    <!-- Red glow filter -->
+    <filter id="redGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#ff1744" flood-opacity="0.7"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Magenta shadow for stethoscope -->
+    <filter id="magentaShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#610061" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Circular background -->
+  <circle cx="256" cy="256" r="256" fill="url(#obliquePurpleGradient)" />
+
+  <!-- Slightly smaller and thinner Stethoscope Icon with Magenta Glow -->
+  <g filter="url(#magentaShadow)">
+    <svg x="96" y="96" width="320" height="320" viewBox="0 0 24 24"
+         fill="none" stroke="#f3f4f6" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M6 4h-1a2 2 0 0 0 -2 2v3.5a5.5 5.5 0 0 0 11 0v-3.5a2 2 0 0 0 -2 -2h-1"/>
+      <path d="M8 15a6 6 0 1 0 12 0v-3"/>
+      <path d="M11 3v2"/>
+      <path d="M6 3v2"/>
+      <path d="M20 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+    </svg>
+  </g>
+
+  <!-- ECG trace with red glow -->
+  <path id="ecgPath" pathLength="1000"
+        d="
+          M0,300
+          L80,300
+          C100,280 140,280 160,300
+          L200,300
+          L210,200
+          L220,380
+          L230,260
+          L240,300
+          C270,300 290,280 310,300
+          C330,330 350,310 370,300
+          L512,300
+        "
+        fill="none"
+        stroke="#ff1744"
+        stroke-width="5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="400 600"
+        stroke-dashoffset="1000"
+        filter="url(#redGlow)">
+    <animate attributeName="stroke-dashoffset"
+             from="1000" to="0"
+             dur="5s"
+             repeatCount="indefinite"/>
+  </path>
+
+  <!-- Leading “lead” dot with red glow -->
+  <circle r="8" fill="#ff1744" filter="url(#redGlow)">
+    <animateMotion dur="5s" repeatCount="indefinite">
+      <mpath xlink:href="#ecgPath" />
+    </animateMotion>
+  </circle>
+</svg>
