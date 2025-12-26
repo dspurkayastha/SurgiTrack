@@ -105,20 +105,16 @@ struct EnhancedTrendsView: View {
                     ShareSheet(items: [file])
                 }
             }
-            .actionSheet(isPresented: $showingExportOptions) {
-                ActionSheet(
-                    title: Text("Export Options"),
-                    message: Text("Choose an export format"),
-                    buttons: [
-                        .default(Text("PDF Report")) {
-                            generateAndShareFile(as: .pdf)
-                        },
-                        .default(Text("CSV Data")) {
-                            generateAndShareFile(as: .csv)
-                        },
-                        .cancel()
-                    ]
-                )
+            .confirmationDialog("Export Options", isPresented: $showingExportOptions, titleVisibility: .visible) {
+                Button("PDF Report") {
+                    generateAndShareFile(as: .pdf)
+                }
+                Button("CSV Data") {
+                    generateAndShareFile(as: .csv)
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Choose an export format")
             }
             .onAppear {
                 if viewModel.selectedPatient != nil {

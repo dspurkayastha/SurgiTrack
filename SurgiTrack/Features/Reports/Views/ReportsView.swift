@@ -66,9 +66,57 @@ struct ReportsView: View {
                 .sheet(isPresented: $showingNewTestSheet) { newTestSheetView }
                 .sheet(isPresented: $showingEnhancedTrendsView) { enhancedTrendsView }
                 .sheet(isPresented: $showingDateFilter) { dateFilterView }
-                // Action sheets
-                .actionSheet(isPresented: $showingFilterOptions) { filterActionSheet }
-                .actionSheet(isPresented: $showingRadiologyOptions) { radiologyActionSheet }
+                // Confirmation dialogs
+                .confirmationDialog("Filter Reports", isPresented: $showingFilterOptions, titleVisibility: .visible) {
+                    Button("All Reports") { selectedFilter = .all }
+                    Button("Abnormal Results") { selectedFilter = .abnormal }
+                    Button("Pending Results") { selectedFilter = .pending }
+                    Button("Last 7 Days") { selectedFilter = .recent }
+                    Button("Cancel", role: .cancel) { }
+                }
+                .confirmationDialog("Select Radiology Type", isPresented: $showingRadiologyOptions, titleVisibility: .visible) {
+                    Button("USG (Hepatobiliary)") {
+                        selectedTestType = .usgHepatobiliary
+                        showingNewTestSheet = true
+                    }
+                    Button("USG (Inguinal)") {
+                        selectedTestType = .usgInguinal
+                        showingNewTestSheet = true
+                    }
+                    Button("USG (Whole Abdomen)") {
+                        selectedTestType = .usgAbdomen
+                        showingNewTestSheet = true
+                    }
+                    Button("USG (KUBP)") {
+                        selectedTestType = .usgKUBP
+                        showingNewTestSheet = true
+                    }
+                    Button("MRCP") {
+                        selectedTestType = .mrcp
+                        showingNewTestSheet = true
+                    }
+                    Button("MRI Perineum") {
+                        selectedTestType = .mriPerineum
+                        showingNewTestSheet = true
+                    }
+                    Button("MRI Pelvis") {
+                        selectedTestType = .mriPelvis
+                        showingNewTestSheet = true
+                    }
+                    Button("CECT (Thorax)") {
+                        selectedTestType = .cectThorax
+                        showingNewTestSheet = true
+                    }
+                    Button("CECT (Abdomen)") {
+                        selectedTestType = .cectAbdomen
+                        showingNewTestSheet = true
+                    }
+                    Button("CECT (Triphasic)") {
+                        selectedTestType = .cectTriphasic
+                        showingNewTestSheet = true
+                    }
+                    Button("Cancel", role: .cancel) { }
+                }
                 // Alert
                 .alert(isPresented: $showingAlertMessage) { alertView }
         }
@@ -125,27 +173,7 @@ struct ReportsView: View {
         })
     }
 
-    // MARK: - Action Sheets and Alert
-
-    private var filterActionSheet: ActionSheet {
-        ActionSheet(
-            title: Text("Filter Reports"),
-            buttons: [
-                .default(Text("All Reports")) { selectedFilter = .all },
-                .default(Text("Abnormal Results")) { selectedFilter = .abnormal },
-                .default(Text("Pending Results")) { selectedFilter = .pending },
-                .default(Text("Last 7 Days")) { selectedFilter = .recent },
-                .cancel()
-            ]
-        )
-    }
-
-    private var radiologyActionSheet: ActionSheet {
-        ActionSheet(
-            title: Text("Select Radiology Type"),
-            buttons: radiologyActionSheetButtons
-        )
-    }
+    // MARK: - Alert
 
     private var alertView: Alert {
         Alert(
@@ -510,51 +538,6 @@ struct ReportsView: View {
             }
             Divider()
         }
-    }
-    private var radiologyActionSheetButtons: [ActionSheet.Button] {
-        [
-            .default(Text("USG (Hepatobiliary)")) {
-                selectedTestType = .usgHepatobiliary
-                showingNewTestSheet = true
-            },
-            .default(Text("USG (Inguinal)")) {
-                selectedTestType = .usgInguinal
-                showingNewTestSheet = true
-            },
-            .default(Text("USG (Whole Abdomen)")) {
-                selectedTestType = .usgAbdomen
-                showingNewTestSheet = true
-            },
-            .default(Text("USG (KUBP)")) {
-                selectedTestType = .usgKUBP
-                showingNewTestSheet = true
-            },
-            .default(Text("MRCP")) {
-                selectedTestType = .mrcp
-                showingNewTestSheet = true
-            },
-            .default(Text("MRI Perineum")) {
-                selectedTestType = .mriPerineum
-                showingNewTestSheet = true
-            },
-            .default(Text("MRI Pelvis")) {
-                selectedTestType = .mriPelvis
-                showingNewTestSheet = true
-            },
-            .default(Text("CECT (Thorax)")) {
-                selectedTestType = .cectThorax
-                showingNewTestSheet = true
-            },
-            .default(Text("CECT (Abdomen)")) {
-                selectedTestType = .cectAbdomen
-                showingNewTestSheet = true
-            },
-            .default(Text("CECT (Triphasic)")) {
-                selectedTestType = .cectTriphasic
-                showingNewTestSheet = true
-            },
-            .cancel()
-        ]
     }
 }
 

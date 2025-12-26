@@ -123,22 +123,17 @@ struct TestDetailView: View {
                 navigationState.ensureButtonVisibility()
                 Logger.debug("TestDetailView: After ensuring button visibility: \(navigationState.showingAnalysisButton)", category: .ui)
             }
-            .actionSheet(isPresented: $showingEditOptions) {
-                ActionSheet(
-                    title: Text("Test Options"),
-                    buttons: [
-                        .default(Text("Generate Report")) {
-                            generateAndSharePDF()
-                        },
-                        .default(Text("Add Attachment")) {
-                            showingAttachments = true
-                        },
-                        .destructive(Text("Delete Test")) {
-                            showingDeleteConfirmation = true
-                        },
-                        .cancel()
-                    ]
-                )
+            .confirmationDialog("Test Options", isPresented: $showingEditOptions, titleVisibility: .visible) {
+                Button("Generate Report") {
+                    generateAndSharePDF()
+                }
+                Button("Add Attachment") {
+                    showingAttachments = true
+                }
+                Button("Delete Test", role: .destructive) {
+                    showingDeleteConfirmation = true
+                }
+                Button("Cancel", role: .cancel) { }
             }
             .alert("Delete Test", isPresented: $showingDeleteConfirmation) {
                 Button("Delete", role: .destructive) {

@@ -23,6 +23,11 @@ class AuthManager: ObservableObject {
     @Published var isLockedOut = false
     @Published var lockoutRemainingSeconds: Int = 0
 
+    /// Shows when session is about to expire
+    @Published var showSessionWarning = false
+    /// Remaining seconds until session expires (shown in warning)
+    @Published var sessionWarningSeconds: Int = 0
+
     // MARK: - Private Properties
 
     private let keychain = KeychainManager.shared
@@ -322,11 +327,37 @@ class AuthManager: ObservableObject {
         guard isAuthenticated else { return }
 
         let idleTime = Date().timeIntervalSince(lastActivityTime)
+        let timeUntilTimeout = Configuration.Security.sessionTimeout - idleTime
+        let warningThreshold: TimeInterval = 5 * 60 // 5 minutes before timeout
+
         if idleTime > Configuration.Security.sessionTimeout {
+            // Session expired
+            showSessionWarning = false
             Logger.auth("Session timed out after \(Int(idleTime)) seconds of inactivity")
             AuditLogger.shared.logSessionTimeout()
             logout()
+        } else if timeUntilTimeout <= warningThreshold {
+            // Show warning
+            showSessionWarning = true
+            sessionWarningSeconds = Int(timeUntilTimeout)
+            if !showSessionWarning {
+                Logger.auth("Session warning: \(Int(timeUntilTimeout)) seconds until timeout")
+            }
+        } else {
+            // Clear warning if user became active
+            if showSessionWarning {
+                showSessionWarning = false
+            }
         }
+    }
+
+    /// Extends the current session by resetting activity timer
+    /// Called when user acknowledges session warning
+    func extendSession() {
+        recordActivity()
+        showSessionWarning = false
+        sessionWarningSeconds = 0
+        Logger.auth("Session extended by user")
     }
 
     // MARK: - Lockout Management
