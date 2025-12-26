@@ -407,19 +407,23 @@ struct DataUsageView: View {
     private func startOptimization() {
         isOptimizing = true
         optimizationProgress = 0.0
-        
+
         // Simulate progress with a timer
-        optimizationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if optimizationProgress < 1.0 {
-                optimizationProgress += 0.01
+        optimizationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            if self.optimizationProgress < 1.0 {
+                self.optimizationProgress += 0.01
             } else {
                 timer.invalidate()
-                optimizationTimer = nil
-                isOptimizing = false
-                
+                self.optimizationTimer = nil
+                self.isOptimizing = false
+
                 // Simulate optimization by reducing storage usage
-                for i in 0..<storageUsage.count {
-                    storageUsage[i].size = Int(Double(storageUsage[i].size) * 0.85)
+                for i in 0..<self.storageUsage.count {
+                    self.storageUsage[i].size = Int(Double(self.storageUsage[i].size) * 0.85)
                 }
             }
         }

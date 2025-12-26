@@ -2,6 +2,17 @@
 // SurgiTrack
 // Professional medical design tokens and components
 // Created on 26/12/2025
+//
+// ⚠️ DEPRECATED: This file has been consolidated into DesignSystem.swift
+// All medical colors, typography, and spacing are now available via:
+// - DesignSystem.Colors.PatientStatus.*
+// - DesignSystem.Colors.RiskLevel.*
+// - DesignSystem.Colors.Clinical.*
+// - DesignSystem.Typography.*
+// - DesignSystem.Spacing.*
+//
+// This file is kept for reference only. New code should use DesignSystem.swift.
+// See DESIGN_SYSTEM_MIGRATION.md for migration guide.
 
 import SwiftUI
 

@@ -1191,8 +1191,8 @@ struct EnhancedAnimatedGradientBackground: View {
         // Removed resetting animationStartTime
 
         attractTimer?.invalidate()
-        attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [self] _ in
-             guard self.attractionActive else { return }
+        attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
+             guard let self = self, self.attractionActive else { return }
              Logger.debug("Attraction timer finished, Attraction INACTIVE", category: .ui)
              self.attractionActive = false
              self.lastTapLocation = nil

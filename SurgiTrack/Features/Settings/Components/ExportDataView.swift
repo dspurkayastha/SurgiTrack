@@ -228,17 +228,21 @@ struct ExportDataView: View {
         
         isExporting = true
         exportProgress = 0.0
-        
+
         // Simulate export process with a timer
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if exportProgress < 1.0 {
-                exportProgress += 0.02
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
+            guard let self = self else {
+                timer.invalidate()
+                return
+            }
+            if self.exportProgress < 1.0 {
+                self.exportProgress += 0.02
             } else {
                 timer.invalidate()
-                completeExport()
+                self.completeExport()
             }
         }
-        
+
         RunLoop.current.add(timer, forMode: .common)
     }
     

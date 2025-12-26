@@ -1,6 +1,25 @@
+// Theme.swift
+// SurgiTrack
+// Legacy Theme System - DEPRECATED
+//
+// ⚠️ WARNING: This file is deprecated and maintained only for backward compatibility.
+// All new code should use DesignSystem.swift instead.
+//
+// Migration Guide:
+// - Theme.colors.* → DesignSystem.Colors.*
+// - Theme.typography.* → DesignSystem.Typography.*
+// - Theme.spacing.* → DesignSystem.Spacing.*
+// - Theme.shadows.* → DesignSystem.Shadows.*
+// - Theme.animation.* → DesignSystem.Animation.*
+//
+// See DesignSystem.swift for complete documentation and migration examples.
+
 import SwiftUI
 
-// Define Shadow struct
+// MARK: - Shadow Support Struct
+
+/// Shadow definition for legacy compatibility
+/// - Note: Consider migrating to DesignSystem.Shadows
 struct Shadow {
     let color: Color
     let radius: CGFloat
@@ -9,6 +28,10 @@ struct Shadow {
 }
 
 // MARK: - Theme Colors (Instance-based for Environment)
+
+/// Instance-based theme colors for environment injection
+/// - Note: Now uses DesignSystem as the source of truth
+/// - Usage: Inject via environment for dynamic theming
 internal struct ThemeColors {
     var primary: Color
     var secondary: Color
@@ -17,17 +40,17 @@ internal struct ThemeColors {
     var surface: Color
     var text: Color
     var textSecondary: Color
-    
+
     // Semantic Colors
     var success: Color
     var warning: Color
     var error: Color
     var info: Color
-    
+
     // Glassmorphism Colors
     var glassBackground: Color
     var glassBorder: Color
-    
+
     var border: Color
     var shadow: Color
 
@@ -66,133 +89,359 @@ internal struct ThemeColors {
         self.shadow = shadow
     }
 
-    // Default initializer (inside the struct)
+    /// Default initializer - now uses DesignSystem values
     init() {
-        self.primary = Color.blue
-        self.secondary = Color.gray
-        self.accent = Color.purple
-        self.background = Color(.systemBackground)
-        self.surface = Color(.secondarySystemBackground)
-        self.text = Color(.label)
-        self.textSecondary = Color(.secondaryLabel)
-        self.success = Color.green
-        self.warning = Color.orange
-        self.error = Color.red
-        self.info = Color.blue
-        self.glassBackground = Color(.systemGray6).opacity(0.5)
-        self.glassBorder = Color(.systemGray4).opacity(0.3)
-        self.border = Color(.separator)
-        self.shadow = Color.black.opacity(0.1)
+        // Use DesignSystem as the source of truth
+        self.primary = DesignSystem.Colors.primary
+        self.secondary = DesignSystem.Colors.secondary
+        self.accent = DesignSystem.Colors.accent
+        self.background = DesignSystem.Colors.Adaptive.background
+        self.surface = DesignSystem.Colors.Adaptive.surface
+        self.text = DesignSystem.Colors.Adaptive.textPrimary
+        self.textSecondary = DesignSystem.Colors.Adaptive.textSecondary
+        self.success = DesignSystem.Colors.success
+        self.warning = DesignSystem.Colors.warning
+        self.error = DesignSystem.Colors.error
+        self.info = DesignSystem.Colors.info
+        self.glassBackground = DesignSystem.Colors.glassBackground
+        self.glassBorder = DesignSystem.Colors.glassBorder
+        self.border = DesignSystem.Colors.Adaptive.border
+        self.shadow = DesignSystem.Colors.shadow
     }
 }
 
-// MARK: - Renamed Legacy Theme Colors (Static)
-struct LegacyThemeColors { // Renamed from ThemeColors
-    static let primary = Color.blue
-    static let secondary = Color.gray
-    static let background = Color(.systemBackground)
-    static let surface = Color(.secondarySystemBackground)
-    static let text = Color(.label)
-    static let textSecondary = Color(.secondaryLabel)
-    
+// MARK: - Legacy Theme Colors (DEPRECATED)
+
+/// Legacy theme colors - DEPRECATED
+/// - Warning: This struct is deprecated. Use `DesignSystem.Colors` instead.
+/// - Note: Maintained for backward compatibility only. Will be removed in a future version.
+/// - SeeAlso: `DesignSystem.Colors` for the new design system
+/// - Important: All new code should use DesignSystem.Colors directly
+@available(*, deprecated, message: "Use DesignSystem.Colors instead. See DesignSystem.swift for migration guide.")
+struct LegacyThemeColors {
+    @available(*, deprecated, renamed: "DesignSystem.Colors.primary")
+    static let primary = DesignSystem.Colors.primary
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.secondary")
+    static let secondary = DesignSystem.Colors.secondary
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.background")
+    static let background = DesignSystem.Colors.Adaptive.background
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.surface")
+    static let surface = DesignSystem.Colors.Adaptive.surface
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.textPrimary")
+    static let text = DesignSystem.Colors.Adaptive.textPrimary
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.textSecondary")
+    static let textSecondary = DesignSystem.Colors.Adaptive.textSecondary
+
     // Semantic Colors
-    static let success = Color.green
-    static let warning = Color.orange
-    static let error = Color.red
-    static let info = Color.blue
-    
+    @available(*, deprecated, renamed: "DesignSystem.Colors.success")
+    static let success = DesignSystem.Colors.success
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.warning")
+    static let warning = DesignSystem.Colors.warning
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.error")
+    static let error = DesignSystem.Colors.error
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.info")
+    static let info = DesignSystem.Colors.info
+
     // Glassmorphism Colors
-    static let glassBackground = Color.white.opacity(0.1)
-    static let glassBorder = Color.white.opacity(0.2)
-    
-    static let border = Color(.separator)
-    static let shadow = Color.black.opacity(0.1)
+    @available(*, deprecated, renamed: "DesignSystem.Colors.glassBackground")
+    static let glassBackground = DesignSystem.Colors.glassBackground
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.glassBorder")
+    static let glassBorder = DesignSystem.Colors.glassBorder
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.border")
+    static let border = DesignSystem.Colors.Adaptive.border
+
+    @available(*, deprecated, renamed: "DesignSystem.Colors.shadow")
+    static let shadow = DesignSystem.Colors.shadow
 }
 
-// MARK: - Theme Typography
-/// Professional typography system - no rounded design for medical professionalism
+// MARK: - Theme Typography (DEPRECATED)
+
+/// Legacy typography system - DEPRECATED
+/// - Warning: Use `DesignSystem.Typography` instead
+/// - Note: Maintained for backward compatibility only
+/// - SeeAlso: `DesignSystem.Typography` for the unified typography system
+@available(*, deprecated, message: "Use DesignSystem.Typography instead. See migration guide in DesignSystem.swift")
 struct ThemeTypography {
     // Headings - Professional, clean design
-    static let h1 = Font.system(size: 32, weight: .bold, design: .default)
-    static let h2 = Font.system(size: 24, weight: .bold, design: .default)
-    static let h3 = Font.system(size: 20, weight: .semibold, design: .default)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.displayMedium")
+    static let h1 = DesignSystem.Typography.displayMedium
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.headlineLarge")
+    static let h2 = DesignSystem.Typography.headlineLarge
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.headlineMedium")
+    static let h3 = DesignSystem.Typography.headlineMedium
 
     // Body Text - Optimized for readability
-    static let bodyLarge = Font.system(size: 17, weight: .regular)
-    static let bodyMedium = Font.system(size: 15, weight: .regular)
-    static let bodySmall = Font.system(size: 14, weight: .regular)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.bodyLarge")
+    static let bodyLarge = DesignSystem.Typography.bodyLarge
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.bodyMedium")
+    static let bodyMedium = DesignSystem.Typography.bodyMedium
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.bodySmall")
+    static let bodySmall = DesignSystem.Typography.bodySmall
 
     // Special Text
-    static let caption = Font.system(size: 12, weight: .regular)
-    static let captionMedium = Font.system(size: 12, weight: .medium)
-    static let button = Font.system(size: 16, weight: .semibold)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.caption")
+    static let caption = DesignSystem.Typography.caption
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.captionBold")
+    static let captionMedium = DesignSystem.Typography.captionBold
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.button")
+    static let button = DesignSystem.Typography.button
 
     // Titles
-    static let titleLarge = Font.system(size: 17, weight: .semibold)
-    static let titleMedium = Font.system(size: 16, weight: .medium)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.titleLarge")
+    static let titleLarge = DesignSystem.Typography.titleLarge
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.titleMedium")
+    static let titleMedium = DesignSystem.Typography.titleMedium
 
     // Labels
-    static let labelMedium = Font.system(size: 13, weight: .medium)
-    static let labelSmall = Font.system(size: 12, weight: .medium)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.labelMedium")
+    static let labelMedium = DesignSystem.Typography.labelMedium
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.labelSmall")
+    static let labelSmall = DesignSystem.Typography.labelSmall
 
     // Numeric display - rounded for numbers only
-    static let numericLarge = Font.system(size: 28, weight: .bold, design: .rounded)
-    static let numericMedium = Font.system(size: 22, weight: .bold, design: .rounded)
+    @available(*, deprecated, renamed: "DesignSystem.Typography.numericLarge")
+    static let numericLarge = DesignSystem.Typography.numericLarge
+
+    @available(*, deprecated, renamed: "DesignSystem.Typography.numericMedium")
+    static let numericMedium = DesignSystem.Typography.numericMedium
 }
 
-// MARK: - Theme Spacing
+// MARK: - Theme Spacing (DEPRECATED)
+
+/// Legacy spacing system - DEPRECATED
+/// - Warning: Use `DesignSystem.Spacing` instead
+/// - Note: Maintained for backward compatibility only
+/// - SeeAlso: `DesignSystem.Spacing` for the unified spacing system
+@available(*, deprecated, message: "Use DesignSystem.Spacing instead. See migration guide in DesignSystem.swift")
 struct ThemeSpacing {
-    static let xxxs: CGFloat = 2
-    static let xxs: CGFloat = 4
-    static let xs: CGFloat = 4 // Note: xs and xxs were the same, kept xs
-    static let sm: CGFloat = 8
-    static let md: CGFloat = 16
-    static let lg: CGFloat = 24
-    static let xl: CGFloat = 32
-    static let xxl: CGFloat = 48
-    static let xxxl: CGFloat = 64
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.xxxs")
+    static let xxxs: CGFloat = DesignSystem.Spacing.xxxs
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.xxs")
+    static let xxs: CGFloat = DesignSystem.Spacing.xxs
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.xs")
+    static let xs: CGFloat = DesignSystem.Spacing.xs
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.sm")
+    static let sm: CGFloat = DesignSystem.Spacing.sm
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.md")
+    static let md: CGFloat = DesignSystem.Spacing.md
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.lg")
+    static let lg: CGFloat = DesignSystem.Spacing.lg
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.xl")
+    static let xl: CGFloat = DesignSystem.Spacing.xl
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.xxl")
+    static let xxl: CGFloat = DesignSystem.Spacing.xxl
+
+    @available(*, deprecated, renamed: "DesignSystem.Spacing.huge")
+    static let xxxl: CGFloat = DesignSystem.Spacing.huge
 }
 
-// MARK: - Theme Shadows
+// MARK: - Theme Shadows (DEPRECATED)
+
+/// Legacy shadow system - DEPRECATED
+/// - Warning: Use `DesignSystem.Shadows` instead
+/// - Note: Maintained for backward compatibility only. Shadow struct format differs slightly.
+/// - SeeAlso: `DesignSystem.Shadows` for the unified shadow system
+@available(*, deprecated, message: "Use DesignSystem.Shadows instead. See migration guide in DesignSystem.swift")
 struct ThemeShadows {
-    // Use the defined Shadow struct
-    static let small = Shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-    static let medium = Shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
-    static let large = Shadow(color: Color.black.opacity(0.2), radius: 16, x: 0, y: 8)
+    @available(*, deprecated, message: "Use DesignSystem.Shadows.small - note: tuple format differs from Shadow struct")
+    static let small = Shadow(
+        color: DesignSystem.Shadows.small.color,
+        radius: DesignSystem.Shadows.small.radius,
+        x: DesignSystem.Shadows.small.x,
+        y: DesignSystem.Shadows.small.y
+    )
+
+    @available(*, deprecated, message: "Use DesignSystem.Shadows.medium - note: tuple format differs from Shadow struct")
+    static let medium = Shadow(
+        color: DesignSystem.Shadows.medium.color,
+        radius: DesignSystem.Shadows.medium.radius,
+        x: DesignSystem.Shadows.medium.x,
+        y: DesignSystem.Shadows.medium.y
+    )
+
+    @available(*, deprecated, message: "Use DesignSystem.Shadows.large - note: tuple format differs from Shadow struct")
+    static let large = Shadow(
+        color: DesignSystem.Shadows.large.color,
+        radius: DesignSystem.Shadows.large.radius,
+        x: DesignSystem.Shadows.large.x,
+        y: DesignSystem.Shadows.large.y
+    )
 }
 
-// MARK: - Theme Animation
+// MARK: - Theme Animation (DEPRECATED)
+
+/// Legacy animation system - DEPRECATED
+/// - Warning: Use `DesignSystem.Animation` instead
+/// - Note: Maintained for backward compatibility only
+/// - SeeAlso: `DesignSystem.Animation` for the unified animation system
+@available(*, deprecated, message: "Use DesignSystem.Animation instead. See migration guide in DesignSystem.swift")
 struct ThemeAnimation {
-    static let spring = Animation.spring(response: 0.3, dampingFraction: 0.7)
-    static let easeOut = Animation.easeOut(duration: 0.2)
-    static let easeIn = Animation.easeIn(duration: 0.2)
-    static let easeInOut = Animation.easeInOut(duration: 0.2)
+    @available(*, deprecated, renamed: "DesignSystem.Animation.spring")
+    static let spring = DesignSystem.Animation.spring
+
+    @available(*, deprecated, renamed: "DesignSystem.Animation.easeOut")
+    static let easeOut = DesignSystem.Animation.easeOut
+
+    @available(*, deprecated, renamed: "DesignSystem.Animation.easeIn")
+    static let easeIn = DesignSystem.Animation.easeIn
+
+    @available(*, deprecated, message: "Use DesignSystem.Animation.fast or DesignSystem.Animation.standard")
+    static let easeInOut = DesignSystem.Animation.fast
 }
 
-// MARK: - Theme (Points to Legacy Static Values)
+// MARK: - Theme (DEPRECATED - Points to DesignSystem)
+
+/// Legacy theme namespace - DEPRECATED
+/// - Warning: Use `DesignSystem` directly instead
+/// - Note: This struct exists only for backward compatibility
+/// - SeeAlso: `DesignSystem` for the unified design system
+///
+/// # Migration Example:
+/// ```swift
+/// // Old (deprecated):
+/// Text("Hello").foregroundColor(Theme.colors.primary)
+///
+/// // New (recommended):
+/// Text("Hello").foregroundColor(DesignSystem.Colors.primary)
+/// ```
+@available(*, deprecated, message: "Use DesignSystem directly instead. Theme.colors.primary → DesignSystem.Colors.primary")
 struct Theme {
-    // Point to the renamed static struct
-    static let colors = LegacyThemeColors.self 
+    /// Legacy color access - DEPRECATED
+    /// - Use `DesignSystem.Colors` instead
+    @available(*, deprecated, message: "Use DesignSystem.Colors instead")
+    static let colors = LegacyThemeColors.self
+
+    /// Legacy typography access - DEPRECATED
+    /// - Use `DesignSystem.Typography` instead
+    @available(*, deprecated, message: "Use DesignSystem.Typography instead")
     static let typography = ThemeTypography.self
+
+    /// Legacy spacing access - DEPRECATED
+    /// - Use `DesignSystem.Spacing` instead
+    @available(*, deprecated, message: "Use DesignSystem.Spacing instead")
     static let spacing = ThemeSpacing.self
+
+    /// Legacy shadows access - DEPRECATED
+    /// - Use `DesignSystem.Shadows` instead
+    @available(*, deprecated, message: "Use DesignSystem.Shadows instead")
     static let shadows = ThemeShadows.self
+
+    /// Legacy animation access - DEPRECATED
+    /// - Use `DesignSystem.Animation` instead
+    @available(*, deprecated, message: "Use DesignSystem.Animation instead")
     static let animation = ThemeAnimation.self
 }
 
-#Preview {
-    VStack(spacing: ThemeSpacing.md) { // Use ThemeSpacing directly
-        Text("Primary Text")
-            .foregroundColor(LegacyThemeColors.primary) // Use LegacyThemeColors directly
-        
-        Text("Secondary Text")
-            .foregroundColor(LegacyThemeColors.secondary) // Use LegacyThemeColors directly
-        
-        Text("Error Text")
-            .foregroundColor(LegacyThemeColors.error) // Use LegacyThemeColors directly
-        
-        Text("Success Text")
-            .foregroundColor(LegacyThemeColors.success) // Use LegacyThemeColors directly
+#Preview("Legacy Theme (Deprecated)") {
+    VStack(spacing: DesignSystem.Spacing.md) {
+        // Header
+        Text("Theme System Comparison")
+            .font(DesignSystem.Typography.headlineLarge)
+            .foregroundColor(DesignSystem.Colors.Adaptive.textPrimary)
+
+        Divider()
+
+        // Legacy approach (still works but deprecated)
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("Legacy Theme (Deprecated)")
+                .font(DesignSystem.Typography.titleMedium)
+                .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(LegacyThemeColors.primary)
+                    .frame(width: 24, height: 24)
+                Text("Primary")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(LegacyThemeColors.success)
+                    .frame(width: 24, height: 24)
+                Text("Success")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(LegacyThemeColors.error)
+                    .frame(width: 24, height: 24)
+                Text("Error")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.Adaptive.surfaceElevated)
+        .cornerRadius(DesignSystem.CornerRadius.md)
+
+        Divider()
+
+        // New approach (recommended)
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            Text("New DesignSystem (Recommended)")
+                .font(DesignSystem.Typography.titleMedium)
+                .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(DesignSystem.Colors.primary)
+                    .frame(width: 24, height: 24)
+                Text("Primary")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(DesignSystem.Colors.success)
+                    .frame(width: 24, height: 24)
+                Text("Success")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Circle()
+                    .fill(DesignSystem.Colors.error)
+                    .frame(width: 24, height: 24)
+                Text("Error")
+                    .font(DesignSystem.Typography.bodySmall)
+            }
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(DesignSystem.Colors.Adaptive.surfaceElevated)
+        .cornerRadius(DesignSystem.CornerRadius.md)
+
+        // Notice
+        Text("✓ Both approaches work identically\n✓ Legacy code continues to function\n✓ Migrate to DesignSystem for new code")
+            .font(DesignSystem.Typography.caption)
+            .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
+            .multilineTextAlignment(.center)
     }
-    .padding()
-    .background(LegacyThemeColors.background) // Use LegacyThemeColors directly
+    .padding(DesignSystem.Spacing.xl)
+    .background(DesignSystem.Colors.Adaptive.background)
 } 

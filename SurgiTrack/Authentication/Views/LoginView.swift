@@ -10,6 +10,7 @@ struct LoginView: View {
     // Simplified state management - controlled by ContentView
     @State private var contentOpacity: Double = 1.0
     @State private var animationsInitiated: Bool = false
+    @State private var notificationObserver: NSObjectProtocol?
     
     // Initialize with dependencies
     init(authManager: AuthManager) {
@@ -101,17 +102,24 @@ struct LoginView: View {
             }
             .onAppear {
                 Logger.debug("LoginView appeared - waiting for animation signal", category: .authentication)
-                
+
                 // Listen for animation notification from ContentView
-                NotificationCenter.default.addObserver(
+                notificationObserver = NotificationCenter.default.addObserver(
                     forName: Notification.Name("StartLoginAnimations"),
                     object: nil,
                     queue: .main
-                ) { _ in
+                ) { [self] _ in
                     if !animationsInitiated {
                         animationsInitiated = true
                         startAnimationsWithFallback()
                     }
+                }
+            }
+            .onDisappear {
+                // Remove notification observer to prevent memory leaks
+                if let observer = notificationObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                    notificationObserver = nil
                 }
             }
         }
