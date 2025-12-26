@@ -182,10 +182,12 @@
         <attribute name="dosage" attributeType="String"/>
         <attribute name="drugName" attributeType="String"/>
         <attribute name="duration" optional="YES" attributeType="String"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="frequency" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="route" attributeType="String"/>
         <attribute name="specialInstructions" optional="YES" attributeType="String"/>
+        <attribute name="startDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="strength" optional="YES" attributeType="String"/>
         <relationship name="prescription" maxCount="1" deletionRule="Nullify" destinationEntity="Prescription" inverseName="items" inverseEntity="Prescription"/>
         <relationship name="product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="prescriptionItems" inverseEntity="Product"/>

@@ -61,7 +61,7 @@ struct ContentView: View {
                         }
                 }
             } else {
-                MainPageView()
+                AdaptiveNavigationView()
             }
         }
         .onAppear {

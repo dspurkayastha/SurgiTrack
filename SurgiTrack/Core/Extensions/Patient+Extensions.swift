@@ -14,4 +14,10 @@ extension Patient {
         let last = lastName ?? ""
         return "\(first) \(last)".trimmingCharacters(in: .whitespaces)
     }
+
+    var initials: String {
+        let first = firstName?.prefix(1).uppercased() ?? ""
+        let last = lastName?.prefix(1).uppercased() ?? ""
+        return "\(first)\(last)"
+    }
 }

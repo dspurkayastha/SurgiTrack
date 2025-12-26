@@ -12,6 +12,8 @@ struct PrescriptionItemModel: Identifiable {
     var frequency: String
     var route: String
     var duration: String
+    var startDate: Date
+    var endDate: Date?
     var specialInstructions: String
     var productID: NSManagedObjectID?
 }
@@ -475,50 +477,56 @@ struct PrescriptionsView: View {
             showAlert = true
             return
         }
-        
+
         isLoading = true
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             do {
-                // Create the prescription
-                let prescription = Prescription(context: viewContext)
-                prescription.id = UUID()
-                prescription.dateCreated = Date()
-                prescription.status = "active"
-                prescription.generalInstructions = generalInstructions
-                prescription.patient = patient
-                
-                // Add prescription items
-                for itemModel in prescriptionItems {
-                    let item = PrescriptionItem(context: viewContext)
-                    item.id = UUID()
-                    item.drugName = itemModel.drugName
-                    item.strength = itemModel.strength
-                    item.dosage = itemModel.dosage
-                    item.frequency = itemModel.frequency
-                    item.route = itemModel.route
-                    item.duration = itemModel.duration
-                    item.specialInstructions = itemModel.specialInstructions
-                    item.prescription = prescription
-                    
-                    // Link to product if available
-                    if let productID = itemModel.productID {
-                        let productFetch: NSFetchRequest<Product> = Product.fetchRequest()
-                        productFetch.predicate = NSPredicate(format: "SELF == %@", productID)
-                        if let product = try? viewContext.fetch(productFetch).first {
-                            item.product = product
-                        }
-                    }
+                // Use the PrescriptionService to create the prescription
+                let service = PrescriptionService(context: viewContext)
+
+                // Convert PrescriptionItemModel to PrescriptionItemData
+                let itemsData = prescriptionItems.map { itemModel in
+                    PrescriptionItemData(
+                        drugName: itemModel.drugName,
+                        strength: itemModel.strength,
+                        dosage: itemModel.dosage,
+                        frequency: itemModel.frequency,
+                        route: itemModel.route,
+                        duration: itemModel.duration,
+                        startDate: itemModel.startDate,
+                        endDate: itemModel.endDate,
+                        specialInstructions: itemModel.specialInstructions,
+                        productID: itemModel.productID
+                    )
                 }
-                
-                // Save to Core Data
-                try viewContext.save()
-                
+
+                // Check for drug interactions
+                let interactions = service.checkInteractionsWithCurrentMedications(
+                    items: itemsData,
+                    for: patient
+                )
+
+                // Create the prescription
+                _ = try service.createPrescription(
+                    for: patient,
+                    items: itemsData,
+                    generalInstructions: generalInstructions.isEmpty ? nil : generalInstructions,
+                    prescribingPhysician: nil, // Can be added as a field in the UI if needed
+                    status: "active"
+                )
+
                 // Show success and reset
                 isLoading = false
-                alertMessage = "Prescription saved successfully."
+
+                if !interactions.isEmpty {
+                    alertMessage = "Prescription saved successfully.\n\nWarning: Potential drug interactions detected:\n\(interactions.joined(separator: "\n"))"
+                } else {
+                    alertMessage = "Prescription saved successfully."
+                }
+
                 showAlert = true
-                
+
                 // Reset form
                 resetForm()
             } catch {
@@ -759,8 +767,11 @@ struct AddMedicationView: View {
     @State private var frequency = ""
     @State private var route = ""
     @State private var duration = ""
+    @State private var startDate = Date()
+    @State private var hasEndDate = false
+    @State private var endDate = Date().addingTimeInterval(7 * 24 * 60 * 60) // Default 7 days
     @State private var specialInstructions = ""
-    
+
     // UI state
     @State private var showProductList = false
     
@@ -859,14 +870,25 @@ struct AddMedicationView: View {
                 // Prescription details
                 Section(header: Text("Prescription Details")) {
                     TextField("Dosage (e.g., 1 tablet)", text: $dosage)
-                    
+
                     TextField("Frequency (e.g., twice daily)", text: $frequency)
-                    
+
                     TextField("Route (e.g., oral)", text: $route)
-                    
+
                     TextField("Duration (e.g., 7 days)", text: $duration)
                 }
-                
+
+                // Schedule section
+                Section(header: Text("Schedule")) {
+                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+
+                    Toggle("Has End Date", isOn: $hasEndDate)
+
+                    if hasEndDate {
+                        DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+                    }
+                }
+
                 // Special instructions
                 Section(header: Text("Special Instructions (optional)")) {
                     TextEditor(text: $specialInstructions)
@@ -1034,7 +1056,7 @@ struct AddMedicationView: View {
     
     private func addMedication() {
         guard isFormValid() else { return }
-        
+
         // Create a new prescription item model
         let item = PrescriptionItemModel(
             drugName: selectedProduct?.drugName ?? drugName,
@@ -1043,13 +1065,15 @@ struct AddMedicationView: View {
             frequency: frequency,
             route: route,
             duration: duration,
+            startDate: startDate,
+            endDate: hasEndDate ? endDate : nil,
             specialInstructions: specialInstructions,
             productID: selectedProduct?.objectID
         )
-        
+
         // Call the callback with the new item
         onAddMedication(item)
-        
+
         // Dismiss this view
         presentationMode.wrappedValue.dismiss()
     }
