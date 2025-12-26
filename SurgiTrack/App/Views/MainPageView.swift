@@ -326,7 +326,7 @@ struct MainPageView: View {
                     .buttonStyle(ButtonPressingStyle()) // Add a custom button style to handle pressing animation
                     .opacity(actionsLoaded ? 1 : 0)
                     .offset(y: actionsLoaded ? 0 : 25)
-                    .animation(.easeOut.delay(Double(CombinedQuickAction.allCases.firstIndex(of: action)!) * 0.1), value: actionsLoaded)
+                    .animation(.easeOut.delay(Double(CombinedQuickAction.allCases.firstIndex(of: action) ?? 0) * 0.1), value: actionsLoaded)
                 }
             }
         }
@@ -406,7 +406,7 @@ struct MainPageView: View {
                     .buttonStyle(PlainButtonStyle())
                     .opacity(recentLoaded ? 1 : 0)
                     .offset(y: recentLoaded ? 0 : 30)
-                    .animation(.easeOut.delay(0.2 + Double(upcomingAppointments.firstIndex(of: appointment)!) * 0.1), value: recentLoaded)
+                    .animation(.easeOut.delay(0.2 + Double(upcomingAppointments.firstIndex(of: appointment) ?? 0) * 0.1), value: recentLoaded)
                 }
             }
             
@@ -421,7 +421,7 @@ struct MainPageView: View {
                             .buttonStyle(PlainButtonStyle())
                             .opacity(recentLoaded ? 1 : 0)
                             .offset(y: recentLoaded ? 0 : 30)
-                            .animation(.easeOut.delay(0.3 + Double(recentPatients.firstIndex(of: patient)!) * 0.1), value: recentLoaded)
+                            .animation(.easeOut.delay(0.3 + Double(recentPatients.firstIndex(of: patient) ?? 0) * 0.1), value: recentLoaded)
                         }
                     }
                     .padding(.horizontal, 4)
@@ -438,7 +438,7 @@ struct MainPageView: View {
                     .buttonStyle(PlainButtonStyle())
                     .opacity(recentLoaded ? 1 : 0)
                     .offset(y: recentLoaded ? 0 : 30)
-                    .animation(.easeOut.delay(0.4 + Double(recentProcedures.firstIndex(of: procedure)!) * 0.1), value: recentLoaded)
+                    .animation(.easeOut.delay(0.4 + Double(recentProcedures.firstIndex(of: procedure) ?? 0) * 0.1), value: recentLoaded)
                 }
             }
             
@@ -814,7 +814,10 @@ struct MainPageView: View {
     private func fetchDashboardStats() {
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
-        let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
+        guard let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday) else {
+            Logger.error("Failed to calculate end of today date", category: .ui)
+            return
+        }
         
         let patientRequest: NSFetchRequest<Patient> = Patient.fetchRequest()
         stats.patientCount = (try? viewContext.count(for: patientRequest)) ?? 0
@@ -1049,7 +1052,7 @@ struct EnhancedAnimatedGradientBackground: View {
         var newParticles: [MainPageParticle] = []
 
         for _ in 0..<particleCount {
-            let content = possibleContent.randomElement()!
+            let content = possibleContent.randomElement() ?? ""
             let isSymbol = !content.isEmpty
             let particleSize = CGFloat.random(in: isSymbol ? 18...40 : 15...35)
             let initialPosition = randomPosition(in: size, edgeAffinity: 0.3)
@@ -1064,8 +1067,8 @@ struct EnhancedAnimatedGradientBackground: View {
                 blur: initialBlur,
                 driftTargetPosition: nil,
                 content: content,
-                color: [theme.primaryColor, theme.secondaryColor, theme.primaryColor.opacity(0.8), theme.secondaryColor.opacity(0.8), Color.white, Color.white.opacity(0.7)]
-                    .randomElement()!
+                color: ([theme.primaryColor, theme.secondaryColor, theme.primaryColor.opacity(0.8), theme.secondaryColor.opacity(0.8), Color.white, Color.white.opacity(0.7)]
+                    .randomElement() ?? theme.primaryColor)
                     .opacity(Double.random(in: 0.3...0.7)),
                 size: particleSize,
                 opacity: 1.0,

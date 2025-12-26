@@ -176,16 +176,16 @@ struct AddSurgeonView: View {
         .padding(.vertical, 4)
     }
     
-    private func formPicker<T: Hashable>(title: String, selection: Binding<T>, options: [T]) -> some View {
+    private func formPicker(title: String, selection: Binding<String>, options: [String]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
+
             Picker(title, selection: selection) {
-                Text("Select Specialty").tag("" as! T)
+                Text("Select Specialty").tag("")
                 ForEach(options, id: \.self) { option in
-                    Text(String(describing: option)).tag(option)
+                    Text(option).tag(option)
                 }
             }
             .pickerStyle(MenuPickerStyle())

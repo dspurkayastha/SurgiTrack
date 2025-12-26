@@ -450,7 +450,7 @@ struct SplashView: View {
                 position: CGPoint(x: x, y: y),
                 content: "•", // Simple circle character as content
                 isIcon: false, // These are standard particles, not icons
-                color: [primaryColor, secondaryColor, .white].randomElement()!,
+                color: [primaryColor, secondaryColor, .white].randomElement() ?? primaryColor,
                 size: CGFloat.random(in: 3...8),
                 opacity: Double.random(in: 0.3...0.7),
                 scale: 0.1,
@@ -481,8 +481,8 @@ struct SplashView: View {
             return IconParticle(
                 id: UUID(),
                 position: CGPoint(x: x, y: y),
-                iconName: medicalIcons.randomElement()!,
-                color: [primaryColor, secondaryColor, accentColor].randomElement()!,
+                iconName: medicalIcons.randomElement() ?? "heart.fill",
+                color: [primaryColor, secondaryColor, accentColor].randomElement() ?? primaryColor,
                 size: CGFloat.random(in: 14...22),
                 opacity: Double.random(in: 0.3...0.5),
                 rotation: Double.random(in: 0...360),
@@ -501,7 +501,7 @@ struct SplashView: View {
             return BurstParticle(
                 id: UUID(),
                 position: CGPoint(x: x, y: y),
-                color: [primaryColor, secondaryColor, .white].randomElement()!,
+                color: [primaryColor, secondaryColor, .white].randomElement() ?? primaryColor,
                 size: CGFloat.random(in: 4...10),
                 opacity: 1.0,
                 scale: 0.1,

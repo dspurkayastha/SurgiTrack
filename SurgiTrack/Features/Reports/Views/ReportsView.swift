@@ -374,16 +374,18 @@ struct ReportsView: View {
         case .pending:
             predicates.append(NSPredicate(format: "status == %@", "Pending"))
         case .recent:
-            let lastWeek = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-            predicates.append(NSPredicate(format: "testDate >= %@", lastWeek as NSDate))
+            if let lastWeek = Calendar.current.date(byAdding: .day, value: -7, to: Date()) {
+                predicates.append(NSPredicate(format: "testDate >= %@", lastWeek as NSDate))
+            }
         case .all:
             break
         }
         
         // Date range filter
         if isDateRangeActive() {
-            let adjustedEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate)!
-            predicates.append(NSPredicate(format: "testDate >= %@ AND testDate < %@", startDate as NSDate, adjustedEndDate as NSDate))
+            if let adjustedEndDate = Calendar.current.date(byAdding: .day, value: 1, to: endDate) {
+                predicates.append(NSPredicate(format: "testDate >= %@ AND testDate < %@", startDate as NSDate, adjustedEndDate as NSDate))
+            }
         }
         
         let compoundPredicate = predicates.isEmpty ? nil : NSCompoundPredicate(andPredicateWithSubpredicates: predicates)

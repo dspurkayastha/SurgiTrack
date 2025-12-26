@@ -20,7 +20,7 @@ struct UserProfileEditView: View {
 
     init(userProfile: UserProfile) {
         self.userProfile = userProfile
-        _firstName = State(initialValue: userProfile.firstName!)
+        _firstName = State(initialValue: userProfile.firstName ?? "")
         _lastName = State(initialValue: userProfile.lastName ?? "")
         _title = State(initialValue: userProfile.title ?? "")
         _unitName = State(initialValue: userProfile.unitName ?? "")

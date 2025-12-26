@@ -1317,12 +1317,12 @@ struct TestTrendView: View {
             Image(systemName: "chart.xyaxis.line")
                 .font(.system(size: 60))
                 .foregroundColor(.gray.opacity(0.5))
-            
+
             Text("No Trend Data Available")
                 .font(.headline)
-            
-            if selectedParameter != nil {
-                Text("There isn't enough historical data to display trends for \(selectedParameter!).")
+
+            if let parameter = selectedParameter {
+                Text("There isn't enough historical data to display trends for \(parameter).")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -1614,9 +1614,10 @@ class TestReportPDFGenerator {
             
             drawPageFooter(pageNumber: pdfDocument.pageCount + 1)
         }
-        
+
         // Convert data to PDFPage and add to document
-        if let pdfPage = PDFPage(image: UIImage(data: firstPageData)!) {
+        if let image = UIImage(data: firstPageData),
+           let pdfPage = PDFPage(image: image) {
             pdfDocument.insert(pdfPage, at: 0)
         }
         
@@ -1661,8 +1662,9 @@ class TestReportPDFGenerator {
                         // Draw page footer
                         drawPageFooter(pageNumber: pdfDocument.pageCount + index + 1)
                     }
-                    
-                    if let pdfPage = PDFPage(image: UIImage(data: attachmentPageData)!) {
+
+                    if let attachmentImage = UIImage(data: attachmentPageData),
+                       let pdfPage = PDFPage(image: attachmentImage) {
                         pdfDocument.insert(pdfPage, at: pdfDocument.pageCount)
                     }
                 }

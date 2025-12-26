@@ -89,18 +89,18 @@ extension Patient {
     
     // Check if patient has complete demographics
     var hasCompleteDemographics: Bool {
-        return firstName != nil && !firstName!.isEmpty &&
-               lastName != nil && !lastName!.isEmpty &&
+        return !(firstName?.isEmpty ?? true) &&
+               !(lastName?.isEmpty ?? true) &&
                dateOfBirth != nil &&
-               gender != nil && !gender!.isEmpty &&
-               medicalRecordNumber != nil && !medicalRecordNumber!.isEmpty
+               !(gender?.isEmpty ?? true) &&
+               !(medicalRecordNumber?.isEmpty ?? true)
     }
     
     // Check if patient has at least one contact method
     var hasContactInfo: Bool {
-        return (contactInfo != nil && !contactInfo!.isEmpty) ||
-               (phone != nil && !phone!.isEmpty) ||
-               (address != nil && !address!.isEmpty)
+        return !(contactInfo?.isEmpty ?? true) ||
+               !(phone?.isEmpty ?? true) ||
+               !(address?.isEmpty ?? true)
     }
     
     // Get a concatenated list of current medical issues

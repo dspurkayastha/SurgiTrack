@@ -19,7 +19,9 @@ struct AccordionPatientDetailView: View {
     // MARK: - Initialization
     init(patient: Patient) {
         self.patient = patient
-        self.viewModel = PatientDetailViewModel(patient: patient, context: patient.managedObjectContext!)
+        // Use a default context if managedObjectContext is nil (should not happen in normal use)
+        let context = patient.managedObjectContext ?? PersistenceController.shared.container.viewContext
+        self.viewModel = PatientDetailViewModel(patient: patient, context: context)
     }
     
     // MARK: - Body

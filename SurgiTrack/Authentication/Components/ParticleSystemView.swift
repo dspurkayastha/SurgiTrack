@@ -153,7 +153,22 @@ struct ParticleSystemView: View {
             let y = centerY + CGFloat(sin(angle) * distance)
             
             // Get random content and isIcon flag
-            let (content, isIcon) = generators.randomElement()!()
+            guard let generator = generators.randomElement() else {
+                return Particle(
+                    id: UUID(),
+                    position: CGPoint(x: centerX, y: centerY),
+                    content: "•",
+                    isIcon: false,
+                    color: .gray,
+                    size: 16,
+                    opacity: 0.3,
+                    scale: 1.0,
+                    rotation: 0,
+                    duration: 4.0,
+                    delay: 0
+                )
+            }
+            let (content, isIcon) = generator()
             
             return Particle(
                 id: UUID(),
@@ -164,7 +179,7 @@ struct ParticleSystemView: View {
                     appState.currentTheme.primaryColor,
                     appState.currentTheme.secondaryColor,
                     Color.gray
-                ].randomElement()!,
+                ].randomElement() ?? appState.currentTheme.primaryColor,
                 size: CGFloat.random(in: isIcon ? 14...24 : 16...30),
                 opacity: Double.random(in: 0.1...0.4),
                 scale: Double.random(in: 0.8...1.2),

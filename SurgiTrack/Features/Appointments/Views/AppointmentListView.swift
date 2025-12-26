@@ -39,12 +39,15 @@ struct AppointmentListView: View {
     var filteredAppointments: [Appointment] {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
-        
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            Logger.error("Failed to calculate end of day", category: .general)
+            return []
+        }
+
         let request: NSFetchRequest<Appointment> = Appointment.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Appointment.startTime, ascending: true)]
         request.predicate = NSPredicate(format: "startTime >= %@ AND startTime < %@", startOfDay as NSDate, endOfDay as NSDate)
-        
+
         do {
             return try viewContext.fetch(request)
         } catch {
@@ -100,8 +103,9 @@ struct AppointmentListView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(-3...3, id: \.self) { offset in
-                                let date = Calendar.current.date(byAdding: .day, value: offset, to: selectedDate)!
-                                dayButton(date: date)
+                                if let date = Calendar.current.date(byAdding: .day, value: offset, to: selectedDate) {
+                                    dayButton(date: date)
+                                }
                             }
                         }
                         .padding(.horizontal)

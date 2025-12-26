@@ -201,9 +201,9 @@ struct ThirdPartySoftwareView: View {
                     Text(library.purpose)
                         .font(.body)
                         .padding(.top, 4)
-                    
-                    if !library.url.isEmpty {
-                        Link(destination: URL(string: library.url)!) {
+
+                    if !library.url.isEmpty, let url = URL(string: library.url) {
+                        Link(destination: url) {
                             HStack {
                                 Text("Project Website")
                                 Image(systemName: "arrow.up.right.square")

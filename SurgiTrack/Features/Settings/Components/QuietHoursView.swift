@@ -15,8 +15,8 @@ import SwiftUI
 struct QuietHoursView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var quietHoursEnabled = true
-    @State private var startTime = Calendar.current.date(from: DateComponents(hour: 22, minute: 0))!
-    @State private var endTime = Calendar.current.date(from: DateComponents(hour: 7, minute: 0))!
+    @State private var startTime = Calendar.current.date(from: DateComponents(hour: 22, minute: 0)) ?? Date()
+    @State private var endTime = Calendar.current.date(from: DateComponents(hour: 7, minute: 0)) ?? Date()
     @State private var allowUrgentNotifications = true
     @State private var showingSaveConfirmation = false
     

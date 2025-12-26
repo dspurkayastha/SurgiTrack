@@ -33,7 +33,7 @@ struct OperativeDataSegment: View {
                     message: "Add operative data when the patient undergoes a procedure",
                     iconName: "scalpel",
                     color: DetailSegment.operative.color,
-                    actionButton: addButton as! AnyView
+                    actionButton: AnyView(addButton)
                 )
             } else {
                 VStack(spacing: 16) {

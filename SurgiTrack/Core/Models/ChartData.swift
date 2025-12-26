@@ -444,7 +444,7 @@ struct ChartComponents_Previews: PreviewProvider {
         let now = Date()
         let calendar = Calendar.current
         return (0..<6).map { i in
-            let date = calendar.date(byAdding: .month, value: -i, to: now)!
+            let date = calendar.date(byAdding: .month, value: -i, to: now) ?? now
             return LineChartData(value: Double.random(in: 10...90), label: "", date: date)
         }.reversed()
     }()
