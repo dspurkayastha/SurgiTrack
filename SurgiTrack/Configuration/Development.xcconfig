@@ -1,0 +1,15 @@
+// Development.xcconfig
+// SurgiTrack - Development Environment Configuration
+// SECURITY: This file contains development-only API keys
+// NEVER commit production keys to source control
+
+// Clerk API Configuration
+// Get your development key from https://dashboard.clerk.com
+CLERK_PUBLISHABLE_KEY = pk_test_YOUR_DEVELOPMENT_KEY_HERE
+
+// Environment identifier
+APP_ENVIRONMENT = development
+
+// Debug settings
+ENABLE_DEBUG_LOGGING = YES
+ENABLE_TESTFLIGHT_LOGGING = NO

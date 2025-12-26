@@ -1,0 +1,15 @@
+// Staging.xcconfig
+// SurgiTrack - Staging Environment Configuration
+// SECURITY: This file contains staging API keys
+// NEVER commit production keys to source control
+
+// Clerk API Configuration
+// Get your staging key from https://dashboard.clerk.com
+CLERK_PUBLISHABLE_KEY = pk_test_YOUR_STAGING_KEY_HERE
+
+// Environment identifier
+APP_ENVIRONMENT = staging
+
+// Debug settings
+ENABLE_DEBUG_LOGGING = YES
+ENABLE_TESTFLIGHT_LOGGING = YES

@@ -396,8 +396,13 @@ class AuthManager: ObservableObject {
             }
         }
 
-        // Store lockout state
-        UserDefaults.standard.set(lockoutEndTime?.timeIntervalSince1970, forKey: "lockoutEndTime")
+        // Store lockout state securely in Keychain
+        do {
+            try keychain.setLockoutEndTime(lockoutEndTime)
+            try keychain.setFailedLoginAttempts(loginAttempts)
+        } catch {
+            Logger.error("Failed to store lockout state in Keychain", error: error, category: .security)
+        }
     }
 
     private func updateLockoutTimer() {
@@ -413,7 +418,12 @@ class AuthManager: ObservableObject {
             loginAttempts = 0
             lockoutRemainingSeconds = 0
             lockoutTimer?.invalidate()
-            UserDefaults.standard.removeObject(forKey: "lockoutEndTime")
+            // Clear lockout state from Keychain
+            do {
+                try keychain.clearLockoutState()
+            } catch {
+                Logger.error("Failed to clear lockout state from Keychain", error: error, category: .security)
+            }
             authError = nil
         } else {
             lockoutRemainingSeconds = Int(remaining)
@@ -421,14 +431,18 @@ class AuthManager: ObservableObject {
     }
 
     private func loadLockoutState() {
-        if let timestamp = UserDefaults.standard.object(forKey: "lockoutEndTime") as? Double {
-            let lockoutEnd = Date(timeIntervalSince1970: timestamp)
+        // Load lockout state from Keychain (secure storage)
+        if let lockoutEnd = keychain.getLockoutEndTime() {
             if lockoutEnd > Date() {
                 lockoutEndTime = lockoutEnd
+                loginAttempts = keychain.getFailedLoginAttempts()
                 isLockedOut = true
-                setLockout() // Restart the timer
-            } else {
-                UserDefaults.standard.removeObject(forKey: "lockoutEndTime")
+                // Restart the timer
+                lockoutTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+                    Task { @MainActor in
+                        self?.updateLockoutTimer()
+                    }
+                }
             }
         }
     }

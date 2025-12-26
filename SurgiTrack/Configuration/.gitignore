@@ -1,0 +1,8 @@
+# Ignore local overrides with actual API keys
+*.local.xcconfig
+Development.xcconfig.local
+Staging.xcconfig.local
+Production.xcconfig.local
+
+# Keep template files
+!*.xcconfig

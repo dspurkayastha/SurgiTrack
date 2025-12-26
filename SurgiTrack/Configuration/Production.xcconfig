@@ -1,0 +1,23 @@
+// Production.xcconfig
+// SurgiTrack - Production Environment Configuration
+//
+// ⚠️ SECURITY WARNING ⚠️
+// This file should NOT contain actual production API keys!
+// Production keys should be:
+// 1. Stored in CI/CD secrets (GitHub Secrets, Bitrise, etc.)
+// 2. Injected during build time
+// 3. NEVER committed to source control
+//
+// Example CI/CD injection:
+// sed -i '' 's/YOUR_PRODUCTION_KEY_HERE/${CLERK_PROD_KEY}/g' Production.xcconfig
+
+// Clerk API Configuration
+// This placeholder should be replaced by CI/CD with actual production key
+CLERK_PUBLISHABLE_KEY = pk_live_YOUR_PRODUCTION_KEY_HERE
+
+// Environment identifier
+APP_ENVIRONMENT = production
+
+// Debug settings
+ENABLE_DEBUG_LOGGING = NO
+ENABLE_TESTFLIGHT_LOGGING = NO

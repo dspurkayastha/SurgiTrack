@@ -2,21 +2,32 @@
 // SurgiTrack
 // Cryptographically secure hashing for passwords and PINs
 // Created on 26/12/2025
+// Updated: PBKDF2 implementation for HIPAA-compliant password hashing
 
 import Foundation
 import CryptoKit
+import CommonCrypto
 
 /// Provides secure cryptographic hashing for sensitive data like passwords and PINs.
-/// Uses SHA-256 with salt for secure storage.
+/// Uses PBKDF2-HMAC-SHA256 with high iteration count for secure storage.
+/// Compliant with NIST SP 800-132 and HIPAA security requirements.
 struct SecureHasher {
 
     // MARK: - Configuration
 
-    /// The number of iterations for key derivation (increase for stronger security)
-    private static let iterations = 100_000
+    /// The number of iterations for PBKDF2 key derivation
+    /// NIST recommends minimum 10,000; we use 310,000 for enhanced security
+    /// This value should be increased over time as hardware improves
+    private static let pbkdf2Iterations: UInt32 = 310_000
 
-    /// Salt length in bytes
+    /// Salt length in bytes (256 bits as recommended by NIST)
     private static let saltLength = 32
+
+    /// Derived key length in bytes (256 bits)
+    private static let derivedKeyLength = 32
+
+    /// Version identifier for hash format (for future migration support)
+    private static let hashVersion = "v2"
 
     // MARK: - Public Methods
 
@@ -27,46 +38,94 @@ struct SecureHasher {
         let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
 
         guard status == errSecSuccess else {
-            // Fallback to UUID-based salt if SecRandomCopyBytes fails
-            return UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            // This should never happen in practice, but log if it does
+            Logger.security("SecRandomCopyBytes failed, using fallback", level: .error)
+            // Fallback using multiple UUIDs for entropy
+            let uuid1 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            let uuid2 = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+            return String((uuid1 + uuid2).prefix(64))
         }
 
         return bytes.map { String(format: "%02x", $0) }.joined()
     }
 
-    /// Hashes a password using SHA-256 with the provided salt
+    /// Hashes a password using PBKDF2-HMAC-SHA256
     /// - Parameters:
     ///   - password: The plaintext password to hash
-    ///   - salt: The salt to use for hashing
-    /// - Returns: A hex-encoded hash string
+    ///   - salt: The salt to use for hashing (hex-encoded)
+    /// - Returns: A versioned hex-encoded hash string (format: "v2:hash")
     static func hashPassword(_ password: String, salt: String) -> String {
-        let saltedPassword = password + salt
-        guard let data = saltedPassword.data(using: .utf8) else {
+        guard let passwordData = password.data(using: .utf8),
+              let saltData = Data(hexString: salt) else {
+            Logger.security("Failed to encode password or salt for hashing", level: .error)
             return ""
         }
 
-        let hash = SHA256.hash(data: data)
-        return hash.compactMap { String(format: "%02x", $0) }.joined()
+        var derivedKey = [UInt8](repeating: 0, count: derivedKeyLength)
+
+        let status = CCKeyDerivationPBKDF(
+            CCPBKDFAlgorithm(kCCPBKDF2),
+            password,
+            passwordData.count,
+            [UInt8](saltData),
+            saltData.count,
+            CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+            pbkdf2Iterations,
+            &derivedKey,
+            derivedKeyLength
+        )
+
+        guard status == kCCSuccess else {
+            Logger.security("PBKDF2 derivation failed with status: \(status)", level: .error)
+            return ""
+        }
+
+        let hashHex = derivedKey.map { String(format: "%02x", $0) }.joined()
+        return "\(hashVersion):\(hashHex)"
     }
 
-    /// Hashes a PIN using SHA-256 with the provided salt
+    /// Hashes a PIN using PBKDF2-HMAC-SHA256
     /// - Parameters:
     ///   - pin: The plaintext PIN to hash
     ///   - salt: The salt to use for hashing
-    /// - Returns: A hex-encoded hash string
+    /// - Returns: A versioned hex-encoded hash string
     static func hashPIN(_ pin: String, salt: String) -> String {
         return hashPassword(pin, salt: salt)
     }
 
     /// Verifies a password against a stored hash
+    /// Supports both legacy (v1/unversioned) and current (v2) hash formats
     /// - Parameters:
     ///   - password: The plaintext password to verify
     ///   - hash: The stored hash to compare against
     ///   - salt: The salt that was used for hashing
     /// - Returns: true if the password matches, false otherwise
     static func verifyPassword(_ password: String, againstHash hash: String, salt: String) -> Bool {
-        let computedHash = hashPassword(password, salt: salt)
-        return constantTimeCompare(computedHash, hash)
+        // Check for versioned hash format
+        if hash.hasPrefix("v2:") {
+            // Current PBKDF2 format
+            let computedHash = hashPassword(password, salt: salt)
+            return constantTimeCompare(computedHash, hash)
+        } else if hash.hasPrefix("v1:") {
+            // Legacy format with version prefix
+            let legacyHash = hashPasswordLegacy(password, salt: salt)
+            return constantTimeCompare("v1:\(legacyHash)", hash)
+        } else {
+            // Unversioned legacy format (pre-v2 migration)
+            let legacyHash = hashPasswordLegacy(password, salt: salt)
+            return constantTimeCompare(legacyHash, hash)
+        }
+    }
+
+    /// Legacy SHA-256 hashing for backward compatibility
+    /// Used only for verification of old hashes, not for creating new ones
+    private static func hashPasswordLegacy(_ password: String, salt: String) -> String {
+        let saltedPassword = password + salt
+        guard let data = saltedPassword.data(using: .utf8) else {
+            return ""
+        }
+        let hash = SHA256.hash(data: data)
+        return hash.compactMap { String(format: "%02x", $0) }.joined()
     }
 
     /// Verifies a PIN against a stored hash
@@ -77,6 +136,13 @@ struct SecureHasher {
     /// - Returns: true if the PIN matches, false otherwise
     static func verifyPIN(_ pin: String, againstHash hash: String, salt: String) -> Bool {
         return verifyPassword(pin, againstHash: hash, salt: salt)
+    }
+
+    /// Checks if a hash needs to be upgraded to the current format
+    /// - Parameter hash: The hash to check
+    /// - Returns: true if the hash should be re-hashed with PBKDF2
+    static func needsHashUpgrade(_ hash: String) -> Bool {
+        return !hash.hasPrefix("v2:")
     }
 
     /// Creates a secure hash with a new salt (convenience method)
@@ -179,5 +245,33 @@ extension SecureHasher {
         } catch {
             return nil
         }
+    }
+}
+
+// MARK: - Data Hex String Extension
+
+extension Data {
+    /// Initializes Data from a hex-encoded string
+    /// - Parameter hexString: The hex string to convert (e.g., "48656c6c6f")
+    init?(hexString: String) {
+        let len = hexString.count / 2
+        var data = Data(capacity: len)
+        var index = hexString.startIndex
+
+        for _ in 0..<len {
+            let nextIndex = hexString.index(index, offsetBy: 2)
+            guard let byte = UInt8(hexString[index..<nextIndex], radix: 16) else {
+                return nil
+            }
+            data.append(byte)
+            index = nextIndex
+        }
+
+        self = data
+    }
+
+    /// Converts Data to a hex-encoded string
+    var hexString: String {
+        return map { String(format: "%02x", $0) }.joined()
     }
 }

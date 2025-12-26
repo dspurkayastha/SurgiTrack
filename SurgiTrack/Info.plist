@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>ClerkPublishableKey</key>
-	<string>pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA</string>
+	<string>$(CLERK_PUBLISHABLE_KEY)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -37,9 +37,9 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>SurgiTrack requires microphone access to record audio notes for patient records.</string>
 	<key>UIFileSharingEnabled</key>
-	<true/>
+	<false/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

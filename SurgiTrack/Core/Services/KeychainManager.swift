@@ -31,6 +31,8 @@ final class KeychainManager {
         case biometricEnabled = "surgitrack.biometric.enabled"
         case lastAuthMethod = "surgitrack.auth.method"
         case sessionExpiry = "surgitrack.session.expiry"
+        case lockoutEndTime = "surgitrack.security.lockout"
+        case failedLoginAttempts = "surgitrack.security.attempts"
     }
 
     // MARK: - Keychain Errors
@@ -307,6 +309,58 @@ final class KeychainManager {
             return false
         }
         return Date() < expiry
+    }
+
+    // MARK: - Lockout State Management
+
+    /// Stores lockout end time securely
+    /// - Parameter date: The date when the lockout ends, or nil to clear
+    func setLockoutEndTime(_ date: Date?) throws {
+        if let date = date {
+            let timestamp = String(date.timeIntervalSince1970)
+            try store(timestamp, for: .lockoutEndTime)
+        } else {
+            try delete(key: .lockoutEndTime)
+        }
+    }
+
+    /// Retrieves lockout end time
+    /// - Returns: The lockout end date, or nil if not locked out
+    func getLockoutEndTime() -> Date? {
+        guard let timestamp = retrieve(key: .lockoutEndTime),
+              let interval = Double(timestamp) else {
+            return nil
+        }
+        let date = Date(timeIntervalSince1970: interval)
+        // If lockout has expired, clear it and return nil
+        if date <= Date() {
+            try? delete(key: .lockoutEndTime)
+            try? delete(key: .failedLoginAttempts)
+            return nil
+        }
+        return date
+    }
+
+    /// Stores the number of failed login attempts
+    /// - Parameter count: The number of failed attempts
+    func setFailedLoginAttempts(_ count: Int) throws {
+        try store(String(count), for: .failedLoginAttempts)
+    }
+
+    /// Retrieves the number of failed login attempts
+    /// - Returns: The number of failed attempts, or 0 if none recorded
+    func getFailedLoginAttempts() -> Int {
+        guard let countStr = retrieve(key: .failedLoginAttempts),
+              let count = Int(countStr) else {
+            return 0
+        }
+        return count
+    }
+
+    /// Clears lockout state (called on successful authentication)
+    func clearLockoutState() throws {
+        try delete(key: .lockoutEndTime)
+        try delete(key: .failedLoginAttempts)
     }
 
     // MARK: - Private Methods

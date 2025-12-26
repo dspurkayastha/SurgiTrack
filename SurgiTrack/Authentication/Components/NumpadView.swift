@@ -166,9 +166,9 @@ struct NumpadView: View {
                 
                 VStack {
                     NumpadView(
-                        onDigitTapped: { digit in print("Tapped \(digit)") },
-                        onDeleteTapped: { print("Delete tapped") },
-                        alternativeButtonAction: { print("Alternative tapped") },
+                        onDigitTapped: { _ in },
+                        onDeleteTapped: { },
+                        alternativeButtonAction: { },
                         alternativeButtonIcon: "faceid",
                         pressedButton: nil
                     )

@@ -37,25 +37,28 @@ enum Configuration {
     /// API configuration for Clerk authentication
     enum ClerkAPI {
         /// The Clerk publishable key for the current environment
+        /// SECURITY: Keys must be provided via xcconfig files, never hardcoded
         static var publishableKey: String {
-            switch environment {
-            case .development:
-                // Development/test key - safe to include in source
-                return Bundle.main.infoDictionary?["ClerkPublishableKey"] as? String
-                    ?? "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA"
-            case .staging:
-                // Staging key - should be in xcconfig
-                return Bundle.main.infoDictionary?["ClerkPublishableKey"] as? String ?? ""
-            case .production:
-                // Production key - MUST be in xcconfig, not source code
-                guard let key = Bundle.main.infoDictionary?["ClerkPublishableKey"] as? String,
-                      !key.isEmpty,
-                      !key.contains("test") else {
-                    Logger.fault("Production Clerk key not configured!", category: .security)
-                    return ""
-                }
-                return key
+            guard let key = Bundle.main.infoDictionary?["ClerkPublishableKey"] as? String,
+                  !key.isEmpty,
+                  !key.hasPrefix("$(") else { // Check for unexpanded variable
+                Logger.fault("Clerk API key not configured! Add CLERK_PUBLISHABLE_KEY to xcconfig.", category: .security)
+                return ""
             }
+
+            // Additional validation for production
+            if environment == .production && key.contains("test") {
+                Logger.fault("Test API key used in production! This is a security violation.", category: .security)
+                return ""
+            }
+
+            return key
+        }
+
+        /// Validates that the API key is properly configured
+        static var isConfigured: Bool {
+            let key = publishableKey
+            return !key.isEmpty
         }
     }
 
