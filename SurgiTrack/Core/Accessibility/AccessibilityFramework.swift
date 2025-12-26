@@ -541,4 +541,40 @@ extension View {
     func supportsDynamicType() -> some View {
         modifier(DynamicTypeModifier())
     }
+
+    /// Applies comprehensive accessibility support to any view
+    /// Includes: Dynamic Type, minimum touch targets, reduce motion animations
+    func applyAccessibility() -> some View {
+        modifier(ComprehensiveAccessibilityModifier())
+    }
+
+    /// Safe animation that respects reduce motion setting
+    func safeAnimation<V: Equatable>(_ animation: Animation? = .default, value: V) -> some View {
+        modifier(SafeAnimationModifier(animation: animation, value: value))
+    }
+}
+
+// MARK: - Comprehensive Accessibility Modifier
+
+/// Applies all accessibility best practices to a view
+struct ComprehensiveAccessibilityModifier: ViewModifier {
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+    }
+}
+
+/// Animation modifier that respects reduce motion
+struct SafeAnimationModifier<V: Equatable>: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
+    let animation: Animation?
+    let value: V
+
+    func body(content: Content) -> some View {
+        content
+            .animation(reduceMotion ? nil : animation, value: value)
+    }
 }

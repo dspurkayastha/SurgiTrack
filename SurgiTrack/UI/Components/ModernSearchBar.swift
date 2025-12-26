@@ -4,8 +4,9 @@ struct ModernSearchBar: View {
     let placeholder: String
     @Binding var text: String
     var onCancel: (() -> Void)?
-    
+
     @Environment(\.themeColors) private var colors
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isFocused: Bool
     
     var body: some View {
@@ -60,8 +61,8 @@ struct ModernSearchBar: View {
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: text)
+        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7), value: isFocused)
+        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.7), value: text)
     }
 }
 

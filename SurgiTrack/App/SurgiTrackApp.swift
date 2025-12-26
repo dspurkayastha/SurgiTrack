@@ -22,7 +22,9 @@ struct SurgiTrackApp: App {
                 .environment(\.managedObjectContext, environment.persistenceController.container.viewContext)
                 .environmentObject(environment)
                 .environmentObject(environment.appState)
+                .environmentObject(AccessibilityManager.shared)
                 .withThemeBridge(appState: environment.appState, colorScheme: colorScheme)
+                .applyAccessibility()
                 .overlay(
                     Group {
                         if environment.appState.isShowingToast {
