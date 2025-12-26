@@ -262,9 +262,9 @@ struct ExportDataView: View {
     
     private func shareExportedFile() {
         // In a real app, this would open the iOS share sheet
-        // For this demo, we'll just print the file details
+        // For this demo, we'll log the file details
         if let url = exportedFileURL {
-            print("Sharing file: \(url.path)")
+            Logger.debug("Sharing file: \(url.path)", category: .export)
         }
     }
     

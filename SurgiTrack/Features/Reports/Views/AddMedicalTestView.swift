@@ -435,7 +435,7 @@ struct AddMedicalTestView: View {
             let profiles = try viewContext.fetch(request)
             return profiles.first
         } catch {
-            print("Error fetching user profile: \(error)")
+            Logger.error("Error fetching user profile", error: error, category: .persistence)
             return nil
         }
     }

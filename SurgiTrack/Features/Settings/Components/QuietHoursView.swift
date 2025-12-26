@@ -119,16 +119,14 @@ struct QuietHoursView: View {
         // Here we would save to UserDefaults or Core Data
         // For now, we'll just simulate saving
         
-        print("Saving quiet hours settings:")
-        print("Enabled: \(quietHoursEnabled)")
+        var message = "Saving quiet hours settings - Enabled: \(quietHoursEnabled)"
         if quietHoursEnabled {
-            print("Start: \(formatTime(startTime))")
-            print("End: \(formatTime(endTime))")
-            print("Allow urgent: \(allowUrgentNotifications)")
+            message += ", Start: \(formatTime(startTime)), End: \(formatTime(endTime)), Allow urgent: \(allowUrgentNotifications)"
             if allowUrgentNotifications {
-                print("Urgent types: \(urgentTypes.map { $0.description }.joined(separator: ", "))")
+                message += ", Urgent types: \(urgentTypes.map { $0.description }.joined(separator: ", "))"
             }
         }
+        Logger.info(message, category: .general)
     }
     
     private func formatTime(_ date: Date) -> String {

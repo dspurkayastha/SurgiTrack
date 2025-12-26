@@ -266,7 +266,7 @@ struct PhotoPicker: UIViewControllerRepresentable {
             
             result.itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
                 if let error = error {
-                    print("Error loading image: \(error)")
+                    Logger.error("Error loading image", error: error, category: .general)
                     return
                 }
                 

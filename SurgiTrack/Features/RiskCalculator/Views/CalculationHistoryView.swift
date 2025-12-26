@@ -66,7 +66,7 @@ struct CalculationHistoryView: View {
             do {
                 try viewContext.save()
             } catch {
-                print("Error deleting calculations: \(error)")
+                Logger.error("Error deleting calculations", error: error, category: .riskCalculation)
             }
         }
     }

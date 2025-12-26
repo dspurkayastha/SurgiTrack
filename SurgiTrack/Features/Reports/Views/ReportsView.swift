@@ -114,7 +114,7 @@ struct ReportsView: View {
         EnhancedTrendsView.createWithPatient(selectedPatient)
             .environment(\.managedObjectContext, viewContext)
             .onDisappear {
-                print("EnhancedTrendsView: onDisappear")
+                Logger.debug("EnhancedTrendsView: onDisappear", category: .ui)
                 navigationState.ensureButtonVisibility()
             }
     }
@@ -158,7 +158,7 @@ struct ReportsView: View {
     // MARK: - Lifecycle Handler
 
     private func onAppearHandler() {
-        print("ReportsView: onAppear")
+        Logger.debug("ReportsView: onAppear", category: .ui)
         updatePredicate()
         navigationState.ensureButtonVisibility()
     }
@@ -224,14 +224,14 @@ struct ReportsView: View {
             .padding(.vertical, 5)
             .background(Color.blue.opacity(0.1))
             .cornerRadius(8)
-            .onAppear { print("🔹 Analysis Button: onAppear") }
-            .onDisappear { print("🔹 Analysis Button: onDisappear") }
+            .onAppear { Logger.debug("Analysis Button: onAppear", category: .ui) }
+            .onDisappear { Logger.debug("Analysis Button: onDisappear", category: .ui) }
         }
         .id("analysisButton")
         .opacity(navigationState.showingAnalysisButton ? 1.0 : 0.0)
         .disabled(!navigationState.showingAnalysisButton)
         .onAppear {
-            print("🔷 ReportsView: Rendering Analysis button, showingAnalysisButton=\(navigationState.showingAnalysisButton)")
+            Logger.debug("ReportsView: Rendering Analysis button, showingAnalysisButton=\(navigationState.showingAnalysisButton)", category: .ui)
         }
     }
 

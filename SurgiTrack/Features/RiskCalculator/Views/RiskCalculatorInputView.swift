@@ -170,7 +170,7 @@ struct RiskCalculatorInputView: View {
         do {
             try viewContext.save()
         } catch {
-            print("Error saving calculation result: \(error)")
+            Logger.error("Error saving calculation result", error: error, category: .riskCalculation)
         }
     }
     

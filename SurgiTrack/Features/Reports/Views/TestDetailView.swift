@@ -116,12 +116,12 @@ struct TestDetailView: View {
                 }
             }
             .onAppear {
-                print("📌 TestDetailView: onAppear")
+                Logger.debug("TestDetailView: onAppear", category: .ui)
             }
             .onDisappear {
-                print("📌 TestDetailView: onDisappear")
+                Logger.debug("TestDetailView: onDisappear", category: .ui)
                 navigationState.ensureButtonVisibility()
-                print("📌 TestDetailView: After ensuring button visibility: \(navigationState.showingAnalysisButton)")
+                Logger.debug("TestDetailView: After ensuring button visibility: \(navigationState.showingAnalysisButton)", category: .ui)
             }
             .actionSheet(isPresented: $showingEditOptions) {
                 ActionSheet(
@@ -140,15 +140,13 @@ struct TestDetailView: View {
                     ]
                 )
             }
-            .alert(isPresented: $showingDeleteConfirmation) {
-                Alert(
-                    title: Text("Delete Test"),
-                    message: Text("Are you sure you want to delete this test? This action cannot be undone."),
-                    primaryButton: .destructive(Text("Delete")) {
-                        deleteTest()
-                    },
-                    secondaryButton: .cancel()
-                )
+            .alert("Delete Test", isPresented: $showingDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    deleteTest()
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Are you sure you want to delete this test? This action cannot be undone.")
             }
             .overlay(
                 Group {
@@ -763,7 +761,7 @@ struct TestDetailView: View {
                    return previousValue
                }
            } catch {
-               print("Error fetching previous test: \(error)")
+               Logger.error("Error fetching previous test", error: error, category: .persistence)
            }
            
            return nil
@@ -845,8 +843,8 @@ private func getAttachmentColor(for contentType: String) -> Color {
                 presentationMode.wrappedValue.dismiss()
             } catch {
                 // Handle errors
-                print("Error deleting test: \(error)")
-                
+                Logger.error("Error deleting test", error: error, category: .persistence)
+
                 // Show error alert to user
                 let nsError = error as NSError
                 appState.showAlert(title: "Deletion Failed",
@@ -1483,7 +1481,7 @@ struct TestTrendView: View {
             updateChartForParameter(tests: tests)
             
         } catch {
-            print("Error fetching tests: \(error)")
+            Logger.error("Error fetching tests", error: error, category: .persistence)
             errorMessage = "Failed to load test data: \(error.localizedDescription)"
             isLoading = false
         }
@@ -1521,7 +1519,7 @@ struct TestTrendView: View {
             do {
                 testsToProcess = try viewContext.fetch(request)
             } catch {
-                print("Error fetching tests for parameter update: \(error)")
+                Logger.error("Error fetching tests for parameter update", error: error, category: .persistence)
                 errorMessage = "Failed to load test data: \(error.localizedDescription)"
                 isLoading = false
                 return
@@ -2004,10 +2002,9 @@ class LogManager {
     }
     
     func logEvent(category: LogCategory, action: LogAction, detail: String) {
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        let logString = "[\(timestamp)] [\(category.rawValue)] [\(action.rawValue)] \(detail)"
-        print(logString)
-        
+        // Use the app's Logger instead of print
+        Logger.info("[\(category.rawValue)] [\(action.rawValue)] \(detail)", category: .audit)
+
         // In a real app, this would save to a log file or send to a logging service
     }
 }

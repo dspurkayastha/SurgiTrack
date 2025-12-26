@@ -390,7 +390,7 @@ struct DischargeSummaryView: View {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
         } catch {
-            print("Error readmitting patient: \(error)")
+            Logger.error("Error readmitting patient", error: error, category: .persistence)
         }
     }
     
@@ -410,7 +410,7 @@ struct DischargeSummaryView: View {
                 let results = try self.viewContext.fetch(fetchRequest)
                 currentUserProfile = results.first
             } catch {
-                print("Error fetching current user profile: \(error)")
+                Logger.error("Error fetching current user profile", error: error, category: .persistence)
             }
             
             // If no UserProfile is found, create a dummy instance with placeholder values.
@@ -428,7 +428,7 @@ struct DischargeSummaryView: View {
             
             guard let userProfile = currentUserProfile else {
                 DispatchQueue.main.async {
-                    print("No user profile available")
+                    Logger.info("No user profile available", category: .export)
                     self.isGeneratingPDF = false
                 }
                 return
@@ -460,7 +460,7 @@ struct DischargeSummaryView: View {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    print("Error creating PDF file: \(error)")
+                    Logger.error("Error creating PDF file", error: error, category: .export)
                     self.isGeneratingPDF = false
                 }
             }

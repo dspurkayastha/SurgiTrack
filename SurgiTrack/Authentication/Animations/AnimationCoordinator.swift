@@ -9,7 +9,7 @@ class AnimationCoordinator: ObservableObject {
     @Published var backgroundRotation = 0.0
     @Published var backgroundOpacity: Double = 0.0 {
         didSet {
-            print("DEBUG: backgroundOpacity changed to \(backgroundOpacity)")
+            Logger.debug("backgroundOpacity changed to \(backgroundOpacity)", category: .ui)
         }
     }
 
@@ -27,7 +27,7 @@ class AnimationCoordinator: ObservableObject {
     @Published var showParticles = false
     @Published var particleOpacity: Double = 0.0 {
         didSet {
-            print("DEBUG: particleOpacity changed to \(particleOpacity)")
+            Logger.debug("particleOpacity changed to \(particleOpacity)", category: .ui)
         }
     }
     
@@ -60,8 +60,8 @@ class AnimationCoordinator: ObservableObject {
     
     init() {
         if enableDebugging {
-            print("DEBUG: AnimationCoordinator initialized")
-            print("DEBUG: Initial backgroundOpacity = \(backgroundOpacity)")
+            Logger.debug("AnimationCoordinator initialized", category: .ui)
+            Logger.debug("Initial backgroundOpacity = \(backgroundOpacity)", category: .ui)
         }
     }
     
@@ -70,9 +70,9 @@ class AnimationCoordinator: ObservableObject {
     /// Start entry animations with improved reliability
     func startEntryAnimations() {
         if enableDebugging {
-            print("DEBUG: startEntryAnimations() called. Initial states:")
-            print("   backgroundOpacity = \(backgroundOpacity)")
-            print("   particleOpacity = \(particleOpacity)")
+            Logger.debug("startEntryAnimations() called. Initial states:", category: .ui)
+            Logger.debug("   backgroundOpacity = \(backgroundOpacity)", category: .ui)
+            Logger.debug("   particleOpacity = \(particleOpacity)", category: .ui)
         }
         
         // Start with a clean slate
@@ -86,14 +86,15 @@ class AnimationCoordinator: ObservableObject {
         
         // Use main thread to ensure UI updates are immediately processed
         DispatchQueue.main.async {
-            if self.enableDebugging { print("DEBUG: Starting background animation") }
+            if self.enableDebugging { Logger.debug("Starting background animation", category: .ui) }
             // Background fade in - use a longer duration for more reliability
             withAnimation(.easeOut(duration: self.entryTiming.backgroundFadeIn * 1.5)) {
                 self.backgroundOpacity = 1.0
             }
-            
+
+
             // Card fade in
-            if self.enableDebugging { print("DEBUG: Starting card animation with delay: \(self.entryTiming.cardDelay)") }
+            if self.enableDebugging { Logger.debug("Starting card animation with delay: \(self.entryTiming.cardDelay)", category: .ui) }
             withAnimation(.spring(response: self.entryTiming.cardSpringResponse,
                                 dampingFraction: self.entryTiming.cardSpringDamping)
                 .delay(self.entryTiming.cardDelay)) {
@@ -144,9 +145,9 @@ class AnimationCoordinator: ObservableObject {
     /// Coordinate transition between authentication methods
     func transitionToNewMethod(completion: @escaping () -> Void) {
         isTransitioning = true
-        
+
         if enableDebugging {
-            print("DEBUG: transitionToNewMethod called")
+            Logger.debug("transitionToNewMethod called", category: .ui)
         }
         
         // Force UI update before transitioning
@@ -257,7 +258,7 @@ class AnimationCoordinator: ObservableObject {
     
     /// Force a UI update to ensure animations are visible
     func forceUIUpdate() {
-        print("DEBUG: Forcing UI update")
+        Logger.debug("Forcing UI update", category: .ui)
         
         // Store current values
         let currentBgOpacity = self.backgroundOpacity
@@ -273,15 +274,15 @@ class AnimationCoordinator: ObservableObject {
             // IMPORTANT: Don't restore zero values! Let animations work instead
             if currentBgOpacity > 0.01 {
                 self.backgroundOpacity = currentBgOpacity
-                print("DEBUG: Restored background opacity to \(currentBgOpacity)")
+                Logger.debug("Restored background opacity to \(currentBgOpacity)", category: .ui)
             }
-            
+
             if currentParticleOpacity > 0.01 {
                 self.particleOpacity = currentParticleOpacity
-                print("DEBUG: Restored particle opacity to \(currentParticleOpacity)")
+                Logger.debug("Restored particle opacity to \(currentParticleOpacity)", category: .ui)
             }
-            
-            print("DEBUG: UI update completed without restoring zero values")
+
+            Logger.debug("UI update completed without restoring zero values", category: .ui)
         }
     }
     
@@ -293,21 +294,21 @@ class AnimationCoordinator: ObservableObject {
         for (index, delay) in checkPoints.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 if self.enableDebugging {
-                    print("DEBUG: Animation verification #\(index + 1) after \(delay) seconds:")
-                    print("   backgroundOpacity = \(self.backgroundOpacity)")
-                    print("   particleOpacity = \(self.particleOpacity)")
-                    print("   contentOpacity = \(self.contentOpacity)")
-                    print("   showParticles = \(self.showParticles)")
+                    Logger.debug("Animation verification #\(index + 1) after \(delay) seconds:", category: .ui)
+                    Logger.debug("   backgroundOpacity = \(self.backgroundOpacity)", category: .ui)
+                    Logger.debug("   particleOpacity = \(self.particleOpacity)", category: .ui)
+                    Logger.debug("   contentOpacity = \(self.contentOpacity)", category: .ui)
+                    Logger.debug("   showParticles = \(self.showParticles)", category: .ui)
                 }
-                
+
                 // Check for stalled animations and fix them
                 if self.backgroundOpacity < 0.5 && delay > 1.0 {
-                    print("DEBUG: Animation appears stalled - forcing background opacity")
+                    Logger.debug("Animation appears stalled - forcing background opacity", category: .ui)
                     self.backgroundOpacity = 1.0
                 }
-                
+
                 if self.particleOpacity < 0.5 && delay > 2.0 && self.showParticles {
-                    print("DEBUG: Animation appears stalled - forcing particle opacity")
+                    Logger.debug("Animation appears stalled - forcing particle opacity", category: .ui)
                     self.particleOpacity = 1.0
                 }
             }

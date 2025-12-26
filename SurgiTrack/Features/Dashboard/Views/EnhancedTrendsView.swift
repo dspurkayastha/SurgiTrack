@@ -641,7 +641,7 @@ struct EnhancedTrendsView: View {
                 generatedFileURL = fileURL
                 showingShareSheet = true
             } catch {
-                print("Error creating PDF: \(error)")
+                Logger.error("Error creating PDF", error: error, category: .export)
             }
             
         case .csv:
@@ -659,7 +659,7 @@ struct EnhancedTrendsView: View {
                 generatedFileURL = fileURL
                 showingShareSheet = true
             } catch {
-                print("Error creating CSV: \(error)")
+                Logger.error("Error creating CSV", error: error, category: .export)
             }
         }
     }

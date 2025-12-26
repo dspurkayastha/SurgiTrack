@@ -11,15 +11,15 @@ import SwiftUI
 class ReportsNavigationState: ObservableObject {
     @Published var showingAnalysisButton: Bool = true {
         didSet {
-            print("🔍 NavigationState: showingAnalysisButton changed to \(showingAnalysisButton)")
+            Logger.debug("NavigationState: showingAnalysisButton changed to \(showingAnalysisButton)", category: .ui)
         }
     }
-    
+
     func ensureButtonVisibility() {
-        print("🔍 NavigationState: ensureButtonVisibility called, current value: \(showingAnalysisButton)")
+        Logger.debug("NavigationState: ensureButtonVisibility called, current value: \(showingAnalysisButton)", category: .ui)
         if !showingAnalysisButton {
             showingAnalysisButton = true
-            print("🔍 NavigationState: set showingAnalysisButton to true")
+            Logger.debug("NavigationState: set showingAnalysisButton to true", category: .ui)
         }
     }
 }

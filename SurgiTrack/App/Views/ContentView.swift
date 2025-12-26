@@ -13,7 +13,7 @@ struct ContentView: View {
             if isShowingSplash {
                 SplashView()
                     .onAppear {
-                        print("DEBUG: SplashView appeared")
+                        Logger.debug("SplashView appeared", category: .ui)
                     }
             } else if !hasCompletedOnboarding {
                 OnboardingView()
@@ -32,15 +32,15 @@ struct ContentView: View {
                         .opacity(1) // Ensure view is fully opaque even before animations
                         .onAppear {
                             // First, just mount the view without animations
-                            print("DEBUG: LoginView mounted in ContentView")
-                                
+                            Logger.debug("LoginView mounted in ContentView", category: .authentication)
+
                             // Delay startup sequence to ensure view is fully in hierarchy
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                 loginViewReady = true
-                                
+
                                 // Start animations with additional delay after view is stable
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    print("DEBUG: Triggering LoginView animations from ContentView")
+                                    Logger.debug("Triggering LoginView animations from ContentView", category: .authentication)
                                     // Synchronize these operations
                                     UIApplication.simulateTextFieldInteraction()
                                     
@@ -79,7 +79,7 @@ struct ContentView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SplashAnimationComplete"))) { _ in
-            print("DEBUG: SplashAnimationComplete notification received")
+            Logger.debug("SplashAnimationComplete notification received", category: .ui)
             // Use a more direct transition without competing animations
             withAnimation(.easeInOut(duration: 0.3)) {
                 isShowingSplash = false

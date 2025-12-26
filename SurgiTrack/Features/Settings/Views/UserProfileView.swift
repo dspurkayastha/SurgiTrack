@@ -64,7 +64,7 @@ struct UserProfileView: View {
             let profiles = try viewContext.fetch(request)
             userProfile = profiles.first
         } catch {
-            print("Error fetching user profile: \(error)")
+            Logger.error("Error fetching user profile", error: error, category: .persistence)
         }
     }
     
@@ -90,7 +90,7 @@ struct UserProfileView: View {
             userProfile = newProfile
             showingEditProfile = true
         } catch {
-            print("Error creating user profile: \(error)")
+            Logger.error("Error creating user profile", error: error, category: .persistence)
         }
     }
     

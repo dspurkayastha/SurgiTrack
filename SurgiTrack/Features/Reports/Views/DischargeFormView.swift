@@ -383,7 +383,7 @@ struct DischargeFormView: View {
             dischargeSummary = summary
             showingConfirmation = true
         } catch {
-            print("Error saving discharge: \(error)")
+            Logger.error("Error saving discharge", error: error, category: .persistence)
         }
     }
 }

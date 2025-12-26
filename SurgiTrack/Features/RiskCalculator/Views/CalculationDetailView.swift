@@ -351,7 +351,7 @@ struct CalculationDetailView: View {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
         } catch {
-            print("Error deleting calculation: \(error)")
+            Logger.error("Error deleting calculation", error: error, category: .riskCalculation)
         }
     }
 }

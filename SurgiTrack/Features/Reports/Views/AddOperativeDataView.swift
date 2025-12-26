@@ -227,8 +227,10 @@ struct AddOperativeDataView: View {
                 SurgeonPickerView(selectedID: $selectedSurgeonID)
                     .environment(\.managedObjectContext, viewContext)
             }
-            .alert(isPresented: $showingAlert) {
-                Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            .alert("Error", isPresented: $showingAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
             }
             .onAppear {
                 validateForm()

@@ -1080,7 +1080,7 @@ struct EnhancedAnimatedGradientBackground: View {
 
     // Assigns initial drift targets
     private func startDriftingAnimation(in size: CGSize) {
-        print("DEBUG: Assigning Drift Targets")
+        Logger.debug("Assigning Drift Targets", category: .ui)
         for i in particles.indices {
             particles[i].driftTargetPosition = randomPosition(in: size)
             // Removed setting animationStartTime
@@ -1181,16 +1181,16 @@ struct EnhancedAnimatedGradientBackground: View {
         guard !attractionActive else { return } 
 
         lastTapLocation = location
-        attractionActive = true 
+        attractionActive = true
         Haptics.shared.play(.light)
-        print("DEBUG: Tap detected at \(location), Attraction ACTIVE")
-        
+        Logger.debug("Tap detected at \(location), Attraction ACTIVE", category: .ui)
+
         // Removed resetting animationStartTime
 
         attractTimer?.invalidate()
         attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [self] _ in
-             guard self.attractionActive else { return } 
-             print("DEBUG: Attraction timer finished, Attraction INACTIVE")
+             guard self.attractionActive else { return }
+             Logger.debug("Attraction timer finished, Attraction INACTIVE", category: .ui)
              self.attractionActive = false
              self.lastTapLocation = nil
              // Assign new drift targets when attraction ends

@@ -100,7 +100,7 @@ struct LoginView: View {
                 }
             }
             .onAppear {
-                print("DEBUG: LoginView appeared - waiting for animation signal")
+                Logger.debug("LoginView appeared - waiting for animation signal", category: .authentication)
                 
                 // Listen for animation notification from ContentView
                 NotificationCenter.default.addObserver(
@@ -120,7 +120,7 @@ struct LoginView: View {
     // MARK: - Animation Control
     
     private func startAnimationsWithFallback() {
-        print("DEBUG: Starting LoginView animations via notification")
+        Logger.debug("Starting LoginView animations via notification", category: .authentication)
         
         // Ensure UI is ready for animation
         viewModel.animationCoordinator.forceUIUpdate()
@@ -137,7 +137,7 @@ struct LoginView: View {
                 // Verify animation state and force if needed
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     if viewModel.animationCoordinator.backgroundOpacity < 0.5 {
-                        print("DEBUG: Background opacity still low, forcing update")
+                        Logger.debug("Background opacity still low, forcing update", category: .authentication)
                         viewModel.animationCoordinator.forceUIUpdate()
                         viewModel.animationCoordinator.backgroundOpacity = 1.0
                         viewModel.animationCoordinator.particleOpacity = 1.0

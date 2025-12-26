@@ -568,7 +568,7 @@ struct AppointmentDetailView: View {
         do {
             try viewContext.save()
         } catch {
-            print("Error saving context: \(error)")
+            Logger.error("Error saving context", error: error, category: .persistence)
         }
     }
 }

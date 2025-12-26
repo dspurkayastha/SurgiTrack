@@ -154,7 +154,7 @@ class PatientDetailViewModel: ObservableObject {
         do {
             return try viewContext.fetch(request)
         } catch {
-            print("Error fetching calculations: \(error)")
+            Logger.error("Error fetching calculations", error: error, category: .persistence)
             return []
         }
     }

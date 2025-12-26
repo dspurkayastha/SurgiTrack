@@ -120,11 +120,7 @@ struct NotificationScheduleView: View {
         // Schedule notifications in iOS based on these settings
         // This would interface with UNUserNotificationCenter
         
-        print("Saving notification schedule:")
-        print("Time: \(formatTime(reminderTime))")
-        print("Days: \(enabledDays.map { $0.name }.joined(separator: ", "))")
-        print("Pre-op: \(enablePreOpReminders ? "\(preOpReminderHours) hours before" : "Disabled")")
-        print("Post-op: \(enablePostOpReminders ? "\(postOpReminderDays) days after" : "Disabled")")
+        Logger.info("Saving notification schedule - Time: \(formatTime(reminderTime)), Days: \(enabledDays.map { $0.name }.joined(separator: ", ")), Pre-op: \(enablePreOpReminders ? "\(preOpReminderHours) hours before" : "Disabled"), Post-op: \(enablePostOpReminders ? "\(postOpReminderDays) days after" : "Disabled")", category: .general)
     }
     
     private func formatTime(_ date: Date) -> String {

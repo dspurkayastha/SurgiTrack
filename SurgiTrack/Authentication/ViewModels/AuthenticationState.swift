@@ -208,9 +208,9 @@ class AuthenticationState: ObservableObject {
     func animatePinDigitEntry(digit: Int) {
         // Track pressed button for animation
         pressedButton = digit
-        
+
         let currentIndex = pin.count - 1
-        print("DEBUG: Animating PIN fill for digit \(digit) at index \(currentIndex)")
+        Logger.debug("Animating PIN fill for digit \(digit) at index \(currentIndex)", category: .authentication)
         
         // IMPORTANT: Use DispatchQueue to force separate animation transaction
         DispatchQueue.main.async {

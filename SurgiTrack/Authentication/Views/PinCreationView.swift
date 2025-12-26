@@ -138,19 +138,17 @@ struct PinCreationView: View {
                     .foregroundColor(appState.currentTheme.primaryColor)
                 }
             )
-            .alert(isPresented: $viewModel.showAlert) {
-                Alert(
-                    title: Text(viewModel.alertTitle),
-                    message: Text(viewModel.alertMessage),
-                    dismissButton: .default(Text("OK")) {
-                        if viewModel.isSuccess {
-                            // Dismiss and return to PIN login after success
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                presentationMode.wrappedValue.dismiss()
-                            }
+            .alert(viewModel.alertTitle, isPresented: $viewModel.showAlert) {
+                Button("OK") {
+                    if viewModel.isSuccess {
+                        // Dismiss and return to PIN login after success
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            presentationMode.wrappedValue.dismiss()
                         }
                     }
-                )
+                }
+            } message: {
+                Text(viewModel.alertMessage)
             }
             .onAppear {
                 viewModel.startEntryAnimations()

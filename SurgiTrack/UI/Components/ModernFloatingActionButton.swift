@@ -124,9 +124,9 @@ struct ModernFloatingActionButton: View {
                      Spacer() // Push FABs down
 
                      HStack(spacing: 20) {
-                         ModernFloatingActionButton(icon: "plus", action: { print("Small Primary Tapped") }, size: .small, style: .primary)
-                         ModernFloatingActionButton(icon: "pencil", action: { print("Medium Secondary Tapped") }, size: .medium, style: .secondary)
-                         ModernFloatingActionButton(icon: "trash", action: { print("Large Destructive Tapped") }, size: .large, style: .destructive)
+                         ModernFloatingActionButton(icon: "plus", action: { Logger.debug("Small Primary Tapped", category: .ui) }, size: .small, style: .primary)
+                         ModernFloatingActionButton(icon: "pencil", action: { Logger.debug("Medium Secondary Tapped", category: .ui) }, size: .medium, style: .secondary)
+                         ModernFloatingActionButton(icon: "trash", action: { Logger.debug("Large Destructive Tapped", category: .ui) }, size: .large, style: .destructive)
                      }
                      .padding()
                   }

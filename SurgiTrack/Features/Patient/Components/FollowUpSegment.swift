@@ -77,7 +77,7 @@ struct FollowUpSegment: View {
                             FollowUpCard(followUp: followUp)
                                 .onTapGesture {
                                     // In a real implementation, this would navigate to a follow-up detail view
-                                    print("Navigate to follow-up detail")
+                                    Logger.debug("Navigate to follow-up detail", category: .ui)
                                 }
                         }
                     }

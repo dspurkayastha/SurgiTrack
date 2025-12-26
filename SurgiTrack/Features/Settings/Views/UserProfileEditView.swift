@@ -130,7 +130,7 @@ struct UserProfileEditView: View {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
         } catch {
-            print("Error saving profile: \(error)")
+            Logger.error("Error saving profile", error: error, category: .persistence)
         }
     }
 }

@@ -28,11 +28,11 @@ class ProductImporter {
                 return
             }
         } catch {
-            print("Error counting products: \(error)")
+            Logger.error("Error counting products", error: error, category: .persistence)
         }
-        
+
         guard let fileURL = Bundle.main.url(forResource: "Products", withExtension: "txt") else {
-            print("Products.txt not found in bundle")
+            Logger.error("Products.txt not found in bundle", error: nil, category: .general)
             return
         }
         
@@ -59,9 +59,9 @@ class ProductImporter {
                 }
             }
             try context.save()
-            print("Imported \(lines.count) products")
+            Logger.info("Imported \(lines.count) products", category: .general)
         } catch {
-            print("Error importing products: \(error)")
+            Logger.error("Error importing products", error: error, category: .persistence)
         }
     }
 }

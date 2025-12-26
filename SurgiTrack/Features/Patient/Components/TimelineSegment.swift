@@ -133,7 +133,7 @@ struct TimelineSegment: View {
         
         // In a real implementation, this would navigate to the appropriate detail view
         // based on the event type and object ID
-        print("Navigate to detail for \(event.type.rawValue) with ID: \(objectID)")
+        Logger.debug("Navigate to detail for \(event.type.rawValue) with ID: \(objectID)", category: .ui)
         
         // Example of how this might work:
         /*

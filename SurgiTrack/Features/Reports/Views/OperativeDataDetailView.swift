@@ -299,7 +299,7 @@ struct OperativeDataDetailView: View {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
         } catch {
-            print("Error deleting procedure: \(error)")
+            Logger.error("Error deleting procedure", error: error, category: .persistence)
         }
     }
     

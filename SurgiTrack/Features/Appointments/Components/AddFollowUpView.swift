@@ -259,7 +259,7 @@ struct AddFollowUpView: View {
             let results = try viewContext.fetch(request)
             return results.first
         } catch {
-            print("Error fetching latest follow-up: \(error)")
+            Logger.error("Error fetching latest follow-up", error: error, category: .persistence)
             return nil
         }
     }

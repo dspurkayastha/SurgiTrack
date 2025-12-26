@@ -48,7 +48,7 @@ struct AppointmentListView: View {
         do {
             return try viewContext.fetch(request)
         } catch {
-            print("Error fetching appointments: \(error.localizedDescription)")
+            Logger.error("Error fetching appointments", error: error, category: .persistence)
             return []
         }
     }
