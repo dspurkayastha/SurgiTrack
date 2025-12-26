@@ -1,9 +1,10 @@
 // PersistenceController.swift
 // SurgiTrack
 // Created on 06/03/2025
-// Updated on 26/12/2025 - Added proper error handling and Logger
+// Updated on 26/12/2025 - Added proper error handling, Logger, and data encryption
 
 import CoreData
+import Foundation
 
 struct PersistenceController {
     // Shared instance used throughout the app
@@ -65,6 +66,27 @@ struct PersistenceController {
         description?.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         description?.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
 
+        // MARK: - Data Protection & Encryption (HIPAA Compliance)
+
+        // Enable file protection - data is encrypted when device is locked
+        // Uses iOS Data Protection which encrypts files with keys derived from
+        // the device passcode and hardware UID
+        if !inMemory {
+            // Set file protection for the store URL
+            if let storeURL = description?.url {
+                configureFileProtection(for: storeURL)
+            }
+
+            // Enable SQLite encryption options
+            // NSPersistentStoreFileProtectionKey ensures data-at-rest encryption
+            description?.setOption(
+                FileProtectionType.complete as NSObject,
+                forKey: NSPersistentStoreFileProtectionKey
+            )
+
+            Logger.info("CoreData encryption enabled with complete file protection", category: .persistence)
+        }
+
         var loadError: Error?
 
         container.loadPersistentStores { description, error in
@@ -109,6 +131,71 @@ struct PersistenceController {
 
         // For now, log the issue - actual recovery should be handled carefully
         Logger.info("Store URL: \(storeURL.path)", category: .persistence)
+    }
+
+    // MARK: - File Protection Configuration
+
+    /// Configures file protection for the CoreData store and related files
+    /// This ensures data is encrypted at rest and inaccessible when device is locked
+    private func configureFileProtection(for storeURL: URL) {
+        let fileManager = FileManager.default
+
+        // Get the parent directory for the store
+        let storeDirectory = storeURL.deletingLastPathComponent()
+
+        // Create directory with protection if it doesn't exist
+        if !fileManager.fileExists(atPath: storeDirectory.path) {
+            do {
+                try fileManager.createDirectory(
+                    at: storeDirectory,
+                    withIntermediateDirectories: true,
+                    attributes: [.protectionKey: FileProtectionType.complete]
+                )
+                Logger.info("Created protected directory for CoreData store", category: .persistence)
+            } catch {
+                Logger.error("Failed to create protected directory", error: error, category: .persistence)
+            }
+        }
+
+        // Apply protection to existing store files
+        let relatedExtensions = ["", "-wal", "-shm"]
+        for ext in relatedExtensions {
+            let fileURL = storeURL.appendingPathExtension(ext.isEmpty ? "sqlite" : "sqlite\(ext)")
+            if fileManager.fileExists(atPath: fileURL.path) {
+                do {
+                    try fileManager.setAttributes(
+                        [.protectionKey: FileProtectionType.complete],
+                        ofItemAtPath: fileURL.path
+                    )
+                    Logger.debug("File protection applied to: \(fileURL.lastPathComponent)", category: .persistence)
+                } catch {
+                    Logger.warning("Could not set file protection for \(fileURL.lastPathComponent): \(error.localizedDescription)", category: .persistence)
+                }
+            }
+        }
+    }
+
+    /// Verifies that file protection is properly configured
+    func verifyEncryption() -> Bool {
+        guard let storeURL = storeURL else {
+            Logger.warning("Cannot verify encryption: no store URL", category: .persistence)
+            return false
+        }
+
+        let fileManager = FileManager.default
+
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: storeURL.path)
+            if let protection = attributes[.protectionKey] as? FileProtectionType {
+                let isProtected = protection == .complete || protection == .completeUnlessOpen
+                Logger.info("CoreData encryption verification: \(isProtected ? "PASSED" : "FAILED")", category: .security)
+                return isProtected
+            }
+        } catch {
+            Logger.error("Failed to verify encryption", error: error, category: .security)
+        }
+
+        return false
     }
 
     // MARK: - Context Management
