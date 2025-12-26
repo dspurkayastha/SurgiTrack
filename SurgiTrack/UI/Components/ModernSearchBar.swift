@@ -14,23 +14,29 @@ struct ModernSearchBar: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(isFocused ? colors.primary : colors.textSecondary)
-                
+                    .accessibilityHidden(true)
+
                 TextField(placeholder, text: $text)
                     .textFieldStyle(.plain)
                     .font(.system(size: 16))
                     .foregroundColor(colors.text)
                     .focused($isFocused)
-                
+                    .accessibilityLabel("Search field")
+                    .accessibilityValue(text.isEmpty ? "Empty" : text)
+
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 16))
                             .foregroundColor(colors.textSecondary)
                     }
+                    .accessibilityLabel("Clear search")
+                    .accessibilityHint("Double tap to clear search text")
+                    .frame(minWidth: 44, minHeight: 44)
                 }
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)  // Increased for minimum 44pt touch target
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(colors.surface)
@@ -48,6 +54,9 @@ struct ModernSearchBar: View {
                 }
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(colors.primary)
+                .frame(minHeight: 44)
+                .accessibilityLabel("Cancel search")
+                .accessibilityHint("Double tap to cancel and close search")
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }

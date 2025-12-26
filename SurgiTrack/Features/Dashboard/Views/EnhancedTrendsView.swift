@@ -72,6 +72,9 @@ struct EnhancedTrendsView: View {
                         }) {
                             Label("Export Data", systemImage: "square.and.arrow.up")
                         }
+                        .accessibilityLabel("Export Data")
+                        .accessibilityHint("Export analysis data as PDF or CSV")
+
                         Button(action: {
                             // Reset analysis
                             viewModel.parameterData = []
@@ -81,14 +84,20 @@ struct EnhancedTrendsView: View {
                         }) {
                             Label("Reset Analysis", systemImage: "arrow.counterclockwise")
                         }
+                        .accessibilityLabel("Reset Analysis")
+                        .accessibilityHint("Clear all selections and start over")
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .accessibilityLabel("More Options")
+                    .accessibilityHint("Double tap to show export and reset options")
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Done") {
                         presentationMode.wrappedValue.dismiss()
                     }
+                    .accessibilityLabel("Done")
+                    .accessibilityHint("Double tap to close trends analysis")
                 }
             }
             .sheet(isPresented: $showingPatientPicker) {
@@ -140,12 +149,16 @@ struct EnhancedTrendsView: View {
             .onChange(of: viewModel.selectedLevel) { newValue in
                 Task { await viewModel.switchAnalysisLevel(to: newValue) }
             }
-            
+            .accessibilityLabel("Analysis Level")
+            .accessibilityValue(viewModel.selectedLevel.rawValue)
+            .accessibilityHint("Select analysis level: individual, cohort, or organization")
+
             // Time range picker
             HStack {
                 Text("Time Range:")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .accessibilityAddTraits(.isHeader)
                 Picker("", selection: $viewModel.selectedTimeRange) {
                     ForEach(AnalysisTimeRange.allCases, id: \.self) { range in
                         Text(range.displayText).tag(range)
@@ -158,6 +171,9 @@ struct EnhancedTrendsView: View {
                         Task { await viewModel.loadParameterData(parameter: parameter) }
                     }
                 }
+                .accessibilityLabel("Time Range")
+                .accessibilityValue(viewModel.selectedTimeRange.displayText)
+                .accessibilityHint("Select time range for analysis")
             }
         }
     }
@@ -190,6 +206,7 @@ struct EnhancedTrendsView: View {
                 Text("Patient")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .accessibilityAddTraits(.isHeader)
                 if let patient = viewModel.selectedPatient {
                     Text(patient.fullName)
                         .font(.headline)
@@ -206,6 +223,9 @@ struct EnhancedTrendsView: View {
                     .font(.system(size: 24))
                     .foregroundColor(.blue)
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel(viewModel.selectedPatient != nil ? "Change patient" : "Select patient")
+            .accessibilityHint("Double tap to open patient selection")
         }
         .padding()
         .background(
@@ -213,6 +233,9 @@ struct EnhancedTrendsView: View {
                 .fill(Color(.secondarySystemBackground))
         )
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Patient Selection")
+        .accessibilityValue(viewModel.selectedPatient?.fullName ?? "No patient selected")
     }
     
     private var emptyStateView: some View {
@@ -221,9 +244,11 @@ struct EnhancedTrendsView: View {
             Image(systemName: "chart.xyaxis.line")
                 .font(.system(size: 80))
                 .foregroundColor(.gray.opacity(0.3))
+                .accessibilityHidden(true)
             Text("No Data to Display")
                 .font(.title2)
                 .fontWeight(.medium)
+                .accessibilityAddTraits(.isHeader)
             Text("Select a patient to begin analyzing their data")
                 .font(.body)
                 .foregroundColor(.secondary)
@@ -238,6 +263,9 @@ struct EnhancedTrendsView: View {
                     .background(Color.blue)
                     .cornerRadius(8)
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Select Patient")
+            .accessibilityHint("Double tap to choose a patient for analysis")
             .padding(.top, 10)
             Spacer()
         }
@@ -250,9 +278,11 @@ struct EnhancedTrendsView: View {
             Text("Select a parameter to analyze")
                 .font(.headline)
                 .padding(.top)
+                .accessibilityAddTraits(.isHeader)
             if viewModel.isLoading {
                 ProgressView("Loading parameters...")
                     .padding()
+                    .accessibilityLabel("Loading parameters")
             } else if viewModel.organizationParameters.isEmpty {
                 Text("No parameters available for this patient")
                     .foregroundColor(.secondary)
@@ -271,6 +301,9 @@ struct EnhancedTrendsView: View {
                                 .foregroundColor(.blue)
                                 .cornerRadius(8)
                         }
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityLabel(param)
+                        .accessibilityHint("Double tap to analyze \(param) data")
                     }
                 }
                 .padding(.horizontal)
@@ -372,8 +405,10 @@ struct EnhancedTrendsView: View {
                 .font(.system(size: 50))
                 .foregroundColor(.gray.opacity(0.5))
                 .padding(.bottom)
+                .accessibilityHidden(true)
             Text("No data available")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             Text("There is no data for this parameter within the selected time range.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -392,6 +427,9 @@ struct EnhancedTrendsView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("View All-Time Data")
+            .accessibilityHint("Double tap to view data from all time periods")
             .padding(.top)
         }
         .frame(height: 300)
@@ -404,11 +442,13 @@ struct EnhancedTrendsView: View {
             Text(title)
                 .font(.headline)
                 .padding(.horizontal)
+                .accessibilityAddTraits(.isHeader)
             content()
         }
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .accessibilityElement(children: .contain)
     }
     
     private func statisticsCard(stats: StatisticalSummary) -> some View {
@@ -416,6 +456,7 @@ struct EnhancedTrendsView: View {
             Text("Statistical Summary")
                 .font(.headline)
                 .padding(.horizontal)
+                .accessibilityAddTraits(.isHeader)
             HStack {
                 StatBox(title: "Min", value: String(format: "%.1f", stats.min), color: .blue)
                 StatBox(title: "Max", value: String(format: "%.1f", stats.max), color: .purple)
@@ -425,6 +466,7 @@ struct EnhancedTrendsView: View {
             .padding(8)
             Divider()
                 .padding(.horizontal)
+                .accessibilityHidden(true)
             HStack {
                 StatBox(
                     title: "Change",
@@ -454,6 +496,7 @@ struct EnhancedTrendsView: View {
             Text("Data Points")
                 .font(.headline)
                 .padding(.horizontal)
+                .accessibilityAddTraits(.isHeader)
             VStack(spacing: 0) {
                 HStack {
                     Text("Date")
@@ -476,7 +519,10 @@ struct EnhancedTrendsView: View {
                 .padding(.vertical, 8)
                 .padding(.horizontal)
                 .background(Color(.tertiarySystemBackground))
-                
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Table headers: Date, Value, Status")
+                .accessibilityAddTraits(.isHeader)
+
                 ForEach(viewModel.parameterData.reversed()) { point in
                     HStack {
                         Text(formatDate(point.date))
@@ -499,9 +545,12 @@ struct EnhancedTrendsView: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal)
                     .background(Color(.systemBackground))
-                    
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(formatDate(point.date)), value \(String(format: "%.1f", point.value)), \(point.isAbnormal ? "abnormal" : "normal")")
+
                     Divider()
                         .padding(.leading)
+                        .accessibilityHidden(true)
                 }
             }
             .cornerRadius(8)
@@ -545,10 +594,12 @@ struct EnhancedTrendsView: View {
                 .font(.system(size: 60))
                 .foregroundColor(color.opacity(0.6))
                 .padding(.bottom, 10)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(color)
+                .accessibilityAddTraits(.isHeader)
             Text(message)
                 .font(.body)
                 .foregroundColor(.secondary)
@@ -558,6 +609,7 @@ struct EnhancedTrendsView: View {
                 .font(.title3)
                 .foregroundColor(color.opacity(0.8))
                 .padding(.top, 10)
+                .accessibilityHidden(true)
             Text("Coming Soon")
                 .font(.headline)
                 .foregroundColor(color)
@@ -573,6 +625,9 @@ struct EnhancedTrendsView: View {
                 .fill(Color(.secondarySystemBackground))
         )
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), Coming Soon")
+        .accessibilityValue(message)
     }
     
     // MARK: - Helper Functions
@@ -671,7 +726,7 @@ struct StatBox: View {
     let title: String
     let value: String
     let color: Color
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -685,6 +740,9 @@ struct StatBox: View {
         .padding()
         .background(color.opacity(0.1))
         .cornerRadius(8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)")
+        .accessibilityValue(value)
     }
 }
 
@@ -736,19 +794,24 @@ struct PatientPickerView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
+                        .accessibilityHidden(true)
                     TextField("Search patients", text: $searchText)
+                        .accessibilityLabel("Search patients")
+                        .accessibilityHint("Enter patient name or medical record number")
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.gray)
                         }
+                        .accessibilityLabel("Clear search")
+                        .accessibilityHint("Double tap to clear search text")
                     }
                 }
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(10)
                 .padding(.horizontal)
-                
+
                 // Patient list
                 List(filteredPatients, id: \.objectID) { patient in
                     Button(action: {
@@ -770,13 +833,22 @@ struct PatientPickerView: View {
                             Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundColor(.gray)
+                                .accessibilityHidden(true)
                         }
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(patient.fullName)
+                    .accessibilityValue(patient.medicalRecordNumber ?? "")
+                    .accessibilityHint("Double tap to select this patient")
                 }
                 .listStyle(InsetGroupedListStyle())
             }
             .navigationTitle("Select Patient")
-            .navigationBarItems(trailing: Button("Cancel") { presentationMode.wrappedValue.dismiss() })
+            .navigationBarItems(trailing: Button("Cancel") {
+                presentationMode.wrappedValue.dismiss()
+            }
+            .accessibilityLabel("Cancel")
+            .accessibilityHint("Double tap to cancel patient selection"))
         }
     }
 }

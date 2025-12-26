@@ -23,6 +23,7 @@ struct InteractiveCard<Content: View>: View {
             content
                 .padding()
                 .frame(maxWidth: .infinity)
+                .frame(minHeight: 44)  // Minimum touch target
                 .background(isSelected ? colors.primary.opacity(0.1) : colors.surface)
                 .cornerRadius(12)
                 .overlay(
@@ -33,6 +34,10 @@ struct InteractiveCard<Content: View>: View {
                 .shadow(color: isSelected ? colors.primary.opacity(0.1) : .clear, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Double tap to \(isSelected ? "deselect" : "select")")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
         .pressAction(onPress: {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 isPressed = true

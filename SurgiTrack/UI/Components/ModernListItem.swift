@@ -31,33 +31,47 @@ struct ModernListItem: View {
                         .font(.system(size: 16))
                         .foregroundColor(Color(colors.primary))
                         .frame(width: 24)
+                        .accessibilityHidden(true)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.body)
                         .foregroundColor(colors.text)
-                    
+
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.subheadline)
                             .foregroundColor(colors.textSecondary)
                     }
                 }
-                
+
                 Spacer()
-                
+
                 if let trailingIcon = trailingIcon {
                     Image(systemName: trailingIcon)
                         .font(.system(size: 14))
                         .foregroundColor(colors.textSecondary)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .frame(minHeight: 44)  // Minimum touch target
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
+        .accessibilityHint("Double tap to view details")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var accessibilityLabelText: String {
+        if let subtitle = subtitle {
+            return "\(title), \(subtitle)"
+        }
+        return title
     }
 }
 

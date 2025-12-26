@@ -87,7 +87,10 @@ struct ModernFloatingActionButton: View {
         .shadow(color: backgroundColor.opacity(0.4), radius: isPressed ? 4 : 12, x: 0, y: isPressed ? 2 : 6) // Interactive shadow
         .scaleEffect(isPressed ? 0.95 : 1.0) // Scale effect on press
         .animation(animation, value: isPressed) // Apply animation to press effect
-        .pressAction { 
+        .accessibilityLabel(accessibilityLabelForIcon(icon))
+        .accessibilityHint("Double tap to activate")
+        .accessibilityAddTraits(.isButton)
+        .pressAction {
             withAnimation(animation) {
                 isPressed = true
             }
@@ -95,6 +98,30 @@ struct ModernFloatingActionButton: View {
             withAnimation(animation) {
                 isPressed = false
             }
+        }
+    }
+
+    // Helper to provide meaningful accessibility labels for common icons
+    private func accessibilityLabelForIcon(_ icon: String) -> String {
+        switch icon {
+        case "plus":
+            return "Add"
+        case "pencil":
+            return "Edit"
+        case "trash":
+            return "Delete"
+        case "checkmark":
+            return "Confirm"
+        case "xmark":
+            return "Close"
+        case "arrow.right":
+            return "Next"
+        case "arrow.left":
+            return "Back"
+        case "ellipsis":
+            return "More options"
+        default:
+            return icon.replacingOccurrences(of: ".", with: " ").capitalized
         }
     }
 }

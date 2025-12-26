@@ -46,6 +46,9 @@ struct InfoCard<Content: View>: View {
                 .stroke(Color.gray.opacity(0.2), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isHeader)
     }
 }
 
@@ -76,6 +79,7 @@ struct PatientStatusBanner: View {
             Text(patient.isDischargedStatus ? "DISCHARGED" : "ACTIVE")
                 .font(.caption)
                 .fontWeight(.bold)
+                .accessibilityLabel(patient.isDischargedStatus ? "Patient discharged" : "Patient active")
             
             Spacer()
             
@@ -118,6 +122,31 @@ struct PatientStatusBanner: View {
         .background(
             patient.isDischargedStatus ? Color.gray.opacity(0.1) : Color.green.opacity(0.1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(patientStatusAccessibilityLabel())
+    }
+
+    private func patientStatusAccessibilityLabel() -> String {
+        let status = patient.isDischargedStatus ? "Discharged" : "Active"
+        var label = "Patient status: \(status)"
+
+        // Add bed number for active patients
+        if !patient.isDischargedStatus, let bed = patient.bedNumber, !bed.isEmpty {
+            label += ", Bed \(bed)"
+        }
+
+        // Add length of stay for discharged patients
+        if patient.isDischargedStatus && patient.lengthOfStay > 0 {
+            label += ", Length of stay: \(patient.lengthOfStay) \(patient.lengthOfStay == 1 ? "day" : "days")"
+        }
+
+        // Add patient demographics
+        if let dob = patient.dateOfBirth {
+            let age = calculateAge(from: dob)
+            label += ", Age \(age), \(patient.gender ?? "Unknown gender")"
+        }
+
+        return label
     }
 }
 
@@ -197,6 +226,36 @@ struct OperativeCard: View {
                 .stroke(DetailSegment.operative.color.opacity(0.3), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(operativeCardAccessibilityLabel())
+        .accessibilityHint("Double tap to view surgical procedure details")
+    }
+
+    private func operativeCardAccessibilityLabel() -> String {
+        let procedure = operativeData.procedureName ?? "Unknown procedure"
+        var label = "Surgical procedure: \(procedure)"
+
+        if let date = operativeData.operationDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            label += ", performed on \(formatter.string(from: date))"
+        }
+
+        if operativeData.duration > 0 {
+            label += ", Duration: \(Int(operativeData.duration)) minutes"
+        }
+
+        if let surgeon = operativeData.surgeon {
+            label += ", Surgeon: \(surgeon.firstName ?? "") \(surgeon.lastName ?? "")"
+        } else if let surgeonName = operativeData.surgeonName {
+            label += ", Surgeon: \(surgeonName)"
+        }
+
+        if operativeData.estimatedBloodLoss > 0 {
+            label += ", Blood loss: \(Int(operativeData.estimatedBloodLoss)) milliliters"
+        }
+
+        return label
     }
 }
 
@@ -333,6 +392,36 @@ struct FollowUpCard: View {
                 .stroke(DetailSegment.followup.color.opacity(0.3), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(followUpAccessibilityLabel())
+        .accessibilityHint("Double tap to view follow-up visit details")
+    }
+
+    private func followUpAccessibilityLabel() -> String {
+        var label = "Follow-up visit"
+
+        if let date = followUp.followUpDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .long
+            label += " on \(formatter.string(from: date))"
+        }
+
+        let timeSince = timeSinceOperation(followUpDate: followUp.followUpDate)
+        if !timeSince.isEmpty {
+            label += ", \(timeSince)"
+        }
+
+        if let assessment = followUp.outcomeAssessment, !assessment.isEmpty {
+            label += ", Assessment: \(assessment)"
+        }
+
+        if let nextAppt = followUp.nextAppointment {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            label += ", Next appointment: \(formatter.string(from: nextAppt))"
+        }
+
+        return label
     }
 }
 
@@ -413,6 +502,25 @@ struct RiskAssessmentRow: View {
                 )
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(riskAssessmentAccessibilityLabel())
+        .accessibilityHint("Double tap to view risk assessment details")
+    }
+
+    private func riskAssessmentAccessibilityLabel() -> String {
+        let name = calculation.calculatorName ?? "Risk Assessment"
+        let risk = String(format: "%.1f percent", calculation.resultPercentage)
+        let riskLevel = StoredCalculationHelpers(calculation: calculation).riskLevel.rawValue
+
+        var label = "\(name), Risk: \(risk), Level: \(riskLevel)"
+
+        if let date = calculation.calculationDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            label += ", Calculated on \(formatter.string(from: date))"
+        }
+
+        return label
     }
 }
 

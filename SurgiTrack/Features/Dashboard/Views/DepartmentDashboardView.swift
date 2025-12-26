@@ -65,6 +65,10 @@ struct DepartmentDashboardView: View {
                                         .offset(x: 8, y: -8)
                                 }
                             }
+                            .frame(minWidth: 44, minHeight: 44)
+                            .accessibilityLabel("Pending referrals")
+                            .accessibilityValue("\(referralManager.pendingIncomingCount) pending")
+                            .accessibilityHint("Double tap to view pending referrals")
                         }
 
                         // User menu
@@ -72,18 +76,29 @@ struct DepartmentDashboardView: View {
                             Button(action: {}) {
                                 Label("Profile", systemImage: "person.circle")
                             }
+                            .accessibilityLabel("Profile")
+                            .accessibilityHint("View your profile")
+
                             Button(action: {}) {
                                 Label("Settings", systemImage: "gear")
                             }
+                            .accessibilityLabel("Settings")
+                            .accessibilityHint("Open settings")
+
                             Divider()
+
                             Button(role: .destructive, action: {
                                 accessControl.endSession()
                             }) {
                                 Label("Log Out", systemImage: "rectangle.portrait.and.arrow.right")
                             }
+                            .accessibilityLabel("Log Out")
+                            .accessibilityHint("End your current session")
                         } label: {
                             UserAvatarButton()
                         }
+                        .accessibilityLabel("User menu")
+                        .accessibilityHint("Double tap to open user menu")
                     }
                 }
             }
@@ -106,11 +121,13 @@ struct DepartmentDashboardView: View {
                             .font(.system(size: 28, weight: .semibold))
                             .foregroundColor(department.color)
                     }
+                    .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: MedicalSpacing.xxs) {
                         Text(department.name)
                             .font(MedicalTypography.headlineMedium)
                             .foregroundColor(MedicalColors.Neutral.textPrimary)
+                            .accessibilityAddTraits(.isHeader)
 
                         Text(department.facilityName)
                             .font(MedicalTypography.bodySmall)
@@ -130,6 +147,9 @@ struct DepartmentDashboardView: View {
                 .background(Color(.systemBackground))
                 .cornerRadius(MedicalCardStyle.radiusLarge)
                 .subtleElevation()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(department.name) Department, \(department.facilityName)")
+                .accessibilityValue("\(department.activePatients) active patients, \(department.staffCount) staff members")
             }
         }
     }
@@ -193,6 +213,11 @@ struct DepartmentDashboardView: View {
                             )
                             .cornerRadius(MedicalCardStyle.radiusSmall)
                     }
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel(tab.rawValue)
+                    .accessibilityValue(selectedTab == tab ? "Selected" : "Not selected")
+                    .accessibilityHint("Double tap to view \(tab.rawValue.lowercased()) tab")
+                    .accessibilityAddTraits(selectedTab == tab ? .isSelected : [])
                 }
             }
         }
@@ -387,6 +412,9 @@ struct CensusCard: View {
         .background(Color(.systemBackground))
         .cornerRadius(MedicalCardStyle.radiusMedium)
         .subtleElevation()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)")
+        .accessibilityValue("\(count)")
     }
 }
 
@@ -401,6 +429,7 @@ struct AssessmentRow: View {
                 .frame(width: 40, height: 40)
                 .background(MedicalColors.Brand.primary.opacity(0.1))
                 .cornerRadius(10)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(assessment.rawValue)
@@ -418,11 +447,18 @@ struct AssessmentRow: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(MedicalColors.Neutral.textTertiary)
+                .accessibilityHidden(true)
         }
         .padding(MedicalSpacing.md)
         .background(Color(.systemBackground))
         .cornerRadius(MedicalCardStyle.radiusMedium)
         .subtleElevation()
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(assessment.rawValue)")
+        .accessibilityValue(assessment.fullName)
+        .accessibilityHint("Double tap to start assessment")
+        .accessibilityAddTraits(.isButton)
     }
 }
 

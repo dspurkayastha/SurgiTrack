@@ -409,10 +409,12 @@ struct ReferralCard: View {
                 Circle()
                     .fill(referral.priority.color)
                     .frame(width: 10, height: 10)
+                    .accessibilityHidden(true)
 
                 Text(referral.priority.rawValue)
                     .font(MedicalTypography.captionBold)
                     .foregroundColor(referral.priority.color)
+                    .accessibilityLabel("Priority: \(referral.priority.rawValue)")
 
                 Spacer()
 
@@ -424,10 +426,12 @@ struct ReferralCard: View {
                     .padding(.vertical, 4)
                     .background(referral.status.color.opacity(0.15))
                     .clipShape(Capsule())
+                    .accessibilityLabel("Status: \(referral.status.rawValue)")
 
                 if referral.isOverdue {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(MedicalColors.Clinical.criticalValue)
+                        .accessibilityLabel("Overdue")
                 }
             }
 
@@ -442,6 +446,7 @@ struct ReferralCard: View {
                         .font(MedicalTypography.titleMedium)
                         .foregroundColor(MedicalColors.Brand.primary)
                 }
+                .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(referral.patientName)
@@ -455,36 +460,46 @@ struct ReferralCard: View {
 
                 Spacer()
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Patient: \(referral.patientName), \(referral.patientMRN)")
 
             Divider()
+                .accessibilityHidden(true)
 
             // Referral details
             VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
                 HStack {
                     Image(systemName: referral.fromDepartmentType.icon)
                         .foregroundColor(referral.fromDepartmentType.color)
+                        .accessibilityHidden(true)
                     Text(referral.fromDepartmentName)
                         .font(MedicalTypography.bodySmall)
 
                     Image(systemName: "arrow.right")
                         .font(.system(size: 10))
                         .foregroundColor(MedicalColors.Neutral.textTertiary)
+                        .accessibilityHidden(true)
 
                     Image(systemName: referral.toDepartmentType.icon)
                         .foregroundColor(referral.toDepartmentType.color)
+                        .accessibilityHidden(true)
                     Text(referral.toDepartmentName)
                         .font(MedicalTypography.bodySmall)
                 }
                 .foregroundColor(MedicalColors.Neutral.textSecondary)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("From \(referral.fromDepartmentName) to \(referral.toDepartmentName)")
 
                 Text(referral.reason)
                     .font(MedicalTypography.bodyMedium)
                     .foregroundColor(MedicalColors.Neutral.textPrimary)
+                    .accessibilityLabel("Reason: \(referral.reason)")
 
                 Text(referral.clinicalSummary)
                     .font(MedicalTypography.bodySmall)
                     .foregroundColor(MedicalColors.Neutral.textSecondary)
                     .lineLimit(2)
+                    .accessibilityLabel("Summary: \(referral.clinicalSummary)")
             }
 
             // Footer with actions
@@ -499,6 +514,8 @@ struct ReferralCard: View {
                     .font(MedicalTypography.caption)
                     .foregroundColor(MedicalColors.Neutral.textTertiary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Referred by \(referral.referringProviderName), \(timeAgo(from: referral.createdAt))")
 
             // Action buttons (for pending referrals)
             if referral.status == .pending && (onAccept != nil || onDecline != nil) {
@@ -513,6 +530,9 @@ struct ReferralCard: View {
                                 .background(MedicalColors.Clinical.criticalValue.opacity(0.1))
                                 .cornerRadius(8)
                         }
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityLabel("Decline referral")
+                        .accessibilityHint("Double tap to decline this referral")
                     }
 
                     if let onAccept = onAccept {
@@ -525,6 +545,9 @@ struct ReferralCard: View {
                                 .background(MedicalColors.Brand.primary)
                                 .cornerRadius(8)
                         }
+                        .frame(minWidth: 44, minHeight: 44)
+                        .accessibilityLabel("Accept referral")
+                        .accessibilityHint("Double tap to accept this referral")
                     }
                 }
             }
@@ -536,6 +559,9 @@ struct ReferralCard: View {
         .onTapGesture {
             onView?()
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Referral for \(referral.patientName)")
+        .accessibilityHint(onView != nil ? "Double tap to view referral details" : "")
     }
 
     private func timeAgo(from date: Date) -> String {

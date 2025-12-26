@@ -123,6 +123,8 @@ struct EditPatientView: View {
                                     .overlay(Circle().stroke(Color.white, lineWidth: 2))
                             }
                             .offset(x: 40, y: 40)
+                            .accessibilityLabel("Edit patient photo")
+                            .accessibilityHint("Double tap to change patient photo")
                         }
                         Spacer()
                     }
@@ -134,13 +136,19 @@ struct EditPatientView: View {
                     TextField("First Name", text: $firstName)
                         .autocapitalization(.words)
                         .onChange(of: firstName) { _ in validateForm() }
+                        .accessibilityLabel("First Name, Required")
+                        .accessibilityHint("Enter patient's first name")
                     
                     TextField("Last Name", text: $lastName)
                         .autocapitalization(.words)
                         .onChange(of: lastName) { _ in validateForm() }
+                        .accessibilityLabel("Last Name, Required")
+                        .accessibilityHint("Enter patient's last name")
                     
                     DatePicker("Date of Birth", selection: $dateOfBirth,
                               in: ...Date(), displayedComponents: .date)
+                        .accessibilityLabel("Date of Birth")
+                        .accessibilityValue(formatDateForAccessibility(dateOfBirth))
                     
                     Picker("Gender", selection: $gender) {
                         Text("Select Gender").tag("")
@@ -148,10 +156,14 @@ struct EditPatientView: View {
                             Text(option).tag(option)
                         }
                     }
+                    .accessibilityLabel("Gender")
+                    .accessibilityValue(gender.isEmpty ? "Not selected" : gender)
                     
                     TextField("Medical Record Number", text: $medicalRecordNumber)
                         .autocapitalization(.allCharacters)
                         .onChange(of: medicalRecordNumber) { _ in validateForm() }
+                        .accessibilityLabel("Medical Record Number, Required")
+                        .accessibilityHint("Enter patient's medical record number")
                 }
                 
                 // Health Information
@@ -161,6 +173,8 @@ struct EditPatientView: View {
                             Text(option).tag(option)
                         }
                     }
+                    .accessibilityLabel("Blood Type")
+                    .accessibilityValue(bloodType.isEmpty || bloodType == "Unknown" ? "Not selected" : bloodType)
                     
                     HStack {
                         Text("Height (cm)")
@@ -169,6 +183,8 @@ struct EditPatientView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 100)
+                            .accessibilityLabel("Height in centimeters")
+                            .accessibilityValue(String(format: "%.1f centimeters", height))
                     }
                     
                     HStack {
@@ -178,6 +194,8 @@ struct EditPatientView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 100)
+                            .accessibilityLabel("Weight in kilograms")
+                            .accessibilityValue(String(format: "%.1f kilograms", weight))
                     }
                 }
                 
@@ -185,10 +203,14 @@ struct EditPatientView: View {
                 Section(header: Text("Contact Information")) {
                     TextField("Phone Number", text: $phone)
                         .keyboardType(.phonePad)
+                        .accessibilityLabel("Phone Number")
+                        .accessibilityHint("Enter patient's phone number")
                     
                     TextField("Email", text: $contactInfo)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
+                        .accessibilityLabel("Email Address")
+                        .accessibilityHint("Enter patient's email address")
                     
                     TextField("Address", text: $address)
                         .autocapitalization(.words)
@@ -220,13 +242,17 @@ struct EditPatientView: View {
                     Button("Cancel") {
                         presentationMode.wrappedValue.dismiss()
                     }
+                    .accessibilityLabel("Cancel editing")
+                    .accessibilityHint("Discard changes and close")
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         saveChanges()
                     }
                     .disabled(!isFormValid)
+                    .accessibilityLabel("Save changes")
+                    .accessibilityHint("Save patient information changes")
                 }
             }
             .alert(isPresented: $showingAlert) {
@@ -260,6 +286,12 @@ struct EditPatientView: View {
                       !medicalRecordNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    private func formatDateForAccessibility(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
+
     private func saveChanges() {
         guard isFormValid else {
             alertMessage = "Please complete all required fields"

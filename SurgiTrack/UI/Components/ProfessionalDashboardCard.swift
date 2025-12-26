@@ -34,6 +34,7 @@ struct ProfessionalDashboardCard<Content: View>: View {
                             .frame(width: 36, height: 36)
                             .background(iconColor.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .accessibilityHidden(true)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -54,6 +55,7 @@ struct ProfessionalDashboardCard<Content: View>: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(MedicalColors.Neutral.textTertiary)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -61,11 +63,13 @@ struct ProfessionalDashboardCard<Content: View>: View {
                 Rectangle()
                     .fill(Color(.separator).opacity(0.5))
                     .frame(height: 1)
+                    .accessibilityHidden(true)
 
                 // Content
                 content()
             }
             .padding(MedicalSpacing.lg)
+            .frame(minHeight: 44)  // Minimum touch target
             .background(Color(.systemBackground))
             .cornerRadius(MedicalCardStyle.radiusLarge)
             .shadow(
@@ -77,6 +81,10 @@ struct ProfessionalDashboardCard<Content: View>: View {
             .scaleEffect(isPressed ? 0.98 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
+        .accessibilityHint(action != nil ? "Double tap to view details" : "")
+        .accessibilityAddTraits(action != nil ? .isButton : .isStaticText)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -91,6 +99,13 @@ struct ProfessionalDashboardCard<Content: View>: View {
                 }
         )
         .disabled(action == nil)
+    }
+
+    private var accessibilityLabelText: String {
+        if let subtitle = subtitle {
+            return "\(title), \(subtitle)"
+        }
+        return title
     }
 }
 
@@ -130,11 +145,15 @@ struct StatsSummaryCard: View {
                             .foregroundColor(MedicalColors.Neutral.textSecondary)
                     }
                     .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(stat.label)")
+                    .accessibilityValue(stat.value)
 
                     if index < stats.count - 1 {
                         Rectangle()
                             .fill(Color(.separator).opacity(0.3))
                             .frame(width: 1, height: 40)
+                            .accessibilityHidden(true)
                     }
                 }
             }
@@ -182,6 +201,7 @@ struct ActivityTimelineCard: View {
                                     .frame(width: 2, height: 28)
                             }
                         }
+                        .accessibilityHidden(true)
 
                         // Icon
                         Image(systemName: activity.icon)
@@ -190,6 +210,7 @@ struct ActivityTimelineCard: View {
                             .frame(width: 28, height: 28)
                             .background(activity.color.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .accessibilityHidden(true)
 
                         // Content
                         VStack(alignment: .leading, spacing: 2) {
@@ -205,6 +226,8 @@ struct ActivityTimelineCard: View {
                         Spacer()
                     }
                     .padding(.bottom, index < activities.count - 1 ? MedicalSpacing.sm : 0)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(activity.title), \(activity.time)")
                 }
             }
         }
@@ -236,6 +259,7 @@ struct PatientQuickViewCard: View {
                         .font(MedicalTypography.titleMedium)
                         .foregroundColor(status.color)
                 }
+                .accessibilityHidden(true)
 
                 // Info
                 VStack(alignment: .leading, spacing: MedicalSpacing.xxs) {
@@ -270,6 +294,11 @@ struct PatientQuickViewCard: View {
             .subtleElevation()
         }
         .buttonStyle(PlainButtonStyle())
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(patientName), \(patientId)")
+        .accessibilityValue("Status: \(status.rawValue), Last updated: \(lastUpdated)\(upcomingSurgery != nil ? ", Upcoming: \(upcomingSurgery!)" : "")")
+        .accessibilityHint(action != nil ? "Double tap to view patient details" : "")
     }
 }
 
@@ -347,6 +376,9 @@ private struct SurgeryMetricView: View {
                 .foregroundColor(MedicalColors.Neutral.textSecondary)
         }
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label)")
+        .accessibilityValue(value)
     }
 }
 
@@ -366,11 +398,13 @@ struct EmptyStateCard: View {
             Image(systemName: icon)
                 .font(.system(size: 48, weight: .light))
                 .foregroundColor(MedicalColors.Neutral.textTertiary)
+                .accessibilityHidden(true)
 
             VStack(spacing: MedicalSpacing.xs) {
                 Text(title)
                     .font(MedicalTypography.headlineSmall)
                     .foregroundColor(MedicalColors.Neutral.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(message)
                     .font(MedicalTypography.bodySmall)
@@ -388,6 +422,9 @@ struct EmptyStateCard: View {
                         .background(MedicalColors.Brand.primary)
                         .cornerRadius(8)
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel(actionTitle)
+                .accessibilityHint("Double tap to \(actionTitle.lowercased())")
             }
         }
         .frame(maxWidth: .infinity)
@@ -414,6 +451,7 @@ struct SectionHeader: View {
                 Text(title)
                     .font(MedicalTypography.headlineSmall)
                     .foregroundColor(MedicalColors.Neutral.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
 
                 if let subtitle = subtitle {
                     Text(subtitle)
@@ -433,6 +471,9 @@ struct SectionHeader: View {
                     .font(MedicalTypography.labelMedium)
                     .foregroundColor(MedicalColors.Brand.primary)
                 }
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel(actionTitle)
+                .accessibilityHint("Double tap to \(actionTitle.lowercased())")
             }
         }
         .padding(.horizontal, MedicalSpacing.lg)

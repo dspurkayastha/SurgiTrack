@@ -55,8 +55,9 @@ struct ModernTextField: View {
                     Image(systemName: icon)
                         .font(.system(size: 16))
                         .foregroundColor(isFocused ? colors.primary : colors.textSecondary)
+                        .accessibilityHidden(true)
                 }
-                
+
                 Group {
                     if isSecure {
                         SecureField(placeholder, text: text)
@@ -70,13 +71,17 @@ struct ModernTextField: View {
                 .focused($isFocused)
             }
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)  // Increased for minimum 44pt touch target
             .background(colors.surface)
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(borderColor, lineWidth: 1)
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityLabelText)
+            .accessibilityValue(text.wrappedValue.isEmpty ? "Empty" : text.wrappedValue)
+            .accessibilityHint(isSecure ? "Secure text field" : "Text field")
             
             if let errorMessage = errorMessage {
                 Text(errorMessage)
@@ -91,6 +96,17 @@ struct ModernTextField: View {
             return .red
         }
         return isFocused ? colors.primary : colors.border
+    }
+
+    private var accessibilityLabelText: String {
+        var label = title
+        if isRequired {
+            label += ", required"
+        }
+        if let error = errorMessage {
+            label += ", error: \(error)"
+        }
+        return label
     }
 }
 

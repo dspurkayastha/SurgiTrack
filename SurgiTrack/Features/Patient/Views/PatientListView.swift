@@ -85,12 +85,16 @@ struct PatientListView: View {
                     placeholder: "Search patients...",
                     text: $searchText
                 )
+                .accessibilityLabel("Search patients by name or medical record number")
+                .accessibilityHint("Enter text to filter patient list")
                 
                 ModernSegmentedControl(
                     items: PatientStatusFilter.allCases,
                     selection: $selectedStatusFilter,
                     itemTitle: { $0.title }
                 )
+                .accessibilityLabel("Filter patients by status")
+                .accessibilityValue(selectedStatusFilter.title)
                 
                 if isLoading {
                     ModernLoadingIndicator(style: .circular, size: .large)
@@ -115,6 +119,9 @@ struct PatientListView: View {
                                         trailingIcon: "chevron.right",
                                         action: {}
                                     )
+                                    .accessibilityElement(children: .combine)
+                                    .accessibilityLabel(patientAccessibilityLabel(for: patient))
+                                    .accessibilityHint("Double tap to view patient details")
                                 }
                             }
                         )
@@ -435,6 +442,27 @@ struct PatientListView: View {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }
+
+    // MARK: - Accessibility Helper
+
+    private func patientAccessibilityLabel(for patient: Patient) -> String {
+        let status = patient.isDischargedStatus ? "Discharged" : "Active"
+        let mrn = patient.medicalRecordNumber ?? "No medical record number"
+        var label = "Patient \(patient.fullName), Status \(status), Medical Record Number \(mrn)"
+
+        // Add age if available
+        if let dob = patient.dateOfBirth {
+            let age = calculateAge(from: dob)
+            label += ", Age \(age) years"
+        }
+
+        // Add bed number for active patients
+        if !patient.isDischargedStatus, let bed = patient.bedNumber, !bed.isEmpty {
+            label += ", Bed \(bed)"
+        }
+
+        return label
+    }
 }
 
 // MARK: - Enhanced Patient Card
@@ -587,6 +615,9 @@ struct EnhancedPatientCard: View {
                     lineWidth: 1
                 )
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(patientCardAccessibilityLabel())
+        .accessibilityHint("Double tap to view patient details")
     }
     
     // Patient status badge
@@ -639,6 +670,34 @@ struct EnhancedPatientCard: View {
         return Calendar.current.dateComponents([.year], from: date, to: Date()).year ?? 0
     }
     
+    // MARK: - Accessibility Helper
+
+    private func patientCardAccessibilityLabel() -> String {
+        let status = patient.isDischargedStatus ? "Discharged" : "Active"
+        let mrn = patient.medicalRecordNumber ?? "No medical record number"
+        var label = "Patient \(patient.fullName), Status \(status), Medical Record Number \(mrn)"
+
+        // Add age if available
+        if let dob = patient.dateOfBirth {
+            let age = calculateAge(from: dob)
+            label += ", Age \(age) years"
+        }
+
+        // Add bed number for active patients
+        if !patient.isDischargedStatus, let bed = patient.bedNumber, !bed.isEmpty {
+            label += ", Bed \(bed)"
+        }
+
+        // Add surgery count for active patients
+        if !patient.isDischargedStatus {
+            let surgeryCount = getOperativeCount()
+            let followUpCount = getFollowUpCount()
+            label += ", \(surgeryCount) \(surgeryCount == 1 ? "surgery" : "surgeries"), \(followUpCount) follow-ups"
+        }
+
+        return label
+    }
+
     // Stats item view
     private func patientStatItem(value: String, label: String, icon: String, color: Color) -> some View {
         HStack(spacing: 8) {

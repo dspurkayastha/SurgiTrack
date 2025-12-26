@@ -65,6 +65,10 @@ struct ModernProgressIndicator: View {
                 CircularProgressView(progress: progress, size: size, showPercentage: style == .circularWithPercentage || showPercentage)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Progress indicator")
+        .accessibilityValue("\(Int(progress * 100)) percent complete")
+        .accessibilityAddTraits(.updatesFrequently)
     }
     
     private struct LinearProgressView: View {

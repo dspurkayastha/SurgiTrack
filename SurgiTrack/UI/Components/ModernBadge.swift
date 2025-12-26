@@ -76,6 +76,28 @@ struct ModernBadge: View {
                 Capsule()
                     .fill(style.backgroundColor)
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityLabelText)
+            .accessibilityAddTraits(.isStaticText)
+    }
+
+    private var accessibilityLabelText: String {
+        let styleDescription: String
+        switch style {
+        case .primary:
+            styleDescription = "primary badge"
+        case .secondary:
+            styleDescription = "secondary badge"
+        case .success:
+            styleDescription = "success status"
+        case .warning:
+            styleDescription = "warning status"
+        case .error:
+            styleDescription = "error status"
+        case .info:
+            styleDescription = "information"
+        }
+        return "\(text), \(styleDescription)"
     }
 }
 

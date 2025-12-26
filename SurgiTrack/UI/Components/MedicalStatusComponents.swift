@@ -102,6 +102,7 @@ struct PatientStatusBadge: View {
                 Image(systemName: status.icon)
                     .font(.system(size: size.iconSize, weight: .semibold))
                     .scaleEffect(status.isPulsing && isPulsing ? 1.1 : 1.0)
+                    .accessibilityHidden(true)
             }
 
             Text(status.rawValue)
@@ -125,7 +126,23 @@ struct PatientStatusBadge: View {
                 }
             }
         }
-        .accessibilityLabel("Patient status: \(status.rawValue)")
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
+        .accessibilityAddTraits(.isStaticText)
+        .accessibilityAddTraits(status.isPulsing ? .updatesFrequently : [])
+    }
+
+    private var accessibilityLabelText: String {
+        let statusDescription: String
+        switch status {
+        case .critical:
+            statusDescription = "Critical patient status"
+        case .inSurgery:
+            statusDescription = "Patient currently in surgery"
+        default:
+            statusDescription = "Patient status: \(status.rawValue)"
+        }
+        return statusDescription
     }
 }
 
@@ -203,7 +220,30 @@ struct RiskScoreIndicator: View {
                 .font(MedicalTypography.caption)
                 .foregroundColor(MedicalColors.Neutral.textSecondary)
         }
-        .accessibilityLabel("\(label): \(Int(score)) out of \(Int(maxScore))")
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelText)
+        .accessibilityValue(accessibilityValueText)
+        .accessibilityAddTraits(.isStaticText)
+    }
+
+    private var accessibilityLabelText: String {
+        "\(label) risk score"
+    }
+
+    private var accessibilityValueText: String {
+        let percentageValue = Int(percentage * 100)
+        let riskLevel: String
+        switch percentageValue {
+        case 0..<25:
+            riskLevel = "Low risk"
+        case 25..<50:
+            riskLevel = "Moderate risk"
+        case 50..<75:
+            riskLevel = "High risk"
+        default:
+            riskLevel = "Very high risk"
+        }
+        return "\(Int(score)) out of \(Int(maxScore)), \(percentageValue) percent, \(riskLevel)"
     }
 }
 
@@ -335,6 +375,7 @@ struct SurgeryStatusCard: View {
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(status.color)
             }
+            .accessibilityHidden(true)
 
             // Content
             VStack(alignment: .leading, spacing: MedicalSpacing.xxs) {
@@ -349,6 +390,7 @@ struct SurgeryStatusCard: View {
 
                     Text("•")
                         .foregroundColor(MedicalColors.Neutral.textTertiary)
+                        .accessibilityHidden(true)
 
                     Text(dateFormatter.string(from: date))
                         .font(MedicalTypography.caption)
@@ -357,6 +399,7 @@ struct SurgeryStatusCard: View {
                     if let durationText = durationText {
                         Text("•")
                             .foregroundColor(MedicalColors.Neutral.textTertiary)
+                            .accessibilityHidden(true)
 
                         Text(durationText)
                             .font(MedicalTypography.caption)
@@ -370,11 +413,16 @@ struct SurgeryStatusCard: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(MedicalColors.Neutral.textTertiary)
+                .accessibilityHidden(true)
         }
         .padding(MedicalSpacing.lg)
         .background(Color(.systemBackground))
         .cornerRadius(MedicalCardStyle.radiusMedium)
         .subtleElevation()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(surgeryName)")
+        .accessibilityValue("Status: \(status.rawValue), \(dateFormatter.string(from: date))\(durationText != nil ? ", Duration: \(durationText!)" : "")")
+        .accessibilityHint("Double tap for details")
     }
 }
 
@@ -467,6 +515,7 @@ struct QuickStatsCard: View {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(accentColor)
+                    .accessibilityHidden(true)
 
                 Spacer()
 
@@ -478,6 +527,7 @@ struct QuickStatsCard: View {
                             .font(MedicalTypography.captionBold)
                     }
                     .foregroundColor(trendPositive ? MedicalColors.Clinical.normal : MedicalColors.Clinical.abnormal)
+                    .accessibilityLabel("Trend: \(trend) \(trendPositive ? "increase" : "decrease")")
                 }
             }
 
@@ -495,6 +545,9 @@ struct QuickStatsCard: View {
         .background(Color(.systemBackground))
         .cornerRadius(MedicalCardStyle.radiusMedium)
         .subtleElevation()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)")
+        .accessibilityValue("\(value)\(trend != nil ? ", trend \(trend!) \(trendPositive ? "increasing" : "decreasing")" : "")")
     }
 }
 

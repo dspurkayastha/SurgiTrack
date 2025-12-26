@@ -44,12 +44,17 @@ struct OverviewSegment: View {
             
             InfoCard(title: "Patient Information", color: DetailSegment.overview.color) {
                 InfoRow(label: "Date of Birth", value: dateFormatter.string(from: patient.dateOfBirth ?? Date()))
+                    .accessibilityLabel("Date of Birth, \(dateFormatter.string(from: patient.dateOfBirth ?? Date()))")
                 InfoRow(label: "Age", value: viewModel.calculateAge(from: patient.dateOfBirth ?? Date()))
+                    .accessibilityLabel("Age, \(viewModel.calculateAge(from: patient.dateOfBirth ?? Date())) years")
                 InfoRow(label: "Gender", value: patient.gender ?? "Not specified")
+                    .accessibilityLabel("Gender, \(patient.gender ?? "Not specified")")
                 InfoRow(label: "MRN", value: patient.medicalRecordNumber ?? "N/A")
+                    .accessibilityLabel("Medical Record Number, \(patient.medicalRecordNumber ?? "Not available")")
                 
                 if let bloodType = patient.bloodType, !bloodType.isEmpty && bloodType != "Unknown" {
                     InfoRow(label: "Blood Type", value: bloodType)
+                        .accessibilityLabel("Blood Type, \(bloodType)")
                 }
                 
                 if patient.height > 0 || patient.weight > 0 {
@@ -57,14 +62,17 @@ struct OverviewSegment: View {
                     
                     if patient.height > 0 {
                         InfoRow(label: "Height", value: String(format: "%.1f cm", patient.height))
+                            .accessibilityLabel("Height, \(String(format: "%.1f centimeters", patient.height))")
                     }
-                    
+
                     if patient.weight > 0 {
                         InfoRow(label: "Weight", value: String(format: "%.1f kg", patient.weight))
+                            .accessibilityLabel("Weight, \(String(format: "%.1f kilograms", patient.weight))")
                     }
-                    
+
                     if patient.height > 0 && patient.weight > 0 {
                         InfoRow(label: "BMI", value: viewModel.calculateBMI())
+                            .accessibilityLabel("Body Mass Index, \(viewModel.calculateBMI())")
                     }
                 }
             }
@@ -84,6 +92,7 @@ struct OverviewSegment: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
+                        .accessibilityAddTraits(.isHeader)
                     
                     InfoRow(label: "Name", value: emergencyName)
                     InfoRow(label: "Phone", value: patient.emergencyContactPhone ?? "Not provided")
@@ -116,21 +125,26 @@ struct OverviewSegment: View {
             VStack(alignment: .leading, spacing: 10) {
                 if let initialDiagnosis = patient.initialPresentation?.initialDiagnosis, !initialDiagnosis.isEmpty {
                     InfoRow(label: "Diagnosis", value: initialDiagnosis)
+                        .accessibilityLabel("Initial Diagnosis, \(initialDiagnosis)")
                 }
-                
+
                 let surgeryCount = (patient.operativeData as? Set<OperativeData>)?.count ?? 0
                 InfoRow(label: "Surgeries", value: surgeryCount > 0 ? "\(surgeryCount)" : "None")
-                
+                    .accessibilityLabel("Surgeries, \(surgeryCount == 0 ? "None" : "\(surgeryCount) \(surgeryCount == 1 ? "surgery" : "surgeries")")")
+
                 let followUpCount = (patient.followUps as? Set<FollowUp>)?.count ?? 0
                 InfoRow(label: "Follow-ups", value: followUpCount > 0 ? "\(followUpCount)" : "None")
+                    .accessibilityLabel("Follow-up visits, \(followUpCount == 0 ? "None" : "\(followUpCount) \(followUpCount == 1 ? "visit" : "visits")")")
                 
                 let testCount = (patient.medicalTests as? Set<MedicalTest>)?.count ?? 0
                 if testCount > 0 {
                     let abnormalCount = (patient.medicalTests as? Set<MedicalTest>)?.filter { $0.isAbnormal }.count ?? 0
                     InfoRow(label: "Tests", value: "\(testCount) (\(abnormalCount) abnormal)")
+                        .accessibilityLabel("Medical Tests, \(testCount) total, \(abnormalCount) abnormal")
+                        .accessibilityValue(abnormalCount > 0 ? "Warning: \(abnormalCount) abnormal test results" : "All tests normal")
                 } else {
                     InfoRow(label: "Tests", value: "None")
-                }
+                        .accessibilityLabel("Medical Tests, None")
                 
                 // Show upcoming appointments if any
                 let upcomingAppointments = (patient.appointments as? Set<Appointment>)?.filter {
@@ -145,6 +159,7 @@ struct OverviewSegment: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
+                        .accessibilityAddTraits(.isHeader)
                     
                     ForEach(upcomingAppointments.prefix(2), id: \.objectID) { appointment in
                         HStack {
@@ -183,6 +198,8 @@ struct OverviewSegment: View {
                     .foregroundColor(.blue)
                     .padding(.top, 8)
             }
+            .accessibilityLabel("View full discharge summary")
+            .accessibilityHint("Double tap to open discharge summary details")
         }
         .transition(.opacity.combined(with: .move(edge: .bottom)))
     }

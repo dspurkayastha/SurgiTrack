@@ -34,18 +34,22 @@ struct ModernButton<Label: View>: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: style.foregroundColor))
                         .scaleEffect(0.8)
                 }
-                
+
                 label
                     .font(size.font)
                     .foregroundColor(style.foregroundColor)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: size.height)
+            .frame(minHeight: size.height)
             .background(style.backgroundColor)
             .cornerRadius(size.cornerRadius)
             .opacity(isEnabled ? 1 : 0.5)
         }
         .disabled(!isEnabled || isLoading)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityRemoveTraits(isEnabled ? [] : .isButton)
+        .accessibilityAddTraits(isEnabled ? [] : .isStaticText)
+        .accessibilityHint(isEnabled && !isLoading ? "Double tap to activate" : "")
     }
 }
 
@@ -87,11 +91,11 @@ extension ModernButton {
         case small
         case medium
         case large
-        
+
         var height: CGFloat {
             switch self {
             case .small:
-                return 32
+                return 44  // Minimum 44pt for accessibility
             case .medium:
                 return 44
             case .large:
@@ -141,6 +145,31 @@ extension ModernButton where Label == Text {
         ) {
             Text(title)
         }
+    }
+}
+
+// MARK: - Accessibility Helper Extension
+extension ModernButton {
+    /// Adds a custom accessibility label to the button
+    func accessibilityLabel(_ label: String) -> some View {
+        ModernButtonWithAccessibility(button: self, label: label, hint: nil)
+    }
+
+    /// Adds custom accessibility label and hint to the button
+    func accessibilityLabel(_ label: String, hint: String) -> some View {
+        ModernButtonWithAccessibility(button: self, label: label, hint: hint)
+    }
+}
+
+private struct ModernButtonWithAccessibility<Label: View>: View {
+    let button: ModernButton<Label>
+    let label: String
+    let hint: String?
+
+    var body: some View {
+        button
+            .accessibilityLabel(label)
+            .accessibilityHint(hint ?? (button.isEnabled && !button.isLoading ? "Double tap to activate" : ""))
     }
 }
 

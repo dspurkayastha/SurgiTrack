@@ -92,6 +92,19 @@ struct ModernAvatar: View {
             RoundedRectangle(cornerRadius: style.cornerRadius)
                 .stroke(colors.border, lineWidth: 1)
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabelText)
+        .accessibilityAddTraits(.isImage)
+    }
+
+    private var accessibilityLabelText: String {
+        if let initials = initials {
+            return "Avatar with initials \(initials)"
+        } else if image != nil {
+            return "Profile picture"
+        } else {
+            return "Default avatar"
+        }
     }
 }
 

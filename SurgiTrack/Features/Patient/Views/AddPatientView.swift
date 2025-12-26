@@ -99,6 +99,8 @@ struct AddPatientView: View {
                                 currentStep -= 1
                             }
                         }
+                        .accessibilityLabel("Previous step")
+                        .accessibilityHint("Go back to previous form section")
                     }
                     
                     if currentStep < formSections.count - 1 {
@@ -110,6 +112,8 @@ struct AddPatientView: View {
                                     currentStep += 1
                             }
                         }
+                        .accessibilityLabel("Next step")
+                        .accessibilityHint("Continue to next form section")
                     } else {
                         ModernButton(
                             "Save Patient",
@@ -119,6 +123,8 @@ struct AddPatientView: View {
                             savePatient()
                         }
                         .disabled(isSaving)
+                        .accessibilityLabel(isSaving ? "Saving patient information" : "Save patient")
+                        .accessibilityHint("Double tap to save the new patient record")
                     }
                 }
                 .padding(.bottom) // Add padding to keep buttons off edge
@@ -165,6 +171,8 @@ struct AddPatientView: View {
                         ) {
                             showingImagePicker = true
                         }
+                        .accessibilityLabel(profileImage == nil ? "Add patient photo" : "Change patient photo")
+                        .accessibilityHint("Double tap to select a photo from your library")
                     }
                     .padding()
                 }
@@ -177,6 +185,8 @@ struct AddPatientView: View {
                             icon: "person.fill",
                             isRequired: true
                         )
+                        .accessibilityLabel("First Name, Required")
+                        .accessibilityHint("Enter patient's first name")
                         
                         ModernFormField(
                             title: "Last Name",
@@ -184,11 +194,15 @@ struct AddPatientView: View {
                             icon: "person.fill",
                             isRequired: true
                         )
+                        .accessibilityLabel("Last Name, Required")
+                        .accessibilityHint("Enter patient's last name")
                         
                         ModernFormDatePicker(
                             title: "Date of Birth",
                             selection: $dateOfBirth
                         )
+                        .accessibilityLabel("Date of Birth")
+                        .accessibilityValue(formatDateForAccessibility(dateOfBirth))
                         
                         ModernFormPicker(
                             title: "Gender",
@@ -199,6 +213,8 @@ struct AddPatientView: View {
                                 Text(option).tag(option)
                             }
                         }
+                        .accessibilityLabel("Gender")
+                        .accessibilityValue(gender.isEmpty ? "Not selected" : gender)
                         
                         ModernFormField(
                             title: "Medical Record Number",
@@ -206,6 +222,8 @@ struct AddPatientView: View {
                             icon: "number",
                             isRequired: true
                         )
+                        .accessibilityLabel("Medical Record Number, Required")
+                        .accessibilityHint("Enter patient's medical record number")
                         
                         ModernFormPicker(
                             title: "Blood Type",
@@ -216,6 +234,8 @@ struct AddPatientView: View {
                                 Text(option).tag(option)
                             }
                         }
+                        .accessibilityLabel("Blood Type")
+                        .accessibilityValue(bloodType.isEmpty || bloodType == "Unknown" ? "Not selected" : bloodType)
                         
             HStack {
                             VStack(alignment: .leading) {
@@ -276,6 +296,8 @@ struct AddPatientView: View {
                             icon: "phone.fill",
                             keyboardType: .phonePad
                         )
+                        .accessibilityLabel("Phone Number")
+                        .accessibilityHint("Enter patient's phone number")
                         
                         ModernFormField(
                             title: "Email",
@@ -283,6 +305,8 @@ struct AddPatientView: View {
                             icon: "envelope.fill",
                             keyboardType: .emailAddress
                         )
+                        .accessibilityLabel("Email Address")
+                        .accessibilityHint("Enter patient's email address")
                         
                         ModernFormField(
                             title: "Home Address",
@@ -300,6 +324,8 @@ struct AddPatientView: View {
                             text: $emergencyContactName,
                             icon: "person.crop.circle.fill.badge.exclamationmark"
                         )
+                        .accessibilityLabel("Emergency Contact Name")
+                        .accessibilityHint("Enter name of emergency contact person")
                         
                         ModernFormField(
                             title: "Contact Phone",
@@ -307,6 +333,8 @@ struct AddPatientView: View {
                             icon: "phone.fill",
                             keyboardType: .phonePad
                         )
+                        .accessibilityLabel("Emergency Contact Phone Number")
+                        .accessibilityHint("Enter phone number of emergency contact")
                     }
                 }
             }
@@ -424,7 +452,13 @@ struct AddPatientView: View {
     }
     
     // MARK: - Helper Methods
-    
+
+    private func formatDateForAccessibility(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
+
     private func savePatient() {
         isSaving = true
         

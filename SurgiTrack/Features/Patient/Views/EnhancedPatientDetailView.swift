@@ -169,6 +169,7 @@ struct AccordionPatientDetailView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                         .lineLimit(1)
+                        .accessibilityAddTraits(.isHeader)
                     
                     HStack(spacing: 10) {
                         // Status indicator
@@ -199,6 +200,8 @@ struct AccordionPatientDetailView: View {
                         .opacity(isAnimating ? 1.0 : 0.0)
                         .offset(x: isAnimating ? 0 : 20)
                 }
+                .accessibilityLabel("Edit patient information")
+                .accessibilityHint("Double tap to edit patient details")
             }
             .padding(16)
             .background(
@@ -226,6 +229,9 @@ struct AccordionPatientDetailView: View {
                 .onTapGesture {
                     expandSection(.procedures)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(viewModel.operativeDataArray.count) surgeries")
+                .accessibilityHint("Double tap to view surgical procedures")
                 
                 // Follow-ups stat
                 quickStatItem(
@@ -237,9 +243,13 @@ struct AccordionPatientDetailView: View {
                 .onTapGesture {
                     expandSection(.followUp)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(viewModel.followUpsArray.count) follow-up visits")
+                .accessibilityHint("Double tap to view follow-up visits")
                 
                 // Tests stat
                 let testCount = (patient.medicalTests as? Set<MedicalTest>)?.count ?? 0
+                let abnormalTestCount = (patient.medicalTests as? Set<MedicalTest>)?.filter { $0.isAbnormal }.count ?? 0
                 quickStatItem(
                     title: "Tests",
                     value: "\(testCount)",
@@ -250,6 +260,10 @@ struct AccordionPatientDetailView: View {
                     expandSection(.clinical)
                     toggleCard("Tests")
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(testCount) medical tests, \(abnormalTestCount) abnormal")
+                .accessibilityHint("Double tap to view test reports")
+                .accessibilityValue(abnormalTestCount > 0 ? "Warning: \(abnormalTestCount) abnormal test results" : "All tests normal")
                 
                 // Attachments stat
                 let attachmentsCount = (patient.attachments as? Set<Attachment>)?.count ?? 0
@@ -342,6 +356,7 @@ struct AccordionPatientDetailView: View {
                         Text(section.rawValue)
                             .font(.headline)
                             .foregroundColor(.primary)
+                            .accessibilityAddTraits(.isHeader)
                         
                         Spacer()
                         
@@ -1287,7 +1302,7 @@ struct AccordionPatientDetailView: View {
             Text(title)
                 .font(.system(size: 12))
                 .foregroundColor(.secondary)
-            
+
             Text(value)
                 .font(.system(size: 16, weight: .semibold))
         }
@@ -1300,6 +1315,28 @@ struct AccordionPatientDetailView: View {
                 .stroke(colorScheme == .dark ? Color.gray.opacity(0.3) : Color.clear, lineWidth: 1)
         )
         .shadow(color: colorScheme == .dark ? Color.black.opacity(0.25) : Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(medicalMetricAccessibilityLabel(title: title, value: value))
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private func medicalMetricAccessibilityLabel(title: String, value: String) -> String {
+        // Format specific medical values for better VoiceOver
+        switch title.lowercased() {
+        case "bmi":
+            return "Body Mass Index, \(value)"
+        case "blood type":
+            return "Blood Type, \(value)"
+        case "height":
+            return "Height, \(value)"
+        case "weight":
+            return "Weight, \(value)"
+        case "age":
+            return "Age, \(value)"
+        default:
+            return "\(title), \(value)"
+        }
     }
     
     private func procedureCard(_ procedure: OperativeData) -> some View {
@@ -1794,7 +1831,9 @@ struct AccordionPatientDetailView: View {
                     }
                     .buttonStyle(ModernButtonStyle(backgroundColor: .orange))
                     .frame(height: buttonHeight)
-                    
+                    .accessibilityLabel("Readmit patient")
+                    .accessibilityHint("Double tap to readmit this patient to active status")
+
                     Button(action: {
                         viewModel.showingDischargeSummary = true
                     }) {
@@ -1808,6 +1847,8 @@ struct AccordionPatientDetailView: View {
                     }
                     .buttonStyle(ModernButtonStyle(backgroundColor: .blue))
                     .frame(height: buttonHeight)
+                    .accessibilityLabel("View discharge summary")
+                    .accessibilityHint("Double tap to view full discharge summary")
                 }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -1844,31 +1885,39 @@ struct AccordionPatientDetailView: View {
                 Label("Discharge", systemImage: "arrow.up.forward.square.fill")
             }
             .buttonStyle(ModernButtonStyle(backgroundColor: .blue))
-            
+            .accessibilityLabel("Discharge patient")
+            .accessibilityHint("Double tap to begin patient discharge process")
+
             Menu {
                 Button(action: {
                     viewModel.showingAddOperativeData = true
                 }) {
                     Label("Add Surgery", systemImage: "scalpel")
                 }
-                
+                .accessibilityLabel("Add surgical procedure")
+
                 Button(action: {
                     viewModel.showingAddFollowUp = true
                 }) {
                     Label("Add Follow-up", systemImage: "calendar.badge.clock")
                 }
-                
+                .accessibilityLabel("Add follow-up visit")
+
                 NavigationLink(destination: ReportsView()) {
                     Label("View Reports", systemImage: "doc.text.magnifyingglass")
                 }
-                
+                .accessibilityLabel("View medical reports")
+
                 NavigationLink(destination: RiskCalculatorListView(patient: patient)) {
                     Label("Risk Assessment", systemImage: "function")
                 }
+                .accessibilityLabel("Perform risk assessment")
             } label: {
                 Label("Quick Actions", systemImage: "ellipsis.circle.fill")
             }
             .buttonStyle(ModernButtonStyle(backgroundColor: .gray))
+            .accessibilityLabel("Quick Actions menu")
+            .accessibilityHint("Double tap to open menu with additional patient actions")
         }
         .padding()
         .frame(maxWidth: .infinity)
