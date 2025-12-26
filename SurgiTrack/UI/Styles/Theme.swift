@@ -110,20 +110,34 @@ struct LegacyThemeColors { // Renamed from ThemeColors
 }
 
 // MARK: - Theme Typography
+/// Professional typography system - no rounded design for medical professionalism
 struct ThemeTypography {
-    // Headings
-    static let h1 = Font.system(size: 32, weight: .bold, design: .rounded)
-    static let h2 = Font.system(size: 24, weight: .bold, design: .rounded)
-    static let h3 = Font.system(size: 20, weight: .semibold, design: .rounded)
-    
-    // Body Text
-    static let bodyLarge = Font.system(size: 18, weight: .regular)
-    static let bodyMedium = Font.system(size: 16, weight: .regular)
+    // Headings - Professional, clean design
+    static let h1 = Font.system(size: 32, weight: .bold, design: .default)
+    static let h2 = Font.system(size: 24, weight: .bold, design: .default)
+    static let h3 = Font.system(size: 20, weight: .semibold, design: .default)
+
+    // Body Text - Optimized for readability
+    static let bodyLarge = Font.system(size: 17, weight: .regular)
+    static let bodyMedium = Font.system(size: 15, weight: .regular)
     static let bodySmall = Font.system(size: 14, weight: .regular)
-    
+
     // Special Text
-    static let caption = Font.caption
+    static let caption = Font.system(size: 12, weight: .regular)
+    static let captionMedium = Font.system(size: 12, weight: .medium)
     static let button = Font.system(size: 16, weight: .semibold)
+
+    // Titles
+    static let titleLarge = Font.system(size: 17, weight: .semibold)
+    static let titleMedium = Font.system(size: 16, weight: .medium)
+
+    // Labels
+    static let labelMedium = Font.system(size: 13, weight: .medium)
+    static let labelSmall = Font.system(size: 12, weight: .medium)
+
+    // Numeric display - rounded for numbers only
+    static let numericLarge = Font.system(size: 28, weight: .bold, design: .rounded)
+    static let numericMedium = Font.system(size: 22, weight: .bold, design: .rounded)
 }
 
 // MARK: - Theme Spacing
