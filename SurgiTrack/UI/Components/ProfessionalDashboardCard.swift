@@ -297,7 +297,7 @@ struct PatientQuickViewCard: View {
         .frame(minHeight: 44)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(patientName), \(patientId)")
-        .accessibilityValue("Status: \(status.rawValue), Last updated: \(lastUpdated)\(upcomingSurgery != nil ? ", Upcoming: \(upcomingSurgery!)" : "")")
+        .accessibilityValue("Status: \(status.rawValue), Last updated: \(lastUpdated)\(upcomingSurgery.map { ", Upcoming: \($0)" } ?? "")")
         .accessibilityHint(action != nil ? "Double tap to view patient details" : "")
     }
 }

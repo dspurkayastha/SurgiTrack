@@ -28,7 +28,7 @@ struct EnhancedPatientDetailView: View {
     // MARK: - Initialization
     init(patient: Patient) {
         self.patient = patient
-        self.viewModel = PatientDetailViewModel(patient: patient, context: patient.managedObjectContext!)
+        self.viewModel = PatientDetailViewModel(patient: patient, context: patient.managedObjectContext ?? PersistenceController.shared.container.viewContext)
     }
     
     // MARK: - Body
@@ -1996,17 +1996,17 @@ struct EnhancedPatientDetailView: View {
         // Determine animation duration based on card content size
         switch segment {
         case .overview:
-            let hasEmergencyContact = viewModel.patient.emergencyContactName != nil && !viewModel.patient.emergencyContactName!.isEmpty
-            let hasInsurance = viewModel.patient.insuranceProvider != nil && !viewModel.patient.insuranceProvider!.isEmpty
+            let hasEmergencyContact = !(viewModel.patient.emergencyContactName ?? "").isEmpty
+            let hasInsurance = !(viewModel.patient.insuranceProvider ?? "").isEmpty
             let hasDischargeInfo = viewModel.patient.isDischargedStatus && viewModel.patient.dischargeSummary != nil
             let sectionsCount = [true, hasEmergencyContact, hasInsurance, hasDischargeInfo].filter { $0 }.count
             animationDuration = 0.4 + (Double(sectionsCount) * 0.1)
             
         case .initial:
             if let presentation = viewModel.patient.initialPresentation {
-                let hasHistory = presentation.historyOfPresentIllness != nil && !presentation.historyOfPresentIllness!.isEmpty
-                let hasExam = presentation.physicalExamination != nil && !presentation.physicalExamination!.isEmpty
-                let hasMedicalHistory = presentation.pastMedicalHistory != nil && !presentation.pastMedicalHistory!.isEmpty
+                let hasHistory = !(presentation.historyOfPresentIllness ?? "").isEmpty
+                let hasExam = !(presentation.physicalExamination ?? "").isEmpty
+                let hasMedicalHistory = !(presentation.pastMedicalHistory ?? "").isEmpty
                 let contentComplexity = [hasHistory, hasExam, hasMedicalHistory].filter { $0 }.count
                 animationDuration = 0.4 + (Double(contentComplexity) * 0.1)
             } else {

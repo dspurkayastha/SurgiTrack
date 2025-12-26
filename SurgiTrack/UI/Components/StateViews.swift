@@ -68,7 +68,7 @@ struct LoadingStateView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Loading" + (message != nil ? ": \(message!)" : ""))
+        .accessibilityLabel("Loading" + (message.map { ": \($0)" } ?? ""))
         .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -310,9 +310,8 @@ struct EmptyStateView: View {
         EmptyStateView(
             icon: "magnifyingglass",
             title: "No Results Found",
-            message: searchTerm != nil
-                ? "No results found for '\(searchTerm!)'. Try adjusting your search."
-                : "Try adjusting your search or filter criteria",
+            message: searchTerm.map { "No results found for '\($0)'. Try adjusting your search." }
+                ?? "Try adjusting your search or filter criteria",
             iconColor: MedicalColors.Neutral.textSecondary
         )
     }

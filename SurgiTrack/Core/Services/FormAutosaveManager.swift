@@ -245,7 +245,9 @@ struct AutosaveFormModifier: ViewModifier {
                 autosaveManager.registerForm(formId, type: formType, data: dataProvider(), entityId: entityId)
             }
             .onChange(of: dataProvider() as NSDictionary) { _, newValue in
-                autosaveManager.updateForm(formId, data: newValue as! [String: Any])
+                if let data = newValue as? [String: Any] {
+                    autosaveManager.updateForm(formId, data: data)
+                }
             }
             .onDisappear {
                 // Don't remove on disappear - form may be saved or user may return

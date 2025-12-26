@@ -172,7 +172,7 @@ struct CreateReferralView: View {
             .cornerRadius(MedicalCardStyle.radiusMedium)
         }
         .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel(selectedPatient != nil ? "Patient: \(selectedPatient!.name)" : "Select patient")
+        .accessibilityLabel(selectedPatient.map { "Patient: \($0.name)" } ?? "Select patient")
         .accessibilityHint("Double tap to choose a patient")
     }
 
@@ -224,7 +224,7 @@ struct CreateReferralView: View {
             .cornerRadius(MedicalCardStyle.radiusMedium)
         }
         .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel(selectedDepartment != nil ? "Department: \(selectedDepartment!.name)" : "Select department")
+        .accessibilityLabel(selectedDepartment.map { "Department: \($0.name)" } ?? "Select department")
         .accessibilityHint("Double tap to choose a department")
     }
 

@@ -141,7 +141,7 @@ struct AppointmentRowPreview: PreviewProvider {
         appointment.id = UUID()
         appointment.title = "Surgical Consultation"
         appointment.startTime = Date()
-        appointment.endTime = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
+        appointment.endTime = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date().addingTimeInterval(3600)
         appointment.appointmentType = "Consultation"
         appointment.location = "Room 302, Building A"
         appointment.isCompleted = false

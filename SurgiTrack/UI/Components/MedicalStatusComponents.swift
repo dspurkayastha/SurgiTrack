@@ -421,7 +421,7 @@ struct SurgeryStatusCard: View {
         .subtleElevation()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(surgeryName)")
-        .accessibilityValue("Status: \(status.rawValue), \(dateFormatter.string(from: date))\(durationText != nil ? ", Duration: \(durationText!)" : "")")
+        .accessibilityValue("Status: \(status.rawValue), \(dateFormatter.string(from: date))\(durationText.map { ", Duration: \($0)" } ?? "")")
         .accessibilityHint("Double tap for details")
     }
 }
@@ -547,7 +547,7 @@ struct QuickStatsCard: View {
         .subtleElevation()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title)")
-        .accessibilityValue("\(value)\(trend != nil ? ", trend \(trend!) \(trendPositive ? "increasing" : "decreasing")" : "")")
+        .accessibilityValue("\(value)\(trend.map { ", trend \($0) \(trendPositive ? "increasing" : "decreasing")" } ?? "")")
     }
 }
 

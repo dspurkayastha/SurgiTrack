@@ -32,7 +32,7 @@ struct PersistenceController {
         appointment.id = UUID()
         appointment.title = "Initial Consultation"
         appointment.startTime = Date()
-        appointment.endTime = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
+        appointment.endTime = Calendar.current.date(byAdding: .hour, value: 1, to: Date()) ?? Date().addingTimeInterval(3600)
         appointment.appointmentType = "Consultation"
         appointment.patient = patient
 
