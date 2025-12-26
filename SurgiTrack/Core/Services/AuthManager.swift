@@ -1,340 +1,521 @@
 // AuthManager.swift
 // SurgiTrack
+// Secure authentication manager
 // Created on 06/03/2025
+// Updated on 26/12/2025 - Added secure hashing, Keychain storage, and audit logging
 
 import Foundation
 import LocalAuthentication
 import SwiftUI
 import Clerk
 
+/// Manages all authentication flows for SurgiTrack.
+/// Uses secure storage (Keychain) and cryptographic hashing for credentials.
+@MainActor
 class AuthManager: ObservableObject {
-    // Authentication states
+
+    // MARK: - Published Properties
+
     @Published var isAuthenticated = false
     @Published var biometricsAvailable = false
     @Published var biometricType: BiometricType = .none
-    @Published var authError: String?
-    
-    // User defaults keys
-    private let authMethodKey = "authMethod"
-    private let pinHashKey = "pinHash"
-    private let credentialsKey = "credentials"
-    private let rememberMeKey = "rememberMe"
-    
-    // Keychain service name
-    private let keychainService = "com.surgitrack.credentials"
-    
-    // Saved credentials
-    @AppStorage("username") private var savedUsername = ""
-    
-    // Auth attempt tracking
+    @Published var authError: AppError?
+    @Published var isLockedOut = false
+    @Published var lockoutRemainingSeconds: Int = 0
+
+    // MARK: - Private Properties
+
+    private let keychain = KeychainManager.shared
     private var loginAttempts = 0
-    private let maxLoginAttempts = 5
     private var lockoutEndTime: Date?
-    
+    private var lockoutTimer: Timer?
+    private var sessionTimer: Timer?
+    private var lastActivityTime = Date()
+
+    // User defaults keys (for non-sensitive preferences only)
+    private let rememberMeKey = "rememberMe"
+
+    // Saved username (non-sensitive, can stay in AppStorage)
+    @AppStorage("username") private var savedUsername = ""
+
+    // MARK: - Types
+
     enum BiometricType {
         case none
         case faceID
         case touchID
+
+        var displayName: String {
+            switch self {
+            case .none: return "None"
+            case .faceID: return "Face ID"
+            case .touchID: return "Touch ID"
+            }
+        }
     }
-    
-    enum AuthMethod: String {
+
+    enum AuthMethod: String, Codable {
         case none
         case pin
         case credentials
         case biometric
     }
-    
+
+    // MARK: - Initialization
+
     init() {
         checkBiometricAvailability()
+        loadLockoutState()
         attemptAutoLogin()
+        setupSessionTimeout()
     }
-    
-    // MARK: - Authentication Methods
-    
+
+    deinit {
+        lockoutTimer?.invalidate()
+        sessionTimer?.invalidate()
+    }
+
+    // MARK: - Biometric Authentication
+
     func authenticateWithBiometrics(completion: @escaping (Bool) -> Void) {
         let context = LAContext()
         var error: NSError?
-        
+
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            self.authError = error?.localizedDescription ?? "Biometric authentication unavailable"
+            authError = .biometricNotAvailable
+            Logger.auth("Biometric authentication not available", level: .warning)
             completion(false)
             return
         }
-        
+
         let reason = "Log into your SurgiTrack account"
-        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
-            DispatchQueue.main.async {
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [weak self] success, error in
+            Task { @MainActor in
+                guard let self = self else { return }
+
                 if success {
-                    self.isAuthenticated = true
-                    self.authError = nil
+                    self.handleSuccessfulAuth(method: .biometric)
+                    Logger.auth("Biometric authentication successful")
+                    AuditLogger.shared.logLogin(userId: self.savedUsername, userName: nil, outcome: .success)
                     completion(true)
                 } else {
-                    self.authError = error?.localizedDescription ?? "Authentication failed"
+                    self.authError = .biometricFailed
+                    Logger.auth("Biometric authentication failed", level: .warning)
+                    AuditLogger.shared.logLogin(userId: self.savedUsername, userName: nil, outcome: .failure, errorMessage: error?.localizedDescription)
                     completion(false)
                 }
             }
         }
     }
-    
+
+    // MARK: - PIN Authentication
+
     func authenticateWithPIN(_ pin: String) -> Bool {
-        guard pin.count == 6 else {
-                authError = "Please enter a 6-digit PIN"
-                return false
-        }
-        guard !isLockedOut() else {
-            authError = "Too many failed attempts. Try again later."
+        // Validate PIN length
+        guard pin.count == Configuration.Security.pinLength else {
+            authError = .validationFailed(field: "PIN", message: "Please enter a \(Configuration.Security.pinLength)-digit PIN")
             return false
         }
-        
-        guard let storedPinHash = UserDefaults.standard.string(forKey: pinHashKey) else {
-            // No PIN set - we'll consider this an error for now
-            authError = "No PIN has been set up"
+
+        // Check lockout
+        guard !checkLockout() else {
             return false
         }
-        
-        // Hash the provided PIN and compare
-        if hashPin(pin) == storedPinHash {
-            isAuthenticated = true
-            loginAttempts = 0
-            authError = nil
+
+        // Retrieve stored PIN from Keychain
+        guard let storedCredentials = keychain.retrievePIN() else {
+            authError = .pinNotSet
+            Logger.auth("No PIN set up", level: .warning)
+            return false
+        }
+
+        // Verify PIN using secure comparison
+        if SecureHasher.verifyPIN(pin, againstHash: storedCredentials.hash, salt: storedCredentials.salt) {
+            handleSuccessfulAuth(method: .pin)
+            Logger.auth("PIN authentication successful")
+            AuditLogger.shared.logLogin(userId: savedUsername, userName: nil, outcome: .success)
             return true
         } else {
-            loginAttempts += 1
-            
-            if loginAttempts >= maxLoginAttempts {
-                setLockout()
-            }
-            
-            authError = "Incorrect PIN"
+            handleFailedAuth()
+            authError = .invalidPIN
+            Logger.auth("PIN authentication failed - incorrect PIN", level: .warning)
+            AuditLogger.shared.logLogin(userId: savedUsername, userName: nil, outcome: .failure, errorMessage: "Incorrect PIN")
             return false
         }
     }
-    
-    func authenticateWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
-        Task {
-            do {
-                try await ClerkAuthService.shared.signIn(email: username, password: password)
-                DispatchQueue.main.async {
-                    self.isAuthenticated = true
-                    self.loginAttempts = 0
-                    self.authError = nil
-                    completion(true, nil)
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.loginAttempts += 1
-                    if self.loginAttempts >= self.maxLoginAttempts {
-                        self.setLockout()
-                    }
-                    self.authError = error.localizedDescription
-                    completion(false, error.localizedDescription)
-                }
-            }
-        }
-    }
-    
-    func registerWithCredentials(username: String, password: String, completion: @escaping (Bool, String?) -> Void) {
-        Task {
-            do {
-                try await ClerkAuthService.shared.signUp(email: username, password: password)
-                DispatchQueue.main.async {
-                    completion(true, nil)
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    completion(false, error.localizedDescription)
-                }
-            }
-        }
-    }
-    
+
     func setPIN(_ pin: String) -> Bool {
+        // Validate PIN length
         guard pin.count >= 4, pin.allSatisfy({ $0.isNumber }) else {
-            authError = "PIN must be at least 4 digits"
+            authError = .validationFailed(field: "PIN", message: "PIN must be at least 4 digits")
             return false
         }
-        
+
         // Check PIN strength
         if isPinTooWeak(pin) {
-            authError = "PIN is too weak. Avoid sequential or repeated digits."
+            authError = .pinTooWeak
             return false
         }
-        
-        let pinHash = hashPin(pin)
-        UserDefaults.standard.set(pinHash, forKey: pinHashKey)
-        UserDefaults.standard.set(AuthMethod.pin.rawValue, forKey: authMethodKey)
-        return true
+
+        // Generate salt and hash
+        let salt = SecureHasher.generateSalt()
+        let hash = SecureHasher.hashPIN(pin, salt: salt)
+
+        // Store in Keychain
+        do {
+            try keychain.storePIN(hash: hash, salt: salt)
+            try keychain.setLastAuthMethod(AuthMethod.pin.rawValue)
+            Logger.auth("PIN set successfully")
+            return true
+        } catch {
+            Logger.error("Failed to store PIN", error: error, category: .security)
+            authError = .keychainError(underlying: error)
+            return false
+        }
     }
-    
+
+    func hasPINSet() -> Bool {
+        return keychain.retrievePIN() != nil
+    }
+
     private func isPinTooWeak(_ pin: String) -> Bool {
-        // Check for sequential digits (e.g., 1234, 4321)
         let digits = pin.compactMap { Int(String($0)) }
-        
+
         // Check for all digits being the same
         if Set(digits).count == 1 {
             return true
         }
-        
+
         // Check for sequential patterns
         for i in 0..<(digits.count - 2) {
-            // Check ascending sequence
+            // Ascending sequence
             if digits[i] + 1 == digits[i+1] && digits[i+1] + 1 == digits[i+2] {
                 return true
             }
-            
-            // Check descending sequence
+            // Descending sequence
             if digits[i] - 1 == digits[i+1] && digits[i+1] - 1 == digits[i+2] {
                 return true
             }
         }
-        
+
         return false
     }
-    
+
+    // MARK: - Credentials Authentication
+
+    func authenticateWithCredentials(username: String, password: String) async throws {
+        guard !checkLockout() else {
+            throw authError ?? .accountLocked(remainingTime: TimeInterval(lockoutRemainingSeconds))
+        }
+
+        do {
+            try await ClerkAuthService.shared.signIn(email: username, password: password)
+            handleSuccessfulAuth(method: .credentials)
+            savedUsername = username
+            Logger.auth("Credential authentication successful for: \(username)")
+            AuditLogger.shared.logLogin(userId: username, userName: nil, outcome: .success)
+        } catch {
+            handleFailedAuth()
+            let appError = AppError.authenticationFailed(reason: error.localizedDescription)
+            authError = appError
+            Logger.auth("Credential authentication failed: \(error.localizedDescription)", level: .warning)
+            AuditLogger.shared.logLogin(userId: username, userName: nil, outcome: .failure, errorMessage: error.localizedDescription)
+            throw appError
+        }
+    }
+
+    func registerWithCredentials(username: String, password: String) async throws {
+        // Validate password strength
+        guard password.count >= Configuration.Security.minPasswordLength else {
+            throw AppError.valueTooShort(field: "Password", minLength: Configuration.Security.minPasswordLength)
+        }
+
+        do {
+            try await ClerkAuthService.shared.signUp(email: username, password: password)
+            Logger.auth("Registration successful for: \(username)")
+        } catch {
+            let appError = AppError.authenticationFailed(reason: error.localizedDescription)
+            Logger.auth("Registration failed: \(error.localizedDescription)", level: .error)
+            throw appError
+        }
+    }
+
+    // MARK: - Credential Storage
+
     func saveCredentials(username: String, password: String, rememberMe: Bool) -> Bool {
-        // Never save password in UserDefaults in a real app
-        // This is a simplified version - would use Keychain in production
         savedUsername = username
         UserDefaults.standard.set(rememberMe, forKey: rememberMeKey)
-        
+
         if rememberMe {
-            UserDefaults.standard.set(AuthMethod.credentials.rawValue, forKey: authMethodKey)
-            
-            // In a real app, use Keychain instead
-            let credentials = "\(username):\(hashPassword(password))"
-            UserDefaults.standard.set(credentials, forKey: credentialsKey)
+            // Generate salt and hash for secure storage
+            let salt = SecureHasher.generateSalt()
+            let hash = SecureHasher.hashPassword(password, salt: salt)
+
+            do {
+                try keychain.storeCredentials(email: username, passwordHash: hash, salt: salt)
+                try keychain.setLastAuthMethod(AuthMethod.credentials.rawValue)
+                Logger.auth("Credentials saved securely")
+                return true
+            } catch {
+                Logger.error("Failed to save credentials", error: error, category: .security)
+                return false
+            }
         }
-        
+
         return true
     }
-    
+
+    // MARK: - Session Management
+
     func logout() {
         isAuthenticated = false
-        
+        AuditLogger.shared.logLogout()
+        Logger.auth("User logged out")
+
+        // Clear session
+        sessionTimer?.invalidate()
+
         // If remember me is not enabled, clear credentials
         if !UserDefaults.standard.bool(forKey: rememberMeKey) {
-            UserDefaults.standard.removeObject(forKey: credentialsKey)
+            do {
+                try keychain.clearCredentials()
+                try keychain.clearTokens()
+            } catch {
+                Logger.error("Failed to clear credentials on logout", error: error, category: .security)
+            }
         }
+
+        // Sign out from Clerk
+        Task {
+            try? await ClerkAuthService.shared.signOut()
+        }
+
+        AuditLogger.shared.clearCurrentUser()
     }
-    
+
     func clearSavedCredentials() {
-        UserDefaults.standard.removeObject(forKey: credentialsKey)
-        UserDefaults.standard.removeObject(forKey: pinHashKey)
-        UserDefaults.standard.removeObject(forKey: authMethodKey)
-        UserDefaults.standard.removeObject(forKey: rememberMeKey)
-        savedUsername = ""
+        do {
+            try keychain.clearCredentials()
+            try keychain.clearTokens()
+            savedUsername = ""
+            UserDefaults.standard.removeObject(forKey: rememberMeKey)
+            Logger.auth("All saved credentials cleared")
+        } catch {
+            Logger.error("Failed to clear saved credentials", error: error, category: .security)
+        }
     }
-    
-    // MARK: - Helper Methods
-    
-    private func checkBiometricAvailability() {
-        let context = LAContext()
-        var error: NSError?
-        
-        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            biometricsAvailable = true
-            if #available(iOS 11.0, *) {
-                switch context.biometryType {
-                case .faceID:
-                    biometricType = .faceID
-                case .touchID:
-                    biometricType = .touchID
-                default:
-                    biometricType = .none
-                }
-            } else {
-                biometricType = .touchID
+
+    /// Called when user interacts with the app to reset session timeout
+    func recordActivity() {
+        lastActivityTime = Date()
+    }
+
+    private func setupSessionTimeout() {
+        sessionTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.checkSessionTimeout()
             }
-        } else {
-            biometricsAvailable = false
-            biometricType = .none
         }
     }
-    
-    private func attemptAutoLogin() {
-        guard let authMethod = UserDefaults.standard.string(forKey: authMethodKey),
-              let method = AuthMethod(rawValue: authMethod),
-              UserDefaults.standard.bool(forKey: rememberMeKey) else {
-            return
-        }
-        
-        // Auto login only happens with biometrics or if remember me is enabled
-        switch method {
-        case .biometric:
-            if biometricsAvailable {
-                authenticateWithBiometrics { _ in }
-            }
-        case .credentials:
-            // Don't auto-login with credentials, just pre-fill the username
-            break
-        default:
-            break
+
+    private func checkSessionTimeout() {
+        guard isAuthenticated else { return }
+
+        let idleTime = Date().timeIntervalSince(lastActivityTime)
+        if idleTime > Configuration.Security.sessionTimeout {
+            Logger.auth("Session timed out after \(Int(idleTime)) seconds of inactivity")
+            AuditLogger.shared.logSessionTimeout()
+            logout()
         }
     }
-    
-    private func hashPin(_ pin: String) -> String {
-        // In a real app, use a secure hash function with proper salt
-        // This is a simplified version for demo purposes
-        return "hash_\(pin)"
-    }
-    
-    private func hashPassword(_ password: String) -> String {
-        // In a real app, use a secure hash function with proper salt
-        // This is a simplified version for demo purposes
-        return "hash_\(password)"
-    }
-    
-    private func checkSavedCredentials(username: String, password: String) -> Bool {
-        guard let savedCredentialsString = UserDefaults.standard.string(forKey: credentialsKey) else {
-            return false
+
+    // MARK: - Lockout Management
+
+    private func handleSuccessfulAuth(method: AuthMethod) {
+        isAuthenticated = true
+        loginAttempts = 0
+        authError = nil
+        lockoutEndTime = nil
+        isLockedOut = false
+        lastActivityTime = Date()
+
+        // Store the auth method preference
+        do {
+            try keychain.setLastAuthMethod(method.rawValue)
+        } catch {
+            Logger.error("Failed to save auth method preference", error: error, category: .security)
         }
-        
-        let parts = savedCredentialsString.split(separator: ":")
-        guard parts.count == 2 else { return false }
-        
-        let savedUsername = String(parts[0])
-        let savedPasswordHash = String(parts[1])
-        
-        return username == savedUsername && hashPassword(password) == savedPasswordHash
+
+        // Set session expiry
+        let sessionExpiry = Date().addingTimeInterval(Configuration.Security.sessionTimeout)
+        try? keychain.setSessionExpiry(sessionExpiry)
+
+        // Set current user for audit logging
+        AuditLogger.shared.setCurrentUser(userId: savedUsername, userName: nil)
     }
-    
-    private func isLockedOut() -> Bool {
+
+    private func handleFailedAuth() {
+        loginAttempts += 1
+        Logger.security("Failed login attempt \(loginAttempts)/\(Configuration.Security.maxLoginAttempts)")
+
+        if loginAttempts >= Configuration.Security.maxLoginAttempts {
+            setLockout()
+        }
+    }
+
+    private func checkLockout() -> Bool {
         guard let lockoutEnd = lockoutEndTime else {
+            isLockedOut = false
             return false
         }
-        
+
         if Date() > lockoutEnd {
             // Lockout period is over
             lockoutEndTime = nil
             loginAttempts = 0
+            isLockedOut = false
+            lockoutTimer?.invalidate()
+            Logger.auth("Lockout period ended")
             return false
         }
-        
+
+        let remaining = lockoutEnd.timeIntervalSince(Date())
+        authError = .accountLocked(remainingTime: remaining)
         return true
     }
-    
+
     private func setLockout() {
-        // Lock out for 5 minutes
-        lockoutEndTime = Date().addingTimeInterval(5 * 60)
+        lockoutEndTime = Date().addingTimeInterval(Configuration.Security.lockoutDuration)
+        isLockedOut = true
+        Logger.security("Account locked for \(Int(Configuration.Security.lockoutDuration/60)) minutes")
+
+        // Start timer to update remaining time
+        lockoutTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.updateLockoutTimer()
+            }
+        }
+
+        // Store lockout state
+        UserDefaults.standard.set(lockoutEndTime?.timeIntervalSince1970, forKey: "lockoutEndTime")
     }
-    
-    // Helper to get saved username (for UI)
+
+    private func updateLockoutTimer() {
+        guard let lockoutEnd = lockoutEndTime else {
+            lockoutTimer?.invalidate()
+            return
+        }
+
+        let remaining = lockoutEnd.timeIntervalSince(Date())
+        if remaining <= 0 {
+            lockoutEndTime = nil
+            isLockedOut = false
+            loginAttempts = 0
+            lockoutRemainingSeconds = 0
+            lockoutTimer?.invalidate()
+            UserDefaults.standard.removeObject(forKey: "lockoutEndTime")
+            authError = nil
+        } else {
+            lockoutRemainingSeconds = Int(remaining)
+        }
+    }
+
+    private func loadLockoutState() {
+        if let timestamp = UserDefaults.standard.object(forKey: "lockoutEndTime") as? Double {
+            let lockoutEnd = Date(timeIntervalSince1970: timestamp)
+            if lockoutEnd > Date() {
+                lockoutEndTime = lockoutEnd
+                isLockedOut = true
+                setLockout() // Restart the timer
+            } else {
+                UserDefaults.standard.removeObject(forKey: "lockoutEndTime")
+            }
+        }
+    }
+
+    // MARK: - Biometric Availability
+
+    private func checkBiometricAvailability() {
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            biometricsAvailable = true
+            switch context.biometryType {
+            case .faceID:
+                biometricType = .faceID
+            case .touchID:
+                biometricType = .touchID
+            case .opticID:
+                biometricType = .none // Not supported yet
+            @unknown default:
+                biometricType = .none
+            }
+            Logger.auth("Biometric available: \(biometricType.displayName)")
+        } else {
+            biometricsAvailable = false
+            biometricType = .none
+            Logger.auth("Biometric not available: \(error?.localizedDescription ?? "unknown")")
+        }
+    }
+
+    private func attemptAutoLogin() {
+        guard let authMethodString = keychain.getLastAuthMethod(),
+              let method = AuthMethod(rawValue: authMethodString),
+              UserDefaults.standard.bool(forKey: rememberMeKey) else {
+            return
+        }
+
+        switch method {
+        case .biometric:
+            if biometricsAvailable && keychain.isBiometricEnabled() {
+                Logger.auth("Attempting auto-login with biometrics")
+                authenticateWithBiometrics { _ in }
+            }
+        case .credentials, .pin:
+            // Don't auto-login, just pre-fill username
+            break
+        case .none:
+            break
+        }
+    }
+
+    // MARK: - Public Helpers
+
     func getSavedUsername() -> String {
         return savedUsername
     }
-    
-    // Helper to check if "remember me" is enabled
+
     func isRememberMeEnabled() -> Bool {
         return UserDefaults.standard.bool(forKey: rememberMeKey)
     }
-    
-    // Helper to get the preferred auth method
+
     func getPreferredAuthMethod() -> AuthMethod {
-        guard let authMethodString = UserDefaults.standard.string(forKey: authMethodKey),
+        guard let authMethodString = keychain.getLastAuthMethod(),
               let authMethod = AuthMethod(rawValue: authMethodString) else {
             return .none
         }
-        
         return authMethod
+    }
+
+    func enableBiometric(_ enabled: Bool) {
+        do {
+            try keychain.setBiometricEnabled(enabled)
+            if enabled {
+                try keychain.setLastAuthMethod(AuthMethod.biometric.rawValue)
+            }
+            Logger.auth("Biometric enabled: \(enabled)")
+        } catch {
+            Logger.error("Failed to set biometric preference", error: error, category: .security)
+        }
+    }
+
+    func isBiometricEnabled() -> Bool {
+        return keychain.isBiometricEnabled()
+    }
+
+    /// Clears any displayed auth error
+    func clearError() {
+        authError = nil
     }
 }

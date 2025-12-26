@@ -5,7 +5,17 @@ import Clerk
 struct SurgiTrackApp: App {
     @StateObject private var environment = AppEnvironment.shared
     @Environment(\.colorScheme) private var colorScheme
-    
+
+    init() {
+        // Validate configuration on startup
+        if !Configuration.validate() {
+            Logger.fault("Configuration validation failed", category: .general)
+        }
+
+        // Log app startup
+        Logger.info("SurgiTrack \(Configuration.App.fullVersion) starting in \(Configuration.environment.rawValue) mode", category: .general)
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -20,7 +30,7 @@ struct SurgiTrackApp: App {
                                 title: environment.appState.toastTitle,
                                 message: environment.appState.toastMessage,
                                 type: environment.appState.toastType,
-                                duration: 3,
+                                duration: Configuration.UI.toastDuration,
                                 isPresented: Binding(
                                     get: { environment.appState.isShowingToast },
                                     set: { environment.appState.isShowingToast = $0 }
@@ -31,7 +41,14 @@ struct SurgiTrackApp: App {
                     }
                 )
                 .task {
-                    await Clerk.shared.configure(publishableKey: "pk_test_Y3VyaW91cy1jYXR0bGUtOTUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+                    // Configure Clerk with environment-based key
+                    let clerkKey = Configuration.ClerkAPI.publishableKey
+                    guard !clerkKey.isEmpty else {
+                        Logger.error("Clerk API key not configured", category: .authentication)
+                        return
+                    }
+                    await Clerk.shared.configure(publishableKey: clerkKey)
+                    Logger.info("Clerk configured successfully", category: .authentication)
                 }
         }
     }
