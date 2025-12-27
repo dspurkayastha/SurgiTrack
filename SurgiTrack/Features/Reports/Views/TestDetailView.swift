@@ -58,43 +58,9 @@ struct TestDetailView: View {
     
     // MARK: - Body
     var body: some View {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    headerView
-                    
-                    // Content based on test type
-                    if isRadiologyTest {
-                        radiologyContent
-                    } else {
-                        laboratoryContent
-                    }
-                    
-                    // Attachments section
-                    if !attachments.isEmpty {
-                        attachmentsSection
-                    }
-                    
-                    // Notes section if available
-                    if let notes = test.notes, !notes.isEmpty {
-                        notesSection(notes)
-                    }
-                    
-                    // Action buttons
-                    actionButtons
-                }
-                .padding()
-            }
+        mainContent
             .navigationTitle(test.testType ?? "Test Results")
-            .navigationBarItems(
-                trailing: HStack {
-                    Button(action: {
-                        showingEditOptions = true
-                    }) {
-                        Image(systemName: "ellipsis")
-                    }
-                }
-            )
+            .navigationBarItems(trailing: navigationBarTrailingItems)
             .navigationBarBackButtonHidden(true)
             .sheet(isPresented: $showingAttachments) {
                 AttachmentView(parent: .medicalTest(test))
@@ -143,33 +109,71 @@ struct TestDetailView: View {
             } message: {
                 Text("Are you sure you want to delete this test? This action cannot be undone.")
             }
-            .overlay(
-                Group {
-                    if isGeneratingPDF {
-                        ZStack {
-                            Color.black.opacity(0.4)
-                                .edgesIgnoringSafeArea(.all)
-                            
-                            VStack {
-                                ProgressView()
-                                    .scaleEffect(1.5)
-                                    .padding()
-                                
-                                Text("Generating PDF...")
-                                    .foregroundColor(.white)
-                                    .font(.headline)
-                            }
-                            .padding(25)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemBackground))
-                            )
-                            .shadow(radius: 10)
-                        }
-                    }
+            .overlay(pdfGeneratingOverlay)
+    }
+
+    // MARK: - Extracted View Components for Body
+
+    private var mainContent: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                headerView
+
+                if isRadiologyTest {
+                    radiologyContent
+                } else {
+                    laboratoryContent
                 }
-            )
+
+                if !attachments.isEmpty {
+                    attachmentsSection
+                }
+
+                if let notes = test.notes, !notes.isEmpty {
+                    notesSection(notes)
+                }
+
+                actionButtons
+            }
+            .padding()
         }
+    }
+
+    private var navigationBarTrailingItems: some View {
+        HStack {
+            Button(action: {
+                showingEditOptions = true
+            }) {
+                Image(systemName: "ellipsis")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pdfGeneratingOverlay: some View {
+        if isGeneratingPDF {
+            ZStack {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+
+                VStack {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .padding()
+
+                    Text("Generating PDF...")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+                .padding(25)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.systemBackground))
+                )
+                .shadow(radius: 10)
+            }
+        }
+    }
         
     // MARK: - View Components
     
@@ -224,12 +228,12 @@ struct TestDetailView: View {
                 
                 Spacer()
                 
-                if let physician = test.orderingPhysician as? String, !physician.isEmpty  {
+                if let physician = test.orderingPhysician, !physician.fullName.isEmpty  {
                     VStack(alignment: .trailing, spacing: 4) {
                         HStack {
                             Text("Ordered by:")
                                 .foregroundColor(.secondary)
-                            Text(physician)
+                            Text(physician.fullName)
                         }
                         .font(.caption)
                         
@@ -1816,8 +1820,8 @@ class TestReportPDFGenerator {
             drawInfoRow(label: "Status:", value: status, x: margin + 250, y: yPosition - 30, labelFont: labelFont, valueFont: valueFont)
         }
         
-        if let physician = test.orderingPhysician as? String, !physician.isEmpty  {
-            drawInfoRow(label: "Ordered By:", value: physician, x: margin + 250, y: yPosition - 15, labelFont: labelFont, valueFont: valueFont)
+        if let physician = test.orderingPhysician, !physician.fullName.isEmpty  {
+            drawInfoRow(label: "Ordered By:", value: physician.fullName, x: margin + 250, y: yPosition - 15, labelFont: labelFont, valueFont: valueFont)
         }
         
         yPosition += 30
