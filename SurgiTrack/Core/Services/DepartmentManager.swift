@@ -252,91 +252,6 @@ struct DepartmentInfo: Identifiable {
     var color: Color { type.color }
 }
 
-// MARK: - Department Selector View
-
-struct DepartmentSelectorView: View {
-
-    @EnvironmentObject var departmentManager: DepartmentManager
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(groupedDepartments.keys.sorted(), id: \.self) { facility in
-                    Section(header: Text(facility)) {
-                        ForEach(groupedDepartments[facility] ?? []) { department in
-                            DepartmentRow(
-                                department: department,
-                                isSelected: department.id == departmentManager.currentDepartment?.id
-                            ) {
-                                departmentManager.switchDepartment(to: department)
-                                dismiss()
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Select Department")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    private var groupedDepartments: [String: [DepartmentInfo]] {
-        Dictionary(grouping: departmentManager.availableDepartments) { $0.facilityName }
-    }
-}
-
-struct DepartmentRow: View {
-
-    let department: DepartmentInfo
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: MedicalSpacing.md) {
-                // Icon
-                Image(systemName: department.icon)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(department.color)
-                    .frame(width: 40, height: 40)
-                    .background(department.color.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                // Info
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(department.name)
-                        .font(MedicalTypography.titleMedium)
-                        .foregroundColor(MedicalColors.Neutral.textPrimary)
-
-                    HStack(spacing: MedicalSpacing.sm) {
-                        Label("\(department.staffCount)", systemImage: "person.2")
-                        Label("\(department.activePatients)", systemImage: "bed.double")
-                    }
-                    .font(MedicalTypography.caption)
-                    .foregroundColor(MedicalColors.Neutral.textSecondary)
-                }
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(MedicalColors.Brand.primary)
-                }
-            }
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
 // MARK: - Department Header View
 
 /// Header showing current department context
@@ -380,11 +295,6 @@ struct DepartmentHeaderView: View {
 }
 
 // MARK: - Preview
-
-#Preview("Department Selector") {
-    DepartmentSelectorView()
-        .environmentObject(DepartmentManager.shared)
-}
 
 #Preview("Department Header") {
     DepartmentHeaderView()

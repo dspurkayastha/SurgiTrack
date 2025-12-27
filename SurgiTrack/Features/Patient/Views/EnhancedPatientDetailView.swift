@@ -2434,13 +2434,13 @@ enum DetailSegment: String, CaseIterable, Hashable {
         }
     }
 }
-struct EmptyStateView: View {
+struct PatientDetailEmptyStateView: View {
     let title: String
     let message: String
     let iconName: String
     let color: Color
     let actionButton: AnyView?
-    
+
     init(
         title: String,
         message: String,
@@ -2454,24 +2454,24 @@ struct EmptyStateView: View {
         self.color = color
         self.actionButton = actionButton
     }
-    
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: iconName)
                 .font(.system(size: 48))
                 .foregroundColor(color.opacity(0.6))
-            
+
             Text(title)
                 .font(.title3)
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
-            
+
             Text(message)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
-            
+
             if let actionButton = actionButton {
                 actionButton
                     .padding(.top, 8)

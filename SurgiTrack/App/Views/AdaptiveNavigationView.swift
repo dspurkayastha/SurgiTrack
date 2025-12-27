@@ -307,12 +307,10 @@ struct PlaceholderDetailView: View {
     AdaptiveNavigationView()
         .environmentObject(AppState())
         .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-        .previewDevice("iPad Pro (12.9-inch) (6th generation)")
 }
 
 #Preview("iPhone") {
     AdaptiveNavigationView()
         .environmentObject(AppState())
         .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-        .previewDevice("iPhone 15 Pro")
 }
