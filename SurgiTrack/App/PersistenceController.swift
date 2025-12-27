@@ -97,7 +97,7 @@ struct PersistenceController {
 
                 // Attempt recovery by removing and recreating the store
                 if !inMemory {
-                    self.attemptStoreRecovery(description: description)
+                    PersistenceController.attemptStoreRecovery(description: description)
                 }
             } else {
                 Logger.info("Persistent store loaded successfully: \(description.url?.lastPathComponent ?? "unknown")", category: .persistence)
@@ -116,7 +116,7 @@ struct PersistenceController {
 
     // MARK: - Store Recovery
 
-    private func attemptStoreRecovery(description: NSPersistentStoreDescription) {
+    private static func attemptStoreRecovery(description: NSPersistentStoreDescription) {
         guard let storeURL = description.url else {
             Logger.warning("Cannot attempt store recovery: no URL", category: .persistence)
             return
