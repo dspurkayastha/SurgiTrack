@@ -217,32 +217,20 @@ struct FullPossumInputSection: View {
     @State private var opMalignancy: Int = 1
     @State private var opTiming: Int = 1
     
+    // Computed property to track all score values for onChange
+    private var allScoreValues: [Int] {
+        [physAge, physCardiac, physSystolicBP, physPulse, physHemoglobin, physWCC,
+         physUrea, physNa, physK, physECG, physResp, physGCS,
+         opMagnitude, opNumberProcedures, opBloodLoss, opSoiling, opMalignancy, opTiming]
+    }
+
     var body: some View {
         Group {
             physiologicalVariablesSection
             operativeSeveritySection
         }
-        .onChange(of: physAge)            { _, _ in updateScores() }
-        .onChange(of: physCardiac)        { _, _ in updateScores() }
-        .onChange(of: physSystolicBP)     { _, _ in updateScores() }
-        .onChange(of: physPulse)          { _, _ in updateScores() }
-        .onChange(of: physHemoglobin)     { _, _ in updateScores() }
-        .onChange(of: physWCC)            { _, _ in updateScores() }
-        .onChange(of: physUrea)           { _, _ in updateScores() }
-        .onChange(of: physNa)             { _, _ in updateScores() }
-        .onChange(of: physK)              { _, _ in updateScores() }
-        .onChange(of: physECG)            { _, _ in updateScores() }
-        .onChange(of: physResp)           { _, _ in updateScores() }
-        .onChange(of: physGCS)            { _, _ in updateScores() }
-        .onChange(of: opMagnitude)        { _, _ in updateScores() }
-        .onChange(of: opNumberProcedures) { _, _ in updateScores() }
-        .onChange(of: opBloodLoss)        { _, _ in updateScores() }
-        .onChange(of: opSoiling)          { _, _ in updateScores() }
-        .onChange(of: opMalignancy)       { _, _ in updateScores() }
-        .onChange(of: opTiming)           { _, _ in updateScores() }
-        .onAppear {
-            updateScores()
-        }
+        .onChange(of: allScoreValues) { _, _ in updateScores() }
+        .onAppear { updateScores() }
     }
 
     // MARK: - Extracted Section Views
