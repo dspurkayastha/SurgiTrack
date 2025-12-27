@@ -72,7 +72,7 @@ struct TestDetailView: View {
             }
             .sheet(isPresented: $showingShareSheet) {
                 if let pdf = generatedPDF {
-                    ShareSheet(items: [pdf])
+                    ShareSheet(activityItems: [pdf])
                 }
             }
             .sheet(isPresented: $showingEnhancedAnalysis) {

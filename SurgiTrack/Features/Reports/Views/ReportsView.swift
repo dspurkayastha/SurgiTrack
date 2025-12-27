@@ -55,10 +55,10 @@ struct ReportsView: View {
                 .navigationViewStyle(StackNavigationViewStyle())
                 .onAppear(perform: onAppearHandler)
                 .onDisappear { print("ReportsView: onDisappear") }
-                .onChange(of: searchText) { _ in updatePredicate() }
-                .onChange(of: selectedFilter) { _ in updatePredicate() }
-                .onChange(of: selectedPatientID) { _ in updatePredicate() }
-                .onChange(of: navigationActive) { newValue in
+                .onChange(of: searchText) { _, _ in updatePredicate() }
+                .onChange(of: selectedFilter) { _, _ in updatePredicate() }
+                .onChange(of: selectedPatientID) { _, _ in updatePredicate() }
+                .onChange(of: navigationActive) { _, newValue in
                     if !newValue { navigationState.ensureButtonVisibility() }
                 }
                 // Sheet presentations
