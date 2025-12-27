@@ -243,7 +243,7 @@ struct ReferralListView: View {
             if selectedTab == .outgoing {
                 Button(action: { showingCreateReferral = true }) {
                     Text("Create Referral")
-                        .font(MedicalTypography.button)
+                        .font(MedicalTypography.labelLarge)
                         .foregroundColor(.white)
                         .padding(.horizontal, MedicalSpacing.xl)
                         .padding(.vertical, MedicalSpacing.md)
@@ -315,7 +315,7 @@ struct ReferralListView: View {
                     // Decline Button
                     Button(action: confirmDecline) {
                         Text("Decline Referral")
-                            .font(MedicalTypography.button)
+                            .font(MedicalTypography.labelLarge)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, MedicalSpacing.md)
