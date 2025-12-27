@@ -10,7 +10,7 @@ import Combine
 // MARK: - Validation Rules
 
 /// Protocol for all validation rules
-protocol ValidationRule {
+protocol ValidationRule<Value> {
     associatedtype Value
     func validate(_ value: Value) -> ValidationResult
 }
