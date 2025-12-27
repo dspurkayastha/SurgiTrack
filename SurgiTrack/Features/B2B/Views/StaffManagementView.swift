@@ -231,7 +231,7 @@ struct StaffManagementView: View {
             if accessControl.hasPermission(.manageStaff) {
                 Button(action: { showingInviteSheet = true }) {
                     Text("Invite Staff Member")
-                        .font(MedicalTypography.button)
+                        .font(MedicalTypography.labelLarge)
                         .foregroundColor(.white)
                         .padding(.horizontal, MedicalSpacing.xl)
                         .padding(.vertical, MedicalSpacing.md)
@@ -476,107 +476,10 @@ struct StaffDetailView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: MedicalSpacing.lg) {
-                    // Header
-                    VStack(spacing: MedicalSpacing.md) {
-                        ZStack {
-                            Circle()
-                                .fill(MedicalColors.Brand.primary.opacity(0.15))
-                                .frame(width: 80, height: 80)
-
-                            Text(staff.initials)
-                                .font(.system(size: 32, weight: .semibold))
-                                .foregroundColor(MedicalColors.Brand.primary)
-                        }
-
-                        VStack(spacing: MedicalSpacing.xs) {
-                            Text(staff.fullName)
-                                .font(MedicalTypography.headlineLarge)
-                                .foregroundColor(MedicalColors.Neutral.textPrimary)
-
-                            RoleBadge(role: staff.role)
-
-                            Text(staff.departmentName)
-                                .font(MedicalTypography.bodySmall)
-                                .foregroundColor(MedicalColors.Neutral.textSecondary)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, MedicalSpacing.lg)
-
-                    // Contact Info
-                    VStack(alignment: .leading, spacing: MedicalSpacing.md) {
-                        Text("Contact Information")
-                            .font(MedicalTypography.headlineSmall)
-
-                        VStack(spacing: MedicalSpacing.sm) {
-                            DetailRow(label: "Email", value: staff.email)
-                            DetailRow(label: "Status", value: staff.isActive ? "Active" : "Inactive")
-                        }
-                    }
-                    .padding(MedicalSpacing.lg)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(MedicalCardStyle.radiusMedium)
-
-                    // Permissions
-                    VStack(alignment: .leading, spacing: MedicalSpacing.md) {
-                        Text("Permissions")
-                            .font(MedicalTypography.headlineSmall)
-
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: MedicalSpacing.sm) {
-                            ForEach(Array(staff.effectivePermissions).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { permission in
-                                HStack(spacing: MedicalSpacing.xs) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(MedicalColors.Clinical.normal)
-                                        .accessibilityHidden(true)
-
-                                    Text(permission.rawValue)
-                                        .font(MedicalTypography.caption)
-                                        .foregroundColor(MedicalColors.Neutral.textPrimary)
-                                        .lineLimit(1)
-                                }
-                                .padding(.horizontal, MedicalSpacing.sm)
-                                .padding(.vertical, MedicalSpacing.xs)
-                                .background(MedicalColors.Clinical.normal.opacity(0.1))
-                                .cornerRadius(MedicalCardStyle.radiusSmall)
-                            }
-                        }
-                    }
-                    .padding(MedicalSpacing.lg)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(MedicalCardStyle.radiusMedium)
-
-                    // Actions
-                    if accessControl.hasPermission(.manageStaff) {
-                        VStack(spacing: MedicalSpacing.md) {
-                            Button(action: {}) {
-                                Text("Change Role")
-                                    .font(MedicalTypography.button)
-                                    .foregroundColor(MedicalColors.Brand.primary)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, MedicalSpacing.md)
-                                    .background(MedicalColors.Brand.primary.opacity(0.1))
-                                    .cornerRadius(MedicalCardStyle.radiusSmall)
-                            }
-                            .frame(minWidth: 44, minHeight: 44)
-
-                            if staff.isActive {
-                                Button(action: {}) {
-                                    Text("Deactivate Staff Member")
-                                        .font(MedicalTypography.button)
-                                        .foregroundColor(MedicalColors.Clinical.criticalValue)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, MedicalSpacing.md)
-                                        .background(MedicalColors.Clinical.criticalValue.opacity(0.1))
-                                        .cornerRadius(MedicalCardStyle.radiusSmall)
-                                }
-                                .frame(minWidth: 44, minHeight: 44)
-                            }
-                        }
-                        .padding(MedicalSpacing.lg)
-                        .background(Color(.systemBackground))
-                        .cornerRadius(MedicalCardStyle.radiusMedium)
-                    }
+                    headerSection
+                    contactInfoSection
+                    permissionsSection
+                    actionsSection
                 }
                 .padding(MedicalSpacing.lg)
             }
@@ -591,6 +494,132 @@ struct StaffDetailView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Header Section
+
+    private var headerSection: some View {
+        VStack(spacing: MedicalSpacing.md) {
+            ZStack {
+                Circle()
+                    .fill(MedicalColors.Brand.primary.opacity(0.15))
+                    .frame(width: 80, height: 80)
+
+                Text(staff.initials)
+                    .font(.system(size: 32, weight: .semibold))
+                    .foregroundColor(MedicalColors.Brand.primary)
+            }
+
+            VStack(spacing: MedicalSpacing.xs) {
+                Text(staff.fullName)
+                    .font(MedicalTypography.headlineLarge)
+                    .foregroundColor(MedicalColors.Neutral.textPrimary)
+
+                RoleBadge(role: staff.role)
+
+                Text(staff.departmentName)
+                    .font(MedicalTypography.bodySmall)
+                    .foregroundColor(MedicalColors.Neutral.textSecondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, MedicalSpacing.lg)
+    }
+
+    // MARK: - Contact Info Section
+
+    private var contactInfoSection: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.md) {
+            Text("Contact Information")
+                .font(MedicalTypography.headlineSmall)
+
+            VStack(spacing: MedicalSpacing.sm) {
+                DetailRow(label: "Email", value: staff.email)
+                DetailRow(label: "Status", value: staff.isActive ? "Active" : "Inactive")
+            }
+        }
+        .padding(MedicalSpacing.lg)
+        .background(Color(.systemBackground))
+        .cornerRadius(MedicalCardStyle.radiusMedium)
+    }
+
+    // MARK: - Permissions Section
+
+    private var permissionsSection: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.md) {
+            Text("Permissions")
+                .font(MedicalTypography.headlineSmall)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: MedicalSpacing.sm) {
+                ForEach(Array(staff.effectivePermissions).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { permission in
+                    permissionBadge(for: permission)
+                }
+            }
+        }
+        .padding(MedicalSpacing.lg)
+        .background(Color(.systemBackground))
+        .cornerRadius(MedicalCardStyle.radiusMedium)
+    }
+
+    private func permissionBadge(for permission: Permission) -> some View {
+        HStack(spacing: MedicalSpacing.xs) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 12))
+                .foregroundColor(MedicalColors.Clinical.normal)
+                .accessibilityHidden(true)
+
+            Text(permission.rawValue)
+                .font(MedicalTypography.caption)
+                .foregroundColor(MedicalColors.Neutral.textPrimary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, MedicalSpacing.sm)
+        .padding(.vertical, MedicalSpacing.xs)
+        .background(MedicalColors.Clinical.normal.opacity(0.1))
+        .cornerRadius(MedicalCardStyle.radiusSmall)
+    }
+
+    // MARK: - Actions Section
+
+    @ViewBuilder
+    private var actionsSection: some View {
+        if accessControl.hasPermission(.manageStaff) {
+            VStack(spacing: MedicalSpacing.md) {
+                changeRoleButton
+                if staff.isActive {
+                    deactivateButton
+                }
+            }
+            .padding(MedicalSpacing.lg)
+            .background(Color(.systemBackground))
+            .cornerRadius(MedicalCardStyle.radiusMedium)
+        }
+    }
+
+    private var changeRoleButton: some View {
+        Button(action: {}) {
+            Text("Change Role")
+                .font(MedicalTypography.labelLarge)
+                .foregroundColor(MedicalColors.Brand.primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, MedicalSpacing.md)
+                .background(MedicalColors.Brand.primary.opacity(0.1))
+                .cornerRadius(MedicalCardStyle.radiusSmall)
+        }
+        .frame(minWidth: 44, minHeight: 44)
+    }
+
+    private var deactivateButton: some View {
+        Button(action: {}) {
+            Text("Deactivate Staff Member")
+                .font(MedicalTypography.labelLarge)
+                .foregroundColor(MedicalColors.Clinical.criticalValue)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, MedicalSpacing.md)
+                .background(MedicalColors.Clinical.criticalValue.opacity(0.1))
+                .cornerRadius(MedicalCardStyle.radiusSmall)
+        }
+        .frame(minWidth: 44, minHeight: 44)
     }
 }
 
@@ -612,140 +641,10 @@ struct InviteStaffView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: MedicalSpacing.lg) {
-                    // Form Fields
-                    VStack(alignment: .leading, spacing: MedicalSpacing.md) {
-                        Text("Basic Information")
-                            .font(MedicalTypography.headlineSmall)
-
-                        VStack(spacing: MedicalSpacing.md) {
-                            VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
-                                Text("First Name *")
-                                    .font(MedicalTypography.labelMedium)
-                                    .foregroundColor(MedicalColors.Neutral.textSecondary)
-
-                                TextField("Enter first name", text: $firstName)
-                                    .font(MedicalTypography.bodyMedium)
-                                    .padding(MedicalSpacing.md)
-                                    .background(Color(.systemBackground))
-                                    .cornerRadius(MedicalCardStyle.radiusSmall)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
-                                            .stroke(Color(.separator), lineWidth: 1)
-                                    )
-                            }
-
-                            VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
-                                Text("Last Name *")
-                                    .font(MedicalTypography.labelMedium)
-                                    .foregroundColor(MedicalColors.Neutral.textSecondary)
-
-                                TextField("Enter last name", text: $lastName)
-                                    .font(MedicalTypography.bodyMedium)
-                                    .padding(MedicalSpacing.md)
-                                    .background(Color(.systemBackground))
-                                    .cornerRadius(MedicalCardStyle.radiusSmall)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
-                                            .stroke(Color(.separator), lineWidth: 1)
-                                    )
-                            }
-
-                            VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
-                                Text("Email *")
-                                    .font(MedicalTypography.labelMedium)
-                                    .foregroundColor(MedicalColors.Neutral.textSecondary)
-
-                                TextField("Enter email address", text: $email)
-                                    .font(MedicalTypography.bodyMedium)
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .padding(MedicalSpacing.md)
-                                    .background(Color(.systemBackground))
-                                    .cornerRadius(MedicalCardStyle.radiusSmall)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
-                                            .stroke(Color(.separator), lineWidth: 1)
-                                    )
-                            }
-                        }
-                    }
-                    .padding(MedicalSpacing.lg)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(MedicalCardStyle.radiusMedium)
-
-                    // Role Selection
-                    VStack(alignment: .leading, spacing: MedicalSpacing.md) {
-                        Text("Role *")
-                            .font(MedicalTypography.headlineSmall)
-
-                        Menu {
-                            ForEach(availableRoles, id: \.self) { role in
-                                Button(action: { selectedRole = role }) {
-                                    HStack {
-                                        Text(role.rawValue)
-                                        if selectedRole == role {
-                                            Image(systemName: "checkmark")
-                                        }
-                                    }
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(selectedRole.rawValue)
-                                        .font(MedicalTypography.bodyMedium)
-                                        .foregroundColor(MedicalColors.Neutral.textPrimary)
-
-                                    Text(selectedRole.category)
-                                        .font(MedicalTypography.caption)
-                                        .foregroundColor(MedicalColors.Neutral.textSecondary)
-                                }
-
-                                Spacer()
-
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .foregroundColor(MedicalColors.Neutral.textTertiary)
-                            }
-                            .padding(MedicalSpacing.md)
-                            .background(Color(.systemBackground))
-                            .cornerRadius(MedicalCardStyle.radiusSmall)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
-                                    .stroke(Color(.separator), lineWidth: 1)
-                            )
-                        }
-                    }
-                    .padding(MedicalSpacing.lg)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(MedicalCardStyle.radiusMedium)
-
-                    // Validation Error
-                    if let error = validationError {
-                        HStack(spacing: MedicalSpacing.sm) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(MedicalColors.Clinical.criticalValue)
-
-                            Text(error)
-                                .font(MedicalTypography.bodySmall)
-                                .foregroundColor(MedicalColors.Clinical.criticalValue)
-                        }
-                        .padding(MedicalSpacing.md)
-                        .background(MedicalColors.Clinical.criticalValue.opacity(0.1))
-                        .cornerRadius(MedicalCardStyle.radiusSmall)
-                    }
-
-                    // Submit Button
-                    Button(action: sendInvitation) {
-                        Text("Send Invitation")
-                            .font(MedicalTypography.button)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, MedicalSpacing.lg)
-                            .background(isFormValid ? MedicalColors.Brand.primary : MedicalColors.Neutral.textTertiary)
-                            .cornerRadius(MedicalCardStyle.radiusMedium)
-                    }
-                    .frame(minWidth: 44, minHeight: 44)
-                    .disabled(!isFormValid)
+                    basicInfoSection
+                    roleSelectionSection
+                    validationErrorView
+                    submitButton
                 }
                 .padding(MedicalSpacing.lg)
             }
@@ -760,6 +659,172 @@ struct InviteStaffView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Basic Info Section
+
+    private var basicInfoSection: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.md) {
+            Text("Basic Information")
+                .font(MedicalTypography.headlineSmall)
+
+            VStack(spacing: MedicalSpacing.md) {
+                firstNameField
+                lastNameField
+                emailField
+            }
+        }
+        .padding(MedicalSpacing.lg)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(MedicalCardStyle.radiusMedium)
+    }
+
+    private var firstNameField: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
+            Text("First Name *")
+                .font(MedicalTypography.labelMedium)
+                .foregroundColor(MedicalColors.Neutral.textSecondary)
+
+            TextField("Enter first name", text: $firstName)
+                .font(MedicalTypography.bodyMedium)
+                .padding(MedicalSpacing.md)
+                .background(Color(.systemBackground))
+                .cornerRadius(MedicalCardStyle.radiusSmall)
+                .overlay(
+                    RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
+                        .stroke(Color(.separator), lineWidth: 1)
+                )
+        }
+    }
+
+    private var lastNameField: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
+            Text("Last Name *")
+                .font(MedicalTypography.labelMedium)
+                .foregroundColor(MedicalColors.Neutral.textSecondary)
+
+            TextField("Enter last name", text: $lastName)
+                .font(MedicalTypography.bodyMedium)
+                .padding(MedicalSpacing.md)
+                .background(Color(.systemBackground))
+                .cornerRadius(MedicalCardStyle.radiusSmall)
+                .overlay(
+                    RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
+                        .stroke(Color(.separator), lineWidth: 1)
+                )
+        }
+    }
+
+    private var emailField: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.xs) {
+            Text("Email *")
+                .font(MedicalTypography.labelMedium)
+                .foregroundColor(MedicalColors.Neutral.textSecondary)
+
+            TextField("Enter email address", text: $email)
+                .font(MedicalTypography.bodyMedium)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .padding(MedicalSpacing.md)
+                .background(Color(.systemBackground))
+                .cornerRadius(MedicalCardStyle.radiusSmall)
+                .overlay(
+                    RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
+                        .stroke(Color(.separator), lineWidth: 1)
+                )
+        }
+    }
+
+    // MARK: - Role Selection Section
+
+    private var roleSelectionSection: some View {
+        VStack(alignment: .leading, spacing: MedicalSpacing.md) {
+            Text("Role *")
+                .font(MedicalTypography.headlineSmall)
+
+            roleMenu
+        }
+        .padding(MedicalSpacing.lg)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(MedicalCardStyle.radiusMedium)
+    }
+
+    private var roleMenu: some View {
+        Menu {
+            ForEach(availableRoles, id: \.self) { role in
+                Button(action: { selectedRole = role }) {
+                    HStack {
+                        Text(role.rawValue)
+                        if selectedRole == role {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            roleMenuLabel
+        }
+    }
+
+    private var roleMenuLabel: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(selectedRole.rawValue)
+                    .font(MedicalTypography.bodyMedium)
+                    .foregroundColor(MedicalColors.Neutral.textPrimary)
+
+                Text(selectedRole.category)
+                    .font(MedicalTypography.caption)
+                    .foregroundColor(MedicalColors.Neutral.textSecondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.up.chevron.down")
+                .foregroundColor(MedicalColors.Neutral.textTertiary)
+        }
+        .padding(MedicalSpacing.md)
+        .background(Color(.systemBackground))
+        .cornerRadius(MedicalCardStyle.radiusSmall)
+        .overlay(
+            RoundedRectangle(cornerRadius: MedicalCardStyle.radiusSmall)
+                .stroke(Color(.separator), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Validation Error View
+
+    @ViewBuilder
+    private var validationErrorView: some View {
+        if let error = validationError {
+            HStack(spacing: MedicalSpacing.sm) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(MedicalColors.Clinical.criticalValue)
+
+                Text(error)
+                    .font(MedicalTypography.bodySmall)
+                    .foregroundColor(MedicalColors.Clinical.criticalValue)
+            }
+            .padding(MedicalSpacing.md)
+            .background(MedicalColors.Clinical.criticalValue.opacity(0.1))
+            .cornerRadius(MedicalCardStyle.radiusSmall)
+        }
+    }
+
+    // MARK: - Submit Button
+
+    private var submitButton: some View {
+        Button(action: sendInvitation) {
+            Text("Send Invitation")
+                .font(MedicalTypography.labelLarge)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, MedicalSpacing.lg)
+                .background(isFormValid ? MedicalColors.Brand.primary : MedicalColors.Neutral.textTertiary)
+                .cornerRadius(MedicalCardStyle.radiusMedium)
+        }
+        .frame(minWidth: 44, minHeight: 44)
+        .disabled(!isFormValid)
     }
 
     // MARK: - Computed Properties
