@@ -161,7 +161,7 @@ final class AuditLogger {
     /// Logs an audit event
     /// - Parameter event: The event to log
     func log(_ event: AuditEvent) {
-        guard Configuration.Features.auditLoggingEnabled else { return }
+        guard AppConfiguration.Features.auditLoggingEnabled else { return }
 
         logQueue.async {
             self.writeEventToLog(event)

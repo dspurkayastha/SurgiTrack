@@ -117,8 +117,8 @@ class AuthManager: ObservableObject {
 
     func authenticateWithPIN(_ pin: String) -> Bool {
         // Validate PIN length
-        guard pin.count == Configuration.Security.pinLength else {
-            authError = .validationFailed(field: "PIN", message: "Please enter a \(Configuration.Security.pinLength)-digit PIN")
+        guard pin.count == AppConfiguration.Security.pinLength else {
+            authError = .validationFailed(field: "PIN", message: "Please enter a \(AppConfiguration.Security.pinLength)-digit PIN")
             return false
         }
 
@@ -231,8 +231,8 @@ class AuthManager: ObservableObject {
 
     func registerWithCredentials(username: String, password: String) async throws {
         // Validate password strength
-        guard password.count >= Configuration.Security.minPasswordLength else {
-            throw AppError.valueTooShort(field: "Password", minLength: Configuration.Security.minPasswordLength)
+        guard password.count >= AppConfiguration.Security.minPasswordLength else {
+            throw AppError.valueTooShort(field: "Password", minLength: AppConfiguration.Security.minPasswordLength)
         }
 
         do {
@@ -327,10 +327,10 @@ class AuthManager: ObservableObject {
         guard isAuthenticated else { return }
 
         let idleTime = Date().timeIntervalSince(lastActivityTime)
-        let timeUntilTimeout = Configuration.Security.sessionTimeout - idleTime
+        let timeUntilTimeout = AppConfiguration.Security.sessionTimeout - idleTime
         let warningThreshold: TimeInterval = 5 * 60 // 5 minutes before timeout
 
-        if idleTime > Configuration.Security.sessionTimeout {
+        if idleTime > AppConfiguration.Security.sessionTimeout {
             // Session expired
             showSessionWarning = false
             Logger.auth("Session timed out after \(Int(idleTime)) seconds of inactivity")
@@ -378,7 +378,7 @@ class AuthManager: ObservableObject {
         }
 
         // Set session expiry
-        let sessionExpiry = Date().addingTimeInterval(Configuration.Security.sessionTimeout)
+        let sessionExpiry = Date().addingTimeInterval(AppConfiguration.Security.sessionTimeout)
         try? keychain.setSessionExpiry(sessionExpiry)
 
         // Set current user for audit logging
@@ -387,9 +387,9 @@ class AuthManager: ObservableObject {
 
     private func handleFailedAuth() {
         loginAttempts += 1
-        Logger.security("Failed login attempt \(loginAttempts)/\(Configuration.Security.maxLoginAttempts)")
+        Logger.security("Failed login attempt \(loginAttempts)/\(AppConfiguration.Security.maxLoginAttempts)")
 
-        if loginAttempts >= Configuration.Security.maxLoginAttempts {
+        if loginAttempts >= AppConfiguration.Security.maxLoginAttempts {
             setLockout()
         }
     }
@@ -416,9 +416,9 @@ class AuthManager: ObservableObject {
     }
 
     private func setLockout() {
-        lockoutEndTime = Date().addingTimeInterval(Configuration.Security.lockoutDuration)
+        lockoutEndTime = Date().addingTimeInterval(AppConfiguration.Security.lockoutDuration)
         isLockedOut = true
-        Logger.security("Account locked for \(Int(Configuration.Security.lockoutDuration/60)) minutes")
+        Logger.security("Account locked for \(Int(AppConfiguration.Security.lockoutDuration/60)) minutes")
 
         // Start timer to update remaining time
         lockoutTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in

@@ -132,7 +132,7 @@ struct LockoutStateTests {
     @Test("Failed attempts threshold is defined")
     func failedAttemptsThreshold() {
         // Configuration should define max attempts
-        let maxAttempts = Configuration.Security.maxLoginAttempts
+        let maxAttempts = AppConfiguration.Security.maxLoginAttempts
         #expect(maxAttempts > 0)
         #expect(maxAttempts <= 10) // Reasonable upper bound
     }
@@ -140,7 +140,7 @@ struct LockoutStateTests {
     @Test("Lockout duration is defined")
     func lockoutDuration() {
         // Configuration should define lockout duration
-        let duration = Configuration.Security.lockoutDuration
+        let duration = AppConfiguration.Security.lockoutDuration
         #expect(duration > 0)
         #expect(duration <= 3600) // Max 1 hour is reasonable
     }

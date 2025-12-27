@@ -7,7 +7,8 @@ import Foundation
 
 /// Centralized configuration management for SurgiTrack.
 /// Supports different environments (development, staging, production).
-enum Configuration {
+/// Note: Named AppConfiguration to avoid shadowing SwiftUI's ButtonStyle.Configuration
+enum AppConfiguration {
 
     // MARK: - Environment
 
@@ -236,7 +237,7 @@ enum Configuration {
 
 // MARK: - Environment Variable Access
 
-extension Configuration {
+extension AppConfiguration {
 
     /// Gets an environment variable value
     /// - Parameter key: The environment variable key
@@ -252,3 +253,4 @@ extension Configuration {
         return Bundle.main.infoDictionary?[key] as? T
     }
 }
+

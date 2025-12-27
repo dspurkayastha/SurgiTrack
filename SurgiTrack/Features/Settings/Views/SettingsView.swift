@@ -408,7 +408,7 @@ struct AboutView: View {
                         .font(.title2)
                         .fontWeight(.bold)
 
-                    Text("Version \(Configuration.App.fullVersion)")
+                    Text("Version \(AppConfiguration.App.fullVersion)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }

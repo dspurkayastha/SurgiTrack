@@ -8,12 +8,12 @@ struct SurgiTrackApp: App {
 
     init() {
         // Validate configuration on startup
-        if !Configuration.validate() {
+        if !AppConfiguration.validate() {
             Logger.fault("Configuration validation failed", category: .general)
         }
 
         // Log app startup
-        Logger.info("SurgiTrack \(Configuration.App.fullVersion) starting in \(Configuration.environment.rawValue) mode", category: .general)
+        Logger.info("SurgiTrack \(AppConfiguration.App.fullVersion) starting in \(AppConfiguration.environment.rawValue) mode", category: .general)
     }
 
     var body: some Scene {
@@ -32,7 +32,7 @@ struct SurgiTrackApp: App {
                                 title: environment.appState.toastTitle,
                                 message: environment.appState.toastMessage,
                                 type: environment.appState.toastType,
-                                duration: Configuration.UI.toastDuration,
+                                duration: AppConfiguration.UI.toastDuration,
                                 isPresented: Binding(
                                     get: { environment.appState.isShowingToast },
                                     set: { environment.appState.isShowingToast = $0 }
@@ -44,7 +44,7 @@ struct SurgiTrackApp: App {
                 )
                 .task {
                     // Configure Clerk with environment-based key
-                    let clerkKey = Configuration.ClerkAPI.publishableKey
+                    let clerkKey = AppConfiguration.ClerkAPI.publishableKey
                     guard !clerkKey.isEmpty else {
                         Logger.error("Clerk API key not configured", category: .authentication)
                         return
