@@ -79,18 +79,18 @@ extension View {
 struct InteractiveCard_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Theme.colors.background
+            DesignSystem.Colors.Adaptive.background
                 .ignoresSafeArea()
-            
+
             InteractiveCard(action: {}) {
-                VStack(alignment: .leading, spacing: Theme.spacing.sm) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     Text("Interactive Card")
-                        .font(Theme.typography.h3)
-                        .foregroundColor(Theme.colors.text)
-                    
+                        .font(DesignSystem.Typography.headlineMedium)
+                        .foregroundColor(DesignSystem.Colors.Adaptive.textPrimary)
+
                     Text("This is a modern interactive card with glassmorphic effect and spring animations.")
-                        .font(Theme.typography.bodyMedium)
-                        .foregroundColor(Theme.colors.textSecondary)
+                        .font(DesignSystem.Typography.bodyMedium)
+                        .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
                 }
             }
             .padding()

@@ -50,40 +50,40 @@ struct DashboardCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.spacing.sm) {
-            VStack(alignment: .leading, spacing: Theme.spacing.xxs) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxs) {
                 Text(title)
-                    .font(Theme.typography.h3)
-                    .foregroundColor(Theme.colors.text)
-                
+                    .font(DesignSystem.Typography.headlineMedium)
+                    .foregroundColor(DesignSystem.Colors.Adaptive.textPrimary)
+
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(Theme.typography.bodySmall)
-                        .foregroundColor(Theme.colors.textSecondary)
+                        .font(DesignSystem.Typography.bodySmall)
+                        .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
                 }
             }
-            
+
             if showDivider {
                 Divider()
-                    .background(Theme.colors.textSecondary.opacity(0.2))
+                    .background(DesignSystem.Colors.Adaptive.textSecondary.opacity(0.2))
             }
-            
+
             content
         }
-        .padding(Theme.spacing.md)
+        .padding(DesignSystem.Spacing.md)
         .glassmorphic()
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .offset(offset)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { gesture in
-                    withAnimation(Theme.animation.spring) {
+                    withAnimation(DesignSystem.Animation.spring) {
                         isPressed = true
                         offset = gesture.translation
                     }
                 }
                 .onEnded { _ in
-                    withAnimation(Theme.animation.spring) {
+                    withAnimation(DesignSystem.Animation.spring) {
                         isPressed = false
                         offset = .zero
                     }
@@ -429,68 +429,65 @@ struct RiskAssessmentItemView: View {
 struct DashboardCard_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            // Use LegacyThemeColors for preview consistency
-            LegacyThemeColors.background
+            DesignSystem.Colors.Adaptive.background
                 .ignoresSafeArea()
-            
-            VStack(spacing: ThemeSpacing.lg) { // Use ThemeSpacing
-                // Fix this call to match the defined init
+
+            VStack(spacing: DesignSystem.Spacing.lg) {
                 DashboardCard(
                     title: "Patient Overview",
                     subtitle: "Last updated 2 hours ago",
-                    iconName: "person.3.fill", // Provide default icon
-                    gradient: CardGradients.overview // Provide default gradient
+                    iconName: "person.3.fill",
+                    gradient: CardGradients.overview
                 ) {
-                    VStack(alignment: .leading, spacing: ThemeSpacing.sm) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         HStack {
                             Text("Total Patients")
-                                .font(ThemeTypography.bodyMedium) // Use ThemeTypography
-                                .foregroundColor(LegacyThemeColors.textSecondary)
-                            
+                                .font(DesignSystem.Typography.bodyMedium)
+                                .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
+
                             Spacer()
-                            
+
                             Text("156")
-                                .font(ThemeTypography.h2)
-                                .foregroundColor(LegacyThemeColors.primary)
+                                .font(DesignSystem.Typography.headlineLarge)
+                                .foregroundColor(DesignSystem.Colors.primary)
                         }
-                        
+
                         HStack {
                             Text("Active Cases")
-                                .font(ThemeTypography.bodyMedium)
-                                .foregroundColor(LegacyThemeColors.textSecondary)
-                            
+                                .font(DesignSystem.Typography.bodyMedium)
+                                .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
+
                             Spacer()
-                            
+
                             Text("23")
-                                .font(ThemeTypography.h2)
-                                .foregroundColor(LegacyThemeColors.secondary)
+                                .font(DesignSystem.Typography.headlineLarge)
+                                .foregroundColor(DesignSystem.Colors.secondary)
                         }
                     }
                 }
-                
-                // Fix this call too
+
                 DashboardCard(
                     title: "Recent Activity",
                     subtitle: "Last 24 hours",
-                    iconName: "clock.arrow.circlepath", // Provide default icon
-                    gradient: CardGradients.timeline // Provide default gradient
+                    iconName: "clock.arrow.circlepath",
+                    gradient: CardGradients.timeline
                 ) {
-                    VStack(alignment: .leading, spacing: ThemeSpacing.sm) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                         ForEach(0..<3) { _ in
                             HStack {
                                 Circle()
-                                    .fill(LegacyThemeColors.primary)
+                                    .fill(DesignSystem.Colors.primary)
                                     .frame(width: 8, height: 8)
-                                
+
                                 Text("New patient admitted")
-                                    .font(ThemeTypography.bodyMedium)
-                                    .foregroundColor(LegacyThemeColors.text)
-                                
+                                    .font(DesignSystem.Typography.bodyMedium)
+                                    .foregroundColor(DesignSystem.Colors.Adaptive.textPrimary)
+
                                 Spacer()
-                                
+
                                 Text("2h ago")
-                                    .font(ThemeTypography.caption)
-                                    .foregroundColor(LegacyThemeColors.textSecondary)
+                                    .font(DesignSystem.Typography.caption)
+                                    .foregroundColor(DesignSystem.Colors.Adaptive.textSecondary)
                             }
                         }
                     }
@@ -498,8 +495,5 @@ struct DashboardCard_Previews: PreviewProvider {
             }
             .padding()
         }
-        // Note: DashboardCard currently uses static Legacy theme values,
-        // so applying the modern theme bridge here won't affect it directly.
-        // .withThemeBridge(appState: AppState(), colorScheme: .light) 
     }
 }

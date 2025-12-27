@@ -76,7 +76,7 @@ struct TestDetailView: View {
                 }
             }
             .sheet(isPresented: $showingEnhancedAnalysis) {
-                if let parameter = getSelectedParameter(), let patient = test.patient {
+                if let _ = getSelectedParameter(), let patient = test.patient {
                     EnhancedTrendsView.createWithPatient(patient)
                         .environment(\.managedObjectContext, viewContext)
                 }

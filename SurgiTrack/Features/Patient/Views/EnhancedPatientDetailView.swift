@@ -1950,7 +1950,7 @@ struct AccordionPatientDetailView: View {
     }
     
     private func expandSection(_ section: AccordionSection) {
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+        _ = withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
             expandedSections.insert(section)
         }
     }
