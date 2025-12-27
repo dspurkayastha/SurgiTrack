@@ -45,7 +45,7 @@ class PrescriptionService: ObservableObject {
         status: String = "active"
     ) throws -> Prescription {
 
-        Logger.log("Creating prescription for patient: \(patient.fullName)", category: .prescriptions, level: .info)
+        Logger.info("Creating prescription for patient: \(patient.fullName)", category: .prescriptions)
 
         // Create prescription
         let prescription = Prescription(context: context)
@@ -81,15 +81,15 @@ class PrescriptionService: ObservableObject {
         // Check for drug interactions before saving
         let interactions = checkDrugInteractions(items: items)
         if !interactions.isEmpty {
-            Logger.log("Potential drug interactions detected: \(interactions.joined(separator: ", "))",
-                      category: .prescriptions, level: .warning)
+            Logger.warning("Potential drug interactions detected: \(interactions.joined(separator: ", "))",
+                      category: .prescriptions)
         }
 
         // Save context
         try context.save()
 
-        Logger.log("Prescription created successfully with ID: \(prescription.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Prescription created successfully with ID: \(prescription.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         return prescription
     }
@@ -108,8 +108,8 @@ class PrescriptionService: ObservableObject {
         status: String? = nil
     ) throws {
 
-        Logger.log("Updating prescription: \(prescription.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Updating prescription: \(prescription.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         if let generalInstructions = generalInstructions {
             prescription.generalInstructions = generalInstructions
@@ -125,7 +125,7 @@ class PrescriptionService: ObservableObject {
 
         try context.save()
 
-        Logger.log("Prescription updated successfully", category: .prescriptions, level: .info)
+        Logger.info("Prescription updated successfully", category: .prescriptions)
     }
 
     /// Adds a new item to an existing prescription
@@ -138,8 +138,8 @@ class PrescriptionService: ObservableObject {
         itemData: PrescriptionItemData
     ) throws {
 
-        Logger.log("Adding item to prescription: \(prescription.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Adding item to prescription: \(prescription.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         let item = PrescriptionItem(context: context)
         item.id = UUID()
@@ -162,7 +162,7 @@ class PrescriptionService: ObservableObject {
 
         try context.save()
 
-        Logger.log("Prescription item added successfully", category: .prescriptions, level: .info)
+        Logger.info("Prescription item added successfully", category: .prescriptions)
     }
 
     /// Updates an existing prescription item
@@ -175,8 +175,8 @@ class PrescriptionService: ObservableObject {
         itemData: PrescriptionItemData
     ) throws {
 
-        Logger.log("Updating prescription item: \(item.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Updating prescription item: \(item.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         item.drugName = itemData.drugName
         item.strength = itemData.strength
@@ -196,33 +196,33 @@ class PrescriptionService: ObservableObject {
 
         try context.save()
 
-        Logger.log("Prescription item updated successfully", category: .prescriptions, level: .info)
+        Logger.info("Prescription item updated successfully", category: .prescriptions)
     }
 
     /// Deletes a prescription item
     /// - Parameter item: The prescription item to delete
     /// - Throws: CoreData errors
     func deletePrescriptionItem(_ item: PrescriptionItem) throws {
-        Logger.log("Deleting prescription item: \(item.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Deleting prescription item: \(item.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         context.delete(item)
         try context.save()
 
-        Logger.log("Prescription item deleted successfully", category: .prescriptions, level: .info)
+        Logger.info("Prescription item deleted successfully", category: .prescriptions)
     }
 
     /// Deletes a prescription and all its items
     /// - Parameter prescription: The prescription to delete
     /// - Throws: CoreData errors
     func deletePrescription(_ prescription: Prescription) throws {
-        Logger.log("Deleting prescription: \(prescription.id?.uuidString ?? "unknown")",
-                  category: .prescriptions, level: .info)
+        Logger.info("Deleting prescription: \(prescription.id?.uuidString ?? "unknown")",
+                  category: .prescriptions)
 
         context.delete(prescription)
         try context.save()
 
-        Logger.log("Prescription deleted successfully", category: .prescriptions, level: .info)
+        Logger.info("Prescription deleted successfully", category: .prescriptions)
     }
 
     /// Updates the status of a prescription
@@ -231,7 +231,7 @@ class PrescriptionService: ObservableObject {
     ///   - status: The new status (e.g., "active", "completed", "discontinued")
     /// - Throws: CoreData errors
     func updatePrescriptionStatus(_ prescription: Prescription, status: String) throws {
-        Logger.log("Updating prescription status to: \(status)", category: .prescriptions, level: .info)
+        Logger.info("Updating prescription status to: \(status)", category: .prescriptions)
 
         prescription.status = status
         try context.save()
@@ -249,12 +249,12 @@ class PrescriptionService: ObservableObject {
 
         do {
             let prescriptions = try context.fetch(request)
-            Logger.log("Fetched \(prescriptions.count) prescriptions for patient: \(patient.fullName)",
-                      category: .prescriptions, level: .info)
+            Logger.info("Fetched \(prescriptions.count) prescriptions for patient: \(patient.fullName)",
+                      category: .prescriptions)
             return prescriptions
         } catch {
-            Logger.log("Error fetching prescriptions: \(error.localizedDescription)",
-                      category: .prescriptions, level: .error)
+            Logger.error("Error fetching prescriptions: \(error.localizedDescription)",
+                      category: .prescriptions)
             return []
         }
     }
@@ -269,12 +269,12 @@ class PrescriptionService: ObservableObject {
 
         do {
             let prescriptions = try context.fetch(request)
-            Logger.log("Fetched \(prescriptions.count) active prescriptions for patient: \(patient.fullName)",
-                      category: .prescriptions, level: .info)
+            Logger.info("Fetched \(prescriptions.count) active prescriptions for patient: \(patient.fullName)",
+                      category: .prescriptions)
             return prescriptions
         } catch {
-            Logger.log("Error fetching active prescriptions: \(error.localizedDescription)",
-                      category: .prescriptions, level: .error)
+            Logger.error("Error fetching active prescriptions: \(error.localizedDescription)",
+                      category: .prescriptions)
             return []
         }
     }
@@ -305,8 +305,8 @@ class PrescriptionService: ObservableObject {
             }
         }
 
-        Logger.log("Fetched prescription history for \(history.keys.count) unique medications",
-                  category: .prescriptions, level: .info)
+        Logger.info("Fetched prescription history for \(history.keys.count) unique medications",
+                  category: .prescriptions)
 
         return history
     }
@@ -336,8 +336,8 @@ class PrescriptionService: ObservableObject {
             }
         }
 
-        Logger.log("Found \(medications.count) current medications for patient",
-                  category: .prescriptions, level: .info)
+        Logger.info("Found \(medications.count) current medications for patient",
+                  category: .prescriptions)
 
         return medications
     }
@@ -378,8 +378,8 @@ class PrescriptionService: ObservableObject {
         // This should integrate with a proper drug interaction database
 
         if !interactions.isEmpty {
-            Logger.log("Drug interaction check found \(interactions.count) potential interactions",
-                      category: .prescriptions, level: .warning)
+            Logger.warning("Drug interaction check found \(interactions.count) potential interactions",
+                      category: .prescriptions)
         }
 
         return interactions

@@ -180,7 +180,7 @@ struct AddMedicalTestView: View {
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
-                        .onChange(of: selectedTestType) { newValue in
+                        .onChange(of: selectedTestType) { _, _ in
                             // Initialize anatomical structures and measurements when test type changes
                             initializeFieldsForTestType()
                         }

@@ -102,7 +102,7 @@ struct AddAppointmentView: View {
                         }
                     }
                     .padding(.vertical, 8)
-                    .onChange(of: selectedPatientID) { _ in validateForm() }
+                    .onChange(of: selectedPatientID) { _, _ in validateForm() }
                     
                     // Surgeon picker button
                     HStack {
@@ -188,7 +188,7 @@ struct AddAppointmentView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                 )
-                .onChange(of: text.wrappedValue) { _ in
+                .onChange(of: text.wrappedValue) { _, _ in
                     validateForm()
                 }
         }
@@ -248,7 +248,7 @@ struct AddAppointmentView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                 )
-                .onChange(of: selection.wrappedValue) { newValue in
+                .onChange(of: selection.wrappedValue) { _, newValue in
                     onChange?(newValue)
                 }
         }

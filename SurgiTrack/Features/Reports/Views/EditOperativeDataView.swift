@@ -114,10 +114,10 @@ struct EditOperativeDataView: View {
                     DatePicker("Operation Date", selection: $operationDate, in: ...Date(), displayedComponents: [.date, .hourAndMinute])
                     
                     TextField("Operation Type (e.g., Appendectomy)", text: $operationType)
-                        .onChange(of: operationType, perform: { _ in validateForm() })
-                    
+                        .onChange(of: operationType) { _, _ in validateForm() }
+
                     TextField("Procedure Name", text: $procedureName)
-                        .onChange(of: procedureName, perform: { _ in validateForm() })
+                        .onChange(of: procedureName) { _, _ in validateForm() }
                     
                     TextField("Pre-op Diagnosis", text: $preOpDiagnosis)
                     TextField("Post-op Diagnosis", text: $postOpDiagnosis)

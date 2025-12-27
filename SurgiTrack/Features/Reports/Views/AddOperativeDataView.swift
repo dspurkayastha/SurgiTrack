@@ -89,7 +89,7 @@ struct AddOperativeDataView: View {
                     }
                     
                     TextField("Procedure Name", text: $procedureName)
-                        .onChange(of: procedureName, perform: { _ in validateForm() })
+                        .onChange(of: procedureName) { _, _ in validateForm() }
                     
                     TextField("Pre-op Diagnosis", text: $preOpDiagnosis)
                     TextField("Post-op Diagnosis", text: $postOpDiagnosis)

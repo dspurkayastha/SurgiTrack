@@ -632,25 +632,25 @@ struct EditAppointmentView: View {
                 // Basic information section
                 Section(header: Text("Appointment Details")) {
                     TextField("Title", text: $title)
-                        .onChange(of: title) { _ in validateForm() }
-                    
+                        .onChange(of: title) { _, _ in validateForm() }
+
                     Picker("Type", selection: $appointmentType) {
                         ForEach(appointmentTypes, id: \.self) { type in
                             Text(type).tag(type)
                         }
                     }
-                    
+
                     DatePicker("Start", selection: $startTime)
-                        .onChange(of: startTime) { newValue in
+                        .onChange(of: startTime) { _, newValue in
                             // Ensure end time is after start time
                             if endTime <= newValue {
                                 endTime = Calendar.current.date(byAdding: .hour, value: 1, to: newValue) ?? newValue
                             }
                             validateForm()
                         }
-                    
+
                     DatePicker("End", selection: $endTime)
-                        .onChange(of: endTime) { _ in validateForm() }
+                        .onChange(of: endTime) { _, _ in validateForm() }
                     
                     TextField("Location", text: $location)
                 }

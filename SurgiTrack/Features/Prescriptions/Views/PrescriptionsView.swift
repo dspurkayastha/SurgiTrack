@@ -150,7 +150,7 @@ struct PrescriptionsView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .onChange(of: selectedPatient) { newValue in
+            .onChange(of: selectedPatient) { _, newValue in
                 if newValue != nil && activeStep == 1 {
                     // Automatically proceed to step 2 when patient is selected
                     withAnimation {
@@ -981,17 +981,17 @@ struct AddMedicationView: View {
                     .foregroundColor(.gray)
                 
                 TextField("Search drug name", text: $searchText)
-                    .onChange(of: searchText) { newValue in
+                    .onChange(of: searchText) { _, newValue in
                         showProductList = !newValue.isEmpty
-                        
+
                         // Cancel existing debounce timer
                         searchCancellable?.cancel()
-                        
+
                         // Show loading indicator immediately
                         if !newValue.isEmpty && newValue.count >= 3 {
                             isSearching = true
                         }
-                        
+
                         // Debounce search input (wait 0.5 seconds after typing stops)
                         searchCancellable = Just(newValue)
                             .delay(for: .seconds(0.5), scheduler: RunLoop.main)

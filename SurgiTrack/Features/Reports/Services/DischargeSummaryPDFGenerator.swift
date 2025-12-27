@@ -618,7 +618,7 @@ class DischargeSummaryPDFGenerator {
         UIBezierPath(roundedRect: boxRect, cornerRadius: 5).fill()
         
         let instructions = dischargeSummary.followUpInstructions ?? "No instructions"
-        let neededH = drawWrappedText(text: instructions, font: bodyF, x: margin + 15, y: &yPosition,
+        _ = drawWrappedText(text: instructions, font: bodyF, x: margin + 15, y: &yPosition,
                                       width: pageWidth - margin * 2 - 30)
         yPosition += 10
         
@@ -629,7 +629,7 @@ class DischargeSummaryPDFGenerator {
             lab.draw(at: CGPoint(x: margin + 15, y: yPosition),
                      withAttributes: [.font: labelF, .foregroundColor: primaryColor])
             yPosition += 20
-            drawWrappedText(text: restrict, font: bodyF, x: margin + 25, y: &yPosition,
+            _ = drawWrappedText(text: restrict, font: bodyF, x: margin + 25, y: &yPosition,
                             width: pageWidth - margin * 2 - 40)
         }
         
@@ -640,7 +640,7 @@ class DischargeSummaryPDFGenerator {
             lab.draw(at: CGPoint(x: margin + 15, y: yPosition),
                      withAttributes: [.font: labelF, .foregroundColor: primaryColor])
             yPosition += 20
-            drawWrappedText(text: diet, font: bodyF, x: margin + 25, y: &yPosition,
+            _ = drawWrappedText(text: diet, font: bodyF, x: margin + 25, y: &yPosition,
                             width: pageWidth - margin * 2 - 40)
         }
         
@@ -679,7 +679,7 @@ class DischargeSummaryPDFGenerator {
         )
         
         var cY = yPosition + 35
-        drawWrappedText(text: content, font: bodyF, x: margin + 15, y: &cY,
+        _ = drawWrappedText(text: content, font: bodyF, x: margin + 15, y: &cY,
                         width: pageWidth - margin*2 - 30, color: UIColor.darkGray)
         
         yPosition = boxRect.maxY + 10
@@ -1150,7 +1150,7 @@ class DischargeSummaryPDFGenerator {
         let bulletAttr: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: primaryColor]
         bullet.draw(at: CGPoint(x: x - 10, y: y), withAttributes: bulletAttr)
         
-        let textHeight = drawWrappedText(text: text, font: font, x: x, y: &y, width: width, color: UIColor.black)
+        _ = drawWrappedText(text: text, font: font, x: x, y: &y, width: width, color: UIColor.black)
         y += 5
     }
     
@@ -1181,7 +1181,6 @@ class DischargeSummaryPDFGenerator {
             .paragraphStyle: pStyle
         ]
         
-        let boundingRect = CGRect(x: x, y: y, width: width, height: 1000)
         let textHeight = text.boundingRect(with: CGSize(width: width, height: 1000),
                                            options: [.usesLineFragmentOrigin, .usesFontLeading],
                                            attributes: attr,

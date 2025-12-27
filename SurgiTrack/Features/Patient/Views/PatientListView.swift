@@ -463,6 +463,10 @@ struct PatientListView: View {
 
         return label
     }
+
+    private func calculateAge(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.year], from: date, to: Date()).year ?? 0
+    }
 }
 
 // MARK: - Enhanced Patient Card

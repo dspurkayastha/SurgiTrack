@@ -108,13 +108,13 @@ struct DischargeFormView: View {
                     .environment(\.managedObjectContext, viewContext)
             }
         }
-        .onChange(of: primaryDiagnosis) { _ in validateForm() }
-        .onChange(of: treatmentSummary) { _ in validateForm() }
-        .onChange(of: medicationsAtDischarge) { _ in validateForm() }
-        .onChange(of: dischargeMedications) { _ in validateForm() }
-        .onChange(of: followUpInstructions) { _ in validateForm() }
-        .onChange(of: dischargingPhysician) { _ in validateForm() }
-        .onChange(of: returnPrecautions) { _ in validateForm() }
+        .onChange(of: primaryDiagnosis) { _, _ in validateForm() }
+        .onChange(of: treatmentSummary) { _, _ in validateForm() }
+        .onChange(of: medicationsAtDischarge) { _, _ in validateForm() }
+        .onChange(of: dischargeMedications) { _, _ in validateForm() }
+        .onChange(of: followUpInstructions) { _, _ in validateForm() }
+        .onChange(of: dischargingPhysician) { _, _ in validateForm() }
+        .onChange(of: returnPrecautions) { _, _ in validateForm() }
         .onAppear {
             loadExistingData()
             validateForm()

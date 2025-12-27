@@ -131,8 +131,8 @@ struct AddSurgeonView: View {
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             })
-            .onChange(of: firstName) { _ in validateForm() }
-            .onChange(of: lastName) { _ in validateForm() }
+            .onChange(of: firstName) { _, _ in validateForm() }
+            .onChange(of: lastName) { _, _ in validateForm() }
             .sheet(isPresented: $isShowingPhotoPicker) {
                 PhotoPicker(selectedImage: $profileImage)
             }
