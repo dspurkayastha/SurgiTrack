@@ -428,7 +428,7 @@ struct DischargeSummaryView: View {
             
             guard let userProfile = currentUserProfile else {
                 DispatchQueue.main.async {
-                    Logger.info("No user profile available", category: .export)
+                    Logger.info("No user profile available", category: .reports)
                     self.isGeneratingPDF = false
                 }
                 return

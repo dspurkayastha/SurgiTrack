@@ -135,13 +135,13 @@ struct EditPatientView: View {
                 Section(header: Text("Patient Information")) {
                     TextField("First Name", text: $firstName)
                         .autocapitalization(.words)
-                        .onChange(of: firstName) { _ in validateForm() }
+                        .onChange(of: firstName) { _, _ in validateForm() }
                         .accessibilityLabel("First Name, Required")
                         .accessibilityHint("Enter patient's first name")
                     
                     TextField("Last Name", text: $lastName)
                         .autocapitalization(.words)
-                        .onChange(of: lastName) { _ in validateForm() }
+                        .onChange(of: lastName) { _, _ in validateForm() }
                         .accessibilityLabel("Last Name, Required")
                         .accessibilityHint("Enter patient's last name")
                     
@@ -161,7 +161,7 @@ struct EditPatientView: View {
                     
                     TextField("Medical Record Number", text: $medicalRecordNumber)
                         .autocapitalization(.allCharacters)
-                        .onChange(of: medicalRecordNumber) { _ in validateForm() }
+                        .onChange(of: medicalRecordNumber) { _, _ in validateForm() }
                         .accessibilityLabel("Medical Record Number, Required")
                         .accessibilityHint("Enter patient's medical record number")
                 }
@@ -265,7 +265,7 @@ struct EditPatientView: View {
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(image: $inputImage)
             }
-            .onChange(of: inputImage) { _ in
+            .onChange(of: inputImage) { _, _ in
                 loadImage()
             }
         }

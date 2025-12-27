@@ -53,7 +53,7 @@ struct AddInitialPresentationView: View {
                             .padding(4)
                             .background(Color(UIColor.systemBackground))
                             .cornerRadius(8)
-                            .onChange(of: chiefComplaint) { _ in validateForm() }
+                            .onChange(of: chiefComplaint) { _, _ in validateForm() }
                     }
                     
                     VStack(alignment: .leading) {
@@ -63,7 +63,7 @@ struct AddInitialPresentationView: View {
                             .padding(4)
                             .background(Color(UIColor.systemBackground))
                             .cornerRadius(8)
-                            .onChange(of: initialDiagnosis) { _ in validateForm() }
+                            .onChange(of: initialDiagnosis) { _, _ in validateForm() }
                     }
                 }
                 

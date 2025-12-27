@@ -450,9 +450,15 @@ struct AboutView: View {
     }
 
     private func requestAppReview() {
-        // Use the modern SKStoreReviewController API
+        // Use the modern AppStore API for iOS 18+
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            SKStoreReviewController.requestReview(in: windowScene)
+            Task {
+                do {
+                    try await AppStore.requestReview(in: windowScene)
+                } catch {
+                    Logger.error("Failed to request app review", error: error, category: .general)
+                }
+            }
         }
     }
 }
