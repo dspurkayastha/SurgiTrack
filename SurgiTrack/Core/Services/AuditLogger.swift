@@ -47,6 +47,9 @@ final class AuditLogger {
         // Administrative events
         case settingsChange = "SETTINGS_CHANGE"
         case permissionChange = "PERMISSION_CHANGE"
+
+        // Security events
+        case securityAlert = "SECURITY_ALERT"
     }
 
     /// Types of resources being accessed
@@ -62,6 +65,7 @@ final class AuditLogger {
         case userProfile = "USER_PROFILE"
         case settings = "SETTINGS"
         case system = "SYSTEM"
+        case referral = "REFERRAL"
     }
 
     /// Outcome of the audited action
@@ -348,6 +352,22 @@ final class AuditLogger {
             resourceType: .system,
             userId: currentUserId,
             userName: currentUserName
+        )
+        log(event)
+    }
+
+    /// Logs a security event
+    func logSecurityEvent(action: String, details: [String: Any]) {
+        let stringDetails = details.mapValues { "\($0)" }
+        var allDetails = stringDetails
+        allDetails["securityAction"] = action
+
+        let event = AuditEvent(
+            action: .securityAlert,
+            resourceType: .system,
+            userId: currentUserId,
+            userName: currentUserName,
+            details: allDetails
         )
         log(event)
     }

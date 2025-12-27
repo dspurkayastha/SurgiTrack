@@ -79,7 +79,7 @@ final class FormAutosaveManager: ObservableObject {
     ///   - formId: Form identifier
     ///   - data: Updated form field values
     func updateForm(_ formId: String, data: [String: Any]) {
-        guard var existing = pendingForms[formId] else { return }
+        guard let existing = pendingForms[formId] else { return }
         let updated = FormData(
             formId: existing.formId,
             formType: existing.formType,

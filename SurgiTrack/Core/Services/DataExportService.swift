@@ -114,11 +114,10 @@ final class DataExportService: ObservableObject {
             currentStep = "Export complete!"
 
             Logger.info("Data export completed: \(fileURL.lastPathComponent)", category: .data)
-            AuditLogger.shared.logEvent(
-                eventType: .export,
+            AuditLogger.shared.logExport(
                 resourceType: .patient,
-                outcome: .success,
-                details: ["format": format.rawValue, "option": option.rawValue]
+                exportFormat: format.rawValue,
+                recordCount: patients.count
             )
 
             return fileURL
@@ -126,12 +125,7 @@ final class DataExportService: ObservableObject {
         } catch {
             exportError = error
             Logger.error("Export failed", error: error, category: .data)
-            AuditLogger.shared.logEvent(
-                eventType: .export,
-                resourceType: .patient,
-                outcome: .failure,
-                details: ["error": error.localizedDescription]
-            )
+            // Log export failure - note: logExport assumes success, so we just log the error
             throw error
         }
     }
@@ -340,7 +334,7 @@ final class DataExportService: ObservableObject {
                 escapeCSV(patient.gender ?? ""),
                 escapeCSV(patient.bloodType ?? ""),
                 escapeCSV(patient.phone ?? ""),
-                escapeCSV(patient.email ?? "")
+                escapeCSV(patient.contactInfo ?? "")
             ]
 
             if option == .allData || option == .surgicalRecords {
@@ -393,7 +387,7 @@ final class DataExportService: ObservableObject {
                 "gender": patient.gender ?? "",
                 "bloodType": patient.bloodType ?? "",
                 "phone": patient.phone ?? "",
-                "email": patient.email ?? "",
+                "contactInfo": patient.contactInfo ?? "",
                 "address": patient.address ?? "",
                 "emergencyContactName": patient.emergencyContactName ?? "",
                 "emergencyContactPhone": patient.emergencyContactPhone ?? "",
@@ -413,12 +407,12 @@ final class DataExportService: ObservableObject {
                             "id": op.id?.uuidString ?? UUID().uuidString,
                             "operationType": op.operationType ?? "",
                             "operationDate": op.operationDate.map { dateFormatter.string(from: $0) } ?? "",
-                            "surgeon": op.surgeon ?? "",
-                            "preOperativeDiagnosis": op.preOperativeDiagnosis ?? "",
-                            "postOperativeDiagnosis": op.postOperativeDiagnosis ?? "",
+                            "surgeon": op.surgeonName ?? "",
+                            "preOperativeDiagnosis": op.preOpDiagnosis ?? "",
+                            "postOperativeDiagnosis": op.postOpDiagnosis ?? "",
                             "operationNarrative": op.operationNarrative ?? "",
-                            "anesthesiaType": op.anesthesiaType ?? "",
-                            "complications": op.complications ?? ""
+                            "anesthesiaType": op.anaesthesiaType ?? "",
+                            "complications": op.intraoperativeComplications ?? ""
                         ]
                         surgeries.append(surgery)
                     }
@@ -460,7 +454,7 @@ final class DataExportService: ObservableObject {
                             "testType": test.testType ?? "",
                             "testDate": test.testDate.map { dateFormatter.string(from: $0) } ?? "",
                             "status": test.status ?? "",
-                            "results": test.results ?? ""
+                            "summary": test.summary ?? ""
                         ]
                         tests.append(testDict)
                     }

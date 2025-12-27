@@ -27,6 +27,7 @@ struct Logger {
         case security = "Security"
         case audit = "Audit"
         case performance = "Performance"
+        case data = "Data"
 
         var subsystem: String {
             return "com.surgitrack.app"

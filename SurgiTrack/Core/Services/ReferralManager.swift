@@ -180,11 +180,10 @@ class ReferralManager: ObservableObject {
         // Send notification to receiving department
         await sendNotification(for: newReferral, type: .newReferral)
 
-        AuditLogger.shared.log(
-            action: .create,
+        AuditLogger.shared.logCreate(
             resourceType: .referral,
             resourceId: referral.id.uuidString,
-            details: ["to_department": referral.toDepartmentName, "priority": referral.priority.rawValue]
+            resourceDescription: "Referral to \(referral.toDepartmentName)"
         )
     }
 

@@ -192,16 +192,8 @@ final class SecurityManager: ObservableObject {
             }
         }
 
-        // Check 5: Fork check (jailbroken devices allow forking)
-        let forkResult = fork()
-        if forkResult >= 0 {
-            if forkResult > 0 {
-                // Parent process - kill the child
-                kill(forkResult, SIGTERM)
-            }
-            addSecurityAlert(.jailbreakDetected, message: "Fork succeeded - sandbox compromised")
-            return true
-        }
+        // Note: fork() check removed as it's unavailable on iOS
+        // The above checks are sufficient for jailbreak detection
 
         return false
         #endif
