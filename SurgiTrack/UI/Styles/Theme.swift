@@ -323,7 +323,7 @@ struct Theme {
 
             HStack(spacing: DesignSystem.Spacing.sm) {
                 Circle()
-                    .fill(LegacyThemeColors.primary)
+                    .fill(DesignSystem.Colors.primary)
                     .frame(width: 24, height: 24)
                 Text("Primary")
                     .font(DesignSystem.Typography.bodySmall)
@@ -331,7 +331,7 @@ struct Theme {
 
             HStack(spacing: DesignSystem.Spacing.sm) {
                 Circle()
-                    .fill(LegacyThemeColors.success)
+                    .fill(DesignSystem.Colors.success)
                     .frame(width: 24, height: 24)
                 Text("Success")
                     .font(DesignSystem.Typography.bodySmall)
@@ -339,7 +339,7 @@ struct Theme {
 
             HStack(spacing: DesignSystem.Spacing.sm) {
                 Circle()
-                    .fill(LegacyThemeColors.error)
+                    .fill(DesignSystem.Colors.error)
                     .frame(width: 24, height: 24)
                 Text("Error")
                     .font(DesignSystem.Typography.bodySmall)

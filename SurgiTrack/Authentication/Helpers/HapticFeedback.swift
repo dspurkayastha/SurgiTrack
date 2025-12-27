@@ -82,12 +82,12 @@ class HapticFeedback {
 /// Button style that provides haptic feedback
 struct HapticButtonStyle: ButtonStyle {
     var feedbackStyle: UIImpactFeedbackGenerator.FeedbackStyle = .light
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
-            .onChange(of: configuration.isPressed) { isPressed in
+            .onChange(of: configuration.isPressed) { _, isPressed in
                 if isPressed {
                     HapticFeedback.impact(style: feedbackStyle)
                 }

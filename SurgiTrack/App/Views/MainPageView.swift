@@ -332,7 +332,7 @@ struct MainPageView: View {
         }
     }
     struct ButtonPressingStyle: ButtonStyle {
-        func makeBody(configuration: Configuration) -> some View {
+        func makeBody(configuration: ButtonStyleConfiguration) -> some View {
             configuration.label
                 .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
                 .animation(.spring(response: 0.4, dampingFraction: 0.6), value: configuration.isPressed)
@@ -964,7 +964,7 @@ struct EnhancedAnimatedGradientBackground: View {
                 // Removed context parameter
                 setupInitialState(in: size)
             }
-            .onChange(of: appState.currentTheme.id) { _ in
+            .onChange(of: appState.currentTheme.id) { _, _ in
                  // Removed context parameter
                  handleThemeChange(in: size)
             }
@@ -1191,13 +1191,13 @@ struct EnhancedAnimatedGradientBackground: View {
         // Removed resetting animationStartTime
 
         attractTimer?.invalidate()
-        attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { [weak self] _ in
-             guard let self = self, self.attractionActive else { return }
+        attractTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+             guard attractionActive else { return }
              Logger.debug("Attraction timer finished, Attraction INACTIVE", category: .ui)
-             self.attractionActive = false
-             self.lastTapLocation = nil
+             attractionActive = false
+             lastTapLocation = nil
              // Assign new drift targets when attraction ends
-             self.startDriftingAnimation(in: size)
+             startDriftingAnimation(in: size)
         }
     }
 
