@@ -324,13 +324,7 @@ extension View {
             .accessibilityHint(hint ?? "")
     }
 
-    /// Makes a button accessible for VoiceOver
-    func accessibleButton(label: String, hint: String? = nil) -> some View {
-        self
-            .accessibilityLabel(label)
-            .accessibilityHint(hint ?? "")
-            .accessibilityAddTraits(.isButton)
-    }
+    // Note: accessibleButton is defined in AccessibilityFramework.swift
 }
 
 // MARK: - Preview

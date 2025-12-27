@@ -374,7 +374,7 @@ extension View {
     }
 
     /// Announces changes to VoiceOver
-    func announceChanges(_ message: String, priority: AccessibilityNotification.Announcement.Priority = .high) -> some View {
+    func announceChanges(_ message: String) -> some View {
         self.onChange(of: message) { _, newValue in
             UIAccessibility.post(notification: .announcement, argument: newValue)
         }

@@ -879,10 +879,10 @@ struct AttachmentDetailView: View {
                             .font(.headline)
                             .padding(.bottom, 4)
                         
-                        DetailRow(label: "Filename", value: attachment.filename ?? "Unnamed File")
-                        DetailRow(label: "Type", value: attachment.contentType ?? "Unknown")
-                        DetailRow(label: "Size", value: formatFileSize(attachment.data?.count ?? 0))
-                        DetailRow(label: "Date", value: formatDate(attachment.dateCreated))
+                        AttachmentDetailRow(label: "Filename", value: attachment.filename ?? "Unnamed File")
+                        AttachmentDetailRow(label: "Type", value: attachment.contentType ?? "Unknown")
+                        AttachmentDetailRow(label: "Size", value: formatFileSize(attachment.data?.count ?? 0))
+                        AttachmentDetailRow(label: "Date", value: formatDate(attachment.dateCreated))
                         
                         if let notes = attachment.notes, !notes.isEmpty {
                             Text("Notes")
@@ -1027,16 +1027,16 @@ struct ShareSheetView: View {
     }
 }
 
-struct DetailRow: View {
+struct AttachmentDetailRow: View {
     let label: String
     let value: String
-    
+
     var body: some View {
         HStack(alignment: .top) {
             Text("\(label):")
                 .foregroundColor(.secondary)
                 .frame(width: 80, alignment: .leading)
-            
+
             Text(value)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

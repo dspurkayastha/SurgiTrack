@@ -110,59 +110,8 @@ internal struct ThemeColors {
     }
 }
 
-// MARK: - Legacy Theme Colors (DEPRECATED)
-
-/// Legacy theme colors - DEPRECATED
-/// - Warning: This struct is deprecated. Use `DesignSystem.Colors` instead.
-/// - Note: Maintained for backward compatibility only. Will be removed in a future version.
-/// - SeeAlso: `DesignSystem.Colors` for the new design system
-/// - Important: All new code should use DesignSystem.Colors directly
-@available(*, deprecated, message: "Use DesignSystem.Colors instead. See DesignSystem.swift for migration guide.")
-struct LegacyThemeColors {
-    @available(*, deprecated, renamed: "DesignSystem.Colors.primary")
-    static let primary = DesignSystem.Colors.primary
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.secondary")
-    static let secondary = DesignSystem.Colors.secondary
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.background")
-    static let background = DesignSystem.Colors.Adaptive.background
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.surface")
-    static let surface = DesignSystem.Colors.Adaptive.surface
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.textPrimary")
-    static let text = DesignSystem.Colors.Adaptive.textPrimary
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.textSecondary")
-    static let textSecondary = DesignSystem.Colors.Adaptive.textSecondary
-
-    // Semantic Colors
-    @available(*, deprecated, renamed: "DesignSystem.Colors.success")
-    static let success = DesignSystem.Colors.success
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.warning")
-    static let warning = DesignSystem.Colors.warning
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.error")
-    static let error = DesignSystem.Colors.error
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.info")
-    static let info = DesignSystem.Colors.info
-
-    // Glassmorphism Colors
-    @available(*, deprecated, renamed: "DesignSystem.Colors.glassBackground")
-    static let glassBackground = DesignSystem.Colors.glassBackground
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.glassBorder")
-    static let glassBorder = DesignSystem.Colors.glassBorder
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.Adaptive.border")
-    static let border = DesignSystem.Colors.Adaptive.border
-
-    @available(*, deprecated, renamed: "DesignSystem.Colors.shadow")
-    static let shadow = DesignSystem.Colors.shadow
-}
+// MARK: - Legacy Theme Colors
+// Note: LegacyThemeColors is defined in DesignSystem.swift
 
 // MARK: - Theme Typography (DEPRECATED)
 

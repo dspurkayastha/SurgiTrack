@@ -933,18 +933,8 @@ private func getAttachmentColor(for contentType: String) -> Color {
     } // End of TestDetailView struct
 
 // MARK: - ShareSheet for PDF Sharing
-struct ShareSheet: UIViewControllerRepresentable {
-    var items: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
-        // Nothing to update
-    }
-}
+// Note: ShareSheet is defined in ExportDataView.swift - using typealias for local reference
+private typealias TestDetailShareSheet = ShareSheet
 
 // MARK: - Attachment Image Viewer
 struct AttachmentImageViewer: View {
