@@ -13,6 +13,7 @@
 import SwiftUI
 import Combine
 
+@MainActor
 class PinCreationViewModel: ObservableObject {
     // MARK: - Published Properties
     

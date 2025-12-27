@@ -14,6 +14,7 @@ import SwiftUI
 import Combine
 
 /// Manages UI state for the authentication flow
+@MainActor
 class AuthenticationState: ObservableObject {
     // MARK: - Authentication Method
     
