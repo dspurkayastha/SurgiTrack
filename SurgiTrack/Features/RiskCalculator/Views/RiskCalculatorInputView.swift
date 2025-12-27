@@ -218,204 +218,9 @@ struct FullPossumInputSection: View {
     @State private var opTiming: Int = 1
     
     var body: some View {
-        Section(header: Text("POSSUM: Physiological Variables")) {
-            // 1. Age
-            possumPicker(
-                title: "Age",
-                selection: $physAge,
-                segments: [
-                    ("<60", 1), ("61-70", 2), ("71-80", 4), (">80", 8)
-                ]
-            )
-            // 2. Cardiac
-            possumPicker(
-                title: "Cardiac Signs",
-                selection: $physCardiac,
-                segments: [
-                    ("Normal", 1),
-                    ("AF <100 / Mild", 2),
-                    ("Cardiac >100 or severe", 4),
-                    ("JVP >6 cm", 8)
-                ]
-            )
-            // 3. Systolic BP
-            possumPicker(
-                title: "Systolic BP",
-                selection: $physSystolicBP,
-                segments: [
-                    (">100 mmHg", 1),
-                    ("80-100", 2),
-                    ("70-79", 4),
-                    ("<70", 8)
-                ]
-            )
-            // 4. Pulse
-            possumPicker(
-                title: "Pulse",
-                selection: $physPulse,
-                segments: [
-                    ("<80", 1),
-                    ("80-100", 2),
-                    ("101-120", 4),
-                    (">120", 8)
-                ]
-            )
-            // 5. Hemoglobin
-            possumPicker(
-                title: "Hemoglobin (g/dL)",
-                selection: $physHemoglobin,
-                segments: [
-                    (">13", 1),
-                    ("11-13", 2),
-                    ("9-10.9", 4),
-                    ("<9", 8)
-                ]
-            )
-            // 6. WCC
-            possumPicker(
-                title: "WCC (x10^9/L)",
-                selection: $physWCC,
-                segments: [
-                    ("4-10", 1),
-                    ("10-20", 2),
-                    (">20", 4),
-                    ("<4", 8)
-                ]
-            )
-            // 7. Urea
-            possumPicker(
-                title: "Urea (mmol/L)",
-                selection: $physUrea,
-                segments: [
-                    ("<7.5", 1),
-                    ("7.5-10", 2),
-                    ("10.1-15", 4),
-                    (">15", 8)
-                ]
-            )
-            // 8. Sodium
-            possumPicker(
-                title: "Sodium (mmol/L)",
-                selection: $physNa,
-                segments: [
-                    ("135-145", 1),
-                    ("131-134 or 146-149", 2),
-                    ("126-130 or 150-154", 4),
-                    ("<125 or >155", 8)
-                ]
-            )
-            // 9. Potassium
-            possumPicker(
-                title: "Potassium (mmol/L)",
-                selection: $physK,
-                segments: [
-                    ("3.5-5.0", 1),
-                    ("3.2-3.4 or 5.1-5.3", 2),
-                    ("2.9-3.1 or 5.4-5.9", 4),
-                    ("<2.9 or >6.0", 8)
-                ]
-            )
-            // 10. ECG
-            possumPicker(
-                title: "ECG",
-                selection: $physECG,
-                segments: [
-                    ("Normal", 1),
-                    ("AF <100", 2),
-                    ("AF >100", 4),
-                    ("Other changes", 8)
-                ]
-            )
-            // 11. Respiratory
-            possumPicker(
-                title: "Respiratory",
-                selection: $physResp,
-                segments: [
-                    ("Normal", 1),
-                    ("SOB mod exertion", 2),
-                    ("SOB minimal exertion", 4),
-                    ("SOB at rest", 8)
-                ]
-            )
-            // 12. GCS
-            possumPicker(
-                title: "Glasgow Coma Scale",
-                selection: $physGCS,
-                segments: [
-                    ("15", 1),
-                    ("12-14", 2),
-                    ("9-11", 4),
-                    ("<9", 8)
-                ]
-            )
-        }
-        Section(header: Text("POSSUM: Operative Severity")) {
-            // 1. Operative Magnitude
-            possumPicker(
-                title: "Operative Magnitude",
-                selection: $opMagnitude,
-                segments: [
-                    ("Minor", 1),
-                    ("Intermediate", 2),
-                    ("Major", 4),
-                    ("Major+", 8)
-                ]
-            )
-            // 2. Number of Procedures
-            possumPicker(
-                title: "No. of Procedures",
-                selection: $opNumberProcedures,
-                segments: [
-                    ("1", 1),
-                    ("2", 2),
-                    ("3", 4),
-                    (">3", 8)
-                ]
-            )
-            // 3. Blood Loss
-            possumPicker(
-                title: "Blood Loss (mL)",
-                selection: $opBloodLoss,
-                segments: [
-                    ("<100", 1),
-                    ("100-500", 2),
-                    ("501-999", 4),
-                    (">1000", 8)
-                ]
-            )
-            // 4. Peritoneal Soiling
-            possumPicker(
-                title: "Peritoneal Soiling",
-                selection: $opSoiling,
-                segments: [
-                    ("None", 1),
-                    ("Minor (serous)", 2),
-                    ("Local pus", 4),
-                    ("Free bowel content", 8)
-                ]
-            )
-            // 5. Presence of Malignancy
-            possumPicker(
-                title: "Malignancy",
-                selection: $opMalignancy,
-                segments: [
-                    ("None", 1),
-                    ("Primary only", 2),
-                    ("Nodal metastases", 4),
-                    ("Distant mets", 8)
-                ]
-            )
-            // 6. Timing of Operation
-            possumPicker(
-                title: "Timing of Operation",
-                selection: $opTiming,
-                segments: [
-                    ("Elective", 1),
-                    ("Emergency (resusc)", 2),
-                    ("Urgent", 4),
-                    ("Immediate", 8)
-                ]
-            )
+        Group {
+            physiologicalVariablesSection
+            operativeSeveritySection
         }
         .onChange(of: physAge)            { _, _ in updateScores() }
         .onChange(of: physCardiac)        { _, _ in updateScores() }
@@ -429,16 +234,62 @@ struct FullPossumInputSection: View {
         .onChange(of: physECG)            { _, _ in updateScores() }
         .onChange(of: physResp)           { _, _ in updateScores() }
         .onChange(of: physGCS)            { _, _ in updateScores() }
-
         .onChange(of: opMagnitude)        { _, _ in updateScores() }
         .onChange(of: opNumberProcedures) { _, _ in updateScores() }
         .onChange(of: opBloodLoss)        { _, _ in updateScores() }
         .onChange(of: opSoiling)          { _, _ in updateScores() }
         .onChange(of: opMalignancy)       { _, _ in updateScores() }
         .onChange(of: opTiming)           { _, _ in updateScores() }
-        
         .onAppear {
             updateScores()
+        }
+    }
+
+    // MARK: - Extracted Section Views
+
+    private var physiologicalVariablesSection: some View {
+        Section(header: Text("POSSUM: Physiological Variables")) {
+            possumPicker(title: "Age", selection: $physAge,
+                segments: [("<60", 1), ("61-70", 2), ("71-80", 4), (">80", 8)])
+            possumPicker(title: "Cardiac Signs", selection: $physCardiac,
+                segments: [("Normal", 1), ("AF <100 / Mild", 2), ("Cardiac >100 or severe", 4), ("JVP >6 cm", 8)])
+            possumPicker(title: "Systolic BP", selection: $physSystolicBP,
+                segments: [(">100 mmHg", 1), ("80-100", 2), ("70-79", 4), ("<70", 8)])
+            possumPicker(title: "Pulse", selection: $physPulse,
+                segments: [("<80", 1), ("80-100", 2), ("101-120", 4), (">120", 8)])
+            possumPicker(title: "Hemoglobin (g/dL)", selection: $physHemoglobin,
+                segments: [(">13", 1), ("11-13", 2), ("9-10.9", 4), ("<9", 8)])
+            possumPicker(title: "WCC (x10^9/L)", selection: $physWCC,
+                segments: [("4-10", 1), ("10-20", 2), (">20", 4), ("<4", 8)])
+            possumPicker(title: "Urea (mmol/L)", selection: $physUrea,
+                segments: [("<7.5", 1), ("7.5-10", 2), ("10.1-15", 4), (">15", 8)])
+            possumPicker(title: "Sodium (mmol/L)", selection: $physNa,
+                segments: [("135-145", 1), ("131-134 or 146-149", 2), ("126-130 or 150-154", 4), ("<125 or >155", 8)])
+            possumPicker(title: "Potassium (mmol/L)", selection: $physK,
+                segments: [("3.5-5.0", 1), ("3.2-3.4 or 5.1-5.3", 2), ("2.9-3.1 or 5.4-5.9", 4), ("<2.9 or >6.0", 8)])
+            possumPicker(title: "ECG", selection: $physECG,
+                segments: [("Normal", 1), ("AF <100", 2), ("AF >100", 4), ("Other changes", 8)])
+            possumPicker(title: "Respiratory", selection: $physResp,
+                segments: [("Normal", 1), ("SOB mod exertion", 2), ("SOB minimal exertion", 4), ("SOB at rest", 8)])
+            possumPicker(title: "Glasgow Coma Scale", selection: $physGCS,
+                segments: [("15", 1), ("12-14", 2), ("9-11", 4), ("<9", 8)])
+        }
+    }
+
+    private var operativeSeveritySection: some View {
+        Section(header: Text("POSSUM: Operative Severity")) {
+            possumPicker(title: "Operative Magnitude", selection: $opMagnitude,
+                segments: [("Minor", 1), ("Intermediate", 2), ("Major", 4), ("Major+", 8)])
+            possumPicker(title: "No. of Procedures", selection: $opNumberProcedures,
+                segments: [("1", 1), ("2", 2), ("3", 4), (">3", 8)])
+            possumPicker(title: "Blood Loss (mL)", selection: $opBloodLoss,
+                segments: [("<100", 1), ("100-500", 2), ("501-999", 4), (">1000", 8)])
+            possumPicker(title: "Peritoneal Soiling", selection: $opSoiling,
+                segments: [("None", 1), ("Minor (serous)", 2), ("Local pus", 4), ("Free bowel content", 8)])
+            possumPicker(title: "Malignancy", selection: $opMalignancy,
+                segments: [("None", 1), ("Primary only", 2), ("Nodal metastases", 4), ("Distant mets", 8)])
+            possumPicker(title: "Timing of Operation", selection: $opTiming,
+                segments: [("Elective", 1), ("Emergency (resusc)", 2), ("Urgent", 4), ("Immediate", 8)])
         }
     }
     
