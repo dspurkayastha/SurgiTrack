@@ -233,8 +233,8 @@ struct AccessibleTypography {
     struct Heading {
         static var h1: Font { .largeTitle.bold() }
         static var h2: Font { .title.bold() }
-        static var h3: Font { .title2.semibold() }
-        static var h4: Font { .title3.semibold() }
+        static var h3: Font { .title2.weight(.semibold) }
+        static var h4: Font { .title3.weight(.semibold) }
         static var h5: Font { .headline }
     }
 

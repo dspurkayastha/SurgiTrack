@@ -229,10 +229,13 @@ enum AppError: LocalizedError, Equatable {
 
     var failureReason: String? {
         switch self {
-        case .persistenceError(let underlying),
-             .networkError(let underlying),
-             .keychainError(let underlying),
-             .unknown(let underlying):
+        case .persistenceError(let underlying):
+            return underlying.localizedDescription
+        case .networkError(let underlying):
+            return underlying.localizedDescription
+        case .keychainError(let underlying):
+            return underlying.localizedDescription
+        case .unknown(let underlying):
             return underlying?.localizedDescription
         default:
             return nil
