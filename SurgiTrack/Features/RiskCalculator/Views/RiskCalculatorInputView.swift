@@ -170,7 +170,7 @@ struct RiskCalculatorInputView: View {
         do {
             try viewContext.save()
         } catch {
-            Logger.error("Error saving calculation result", error: error, category: .riskCalculation)
+            Logger.error("Error saving calculation result", error: error, category: .riskCalculator)
         }
     }
     
@@ -417,25 +417,25 @@ struct FullPossumInputSection: View {
                 ]
             )
         }
-        .onChange(of: physAge)            { _ in updateScores() }
-        .onChange(of: physCardiac)        { _ in updateScores() }
-        .onChange(of: physSystolicBP)     { _ in updateScores() }
-        .onChange(of: physPulse)          { _ in updateScores() }
-        .onChange(of: physHemoglobin)     { _ in updateScores() }
-        .onChange(of: physWCC)            { _ in updateScores() }
-        .onChange(of: physUrea)           { _ in updateScores() }
-        .onChange(of: physNa)             { _ in updateScores() }
-        .onChange(of: physK)              { _ in updateScores() }
-        .onChange(of: physECG)            { _ in updateScores() }
-        .onChange(of: physResp)           { _ in updateScores() }
-        .onChange(of: physGCS)            { _ in updateScores() }
-        
-        .onChange(of: opMagnitude)        { _ in updateScores() }
-        .onChange(of: opNumberProcedures) { _ in updateScores() }
-        .onChange(of: opBloodLoss)        { _ in updateScores() }
-        .onChange(of: opSoiling)          { _ in updateScores() }
-        .onChange(of: opMalignancy)       { _ in updateScores() }
-        .onChange(of: opTiming)           { _ in updateScores() }
+        .onChange(of: physAge)            { _, _ in updateScores() }
+        .onChange(of: physCardiac)        { _, _ in updateScores() }
+        .onChange(of: physSystolicBP)     { _, _ in updateScores() }
+        .onChange(of: physPulse)          { _, _ in updateScores() }
+        .onChange(of: physHemoglobin)     { _, _ in updateScores() }
+        .onChange(of: physWCC)            { _, _ in updateScores() }
+        .onChange(of: physUrea)           { _, _ in updateScores() }
+        .onChange(of: physNa)             { _, _ in updateScores() }
+        .onChange(of: physK)              { _, _ in updateScores() }
+        .onChange(of: physECG)            { _, _ in updateScores() }
+        .onChange(of: physResp)           { _, _ in updateScores() }
+        .onChange(of: physGCS)            { _, _ in updateScores() }
+
+        .onChange(of: opMagnitude)        { _, _ in updateScores() }
+        .onChange(of: opNumberProcedures) { _, _ in updateScores() }
+        .onChange(of: opBloodLoss)        { _, _ in updateScores() }
+        .onChange(of: opSoiling)          { _, _ in updateScores() }
+        .onChange(of: opMalignancy)       { _, _ in updateScores() }
+        .onChange(of: opTiming)           { _, _ in updateScores() }
         
         .onAppear {
             updateScores()
@@ -680,7 +680,7 @@ struct CapriniInputSection: View {
             // Fracture/Stroke/Trauma Section
             Section(header: Text("Fracture/Stroke/Trauma")) {
                 Picker("Fracture/Stroke/Trauma", selection: Binding(
-                    get: { parameterValues["Fracture/Stroke/Trauma"] as? FractureStrokeTrauma ?? .none },
+                    get: { parameterValues["Fracture/Stroke/Trauma"] as? FractureStrokeTrauma ?? FractureStrokeTrauma.none },
                     set: { newValue in
                         parameterValues["Fracture/Stroke/Trauma"] = newValue
                     }
@@ -740,7 +740,7 @@ struct CapriniInputSection: View {
             // Other Past History Section
             Section(header: Text("Other Past History")) {
                 Picker("Other History", selection: Binding(
-                    get: { parameterValues["Other History"] as? OtherHistory ?? .none },
+                    get: { parameterValues["Other History"] as? OtherHistory ?? OtherHistory.none },
                     set: { newValue in
                         parameterValues["Other History"] = newValue
                     }
@@ -755,19 +755,19 @@ struct CapriniInputSection: View {
             // Additional independent factors as toggles (these remain binary)
             Section(header: Text("Additional Factors")) {
                 Toggle("Smoking (+1)", isOn: $smoking)
-                    .onChange(of: smoking) { newVal in
+                    .onChange(of: smoking) { _, newVal in
                         parameterValues["Smoking"] = newVal ? 1 : 0
                     }
                 Toggle("Diabetes (requiring insulin) (+1)", isOn: $diabetesInsulin)
-                    .onChange(of: diabetesInsulin) { newVal in
+                    .onChange(of: diabetesInsulin) { _, newVal in
                         parameterValues["Diabetes"] = newVal ? 1 : 0
                     }
                 Toggle("Chemotherapy (+1)", isOn: $chemotherapy)
-                    .onChange(of: chemotherapy) { newVal in
+                    .onChange(of: chemotherapy) { _, newVal in
                         parameterValues["Chemotherapy"] = newVal ? 1 : 0
                     }
                 Toggle("Superficial Venous Thrombosis (+1)", isOn: $superficialThrombosis)
-                    .onChange(of: superficialThrombosis) { newVal in
+                    .onChange(of: superficialThrombosis) { _, newVal in
                         parameterValues["Superficial Thrombosis"] = newVal ? 1 : 0
                     }
             }

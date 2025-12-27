@@ -84,7 +84,7 @@ struct ParticleSystemView: View {
             .onAppear {
                 generateParticles(in: geometry.size)
             }
-            .onChange(of: style) { newStyle in
+            .onChange(of: style) { _, _ in
                 regenerateParticles(in: geometry.size)
             }
         }

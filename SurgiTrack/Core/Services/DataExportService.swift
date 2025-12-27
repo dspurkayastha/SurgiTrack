@@ -403,7 +403,7 @@ final class DataExportService: ObservableObject {
 
                 if let operativeData = patient.operativeData as? Set<OperativeData> {
                     for op in operativeData {
-                        var surgery: [String: Any] = [
+                        let surgery: [String: Any] = [
                             "id": op.id?.uuidString ?? UUID().uuidString,
                             "operationType": op.operationType ?? "",
                             "operationDate": op.operationDate.map { dateFormatter.string(from: $0) } ?? "",
