@@ -460,7 +460,7 @@ struct DischargeSummaryView: View {
                 }
             } catch {
                 DispatchQueue.main.async {
-                    Logger.error("Error creating PDF file", error: error, category: .export)
+                    Logger.error("Error creating PDF file", error: error, category: .reports)
                     self.isGeneratingPDF = false
                 }
             }

@@ -217,7 +217,7 @@ class TrendsAnalysisViewModel: ObservableObject {
         errorMessage = nil
         switch level {
         case .individual:
-            if let patient = selectedPatient, let parameter = selectedParameter {
+            if selectedPatient != nil, let parameter = selectedParameter {
                 await loadParameterData(parameter: parameter)
             }
         case .cohort:
