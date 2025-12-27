@@ -1206,8 +1206,6 @@ struct EnhancedAnimatedGradientBackground: View {
     private func randomPosition(in size: CGSize, edgeAffinity: CGFloat = 0.0) -> CGPoint {
          // edgeAffinity: 0 = purely random, 1 = strongly towards edges
          let padding: CGFloat = 50 // How far off-screen particles can go
-         let coreWidth = size.width + 2 * padding
-         let coreHeight = size.height + 2 * padding
 
          let randomX = CGFloat.random(in: -padding...(size.width + padding))
          let randomY = CGFloat.random(in: -padding...(size.height + padding))

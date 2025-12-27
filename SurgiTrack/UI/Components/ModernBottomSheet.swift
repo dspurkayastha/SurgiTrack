@@ -83,7 +83,7 @@ struct ModernBottomSheet<Content: View>: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .onChange(of: isPresented) { newValue in
+        .onChange(of: isPresented) { _, newValue in
             if newValue {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     offset = 0

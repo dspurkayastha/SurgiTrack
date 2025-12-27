@@ -27,7 +27,7 @@ struct QuietHoursView: View {
         Form {
             Section(header: Text("Quiet Hours")) {
                 Toggle("Enable Quiet Hours", isOn: $quietHoursEnabled)
-                    .onChange(of: quietHoursEnabled) { newValue in
+                    .onChange(of: quietHoursEnabled) { _, newValue in
                         if !newValue {
                             // Disable urgent notifications if quiet hours are disabled
                             allowUrgentNotifications = false

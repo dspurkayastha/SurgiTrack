@@ -85,6 +85,7 @@ struct StatisticalSummary {
 
 // MARK: - Trends Analysis ViewModel
 
+@MainActor
 class TrendsAnalysisViewModel: ObservableObject {
     // Published properties for UI state
     @Published var selectedLevel: AnalysisLevel = .individual
@@ -116,22 +117,20 @@ class TrendsAnalysisViewModel: ObservableObject {
     
     func loadAvailableParameters() async {
         guard let patient = selectedPatient else {
-            await MainActor.run { errorMessage = "No patient selected" }
+            errorMessage = "No patient selected"
             return
         }
-        
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
-        
+
+        isLoading = true
+        errorMessage = nil
+
         let endDate = Date()
         let startDate = getStartDate(for: selectedTimeRange)
         let request: NSFetchRequest<MedicalTest> = MedicalTest.fetchRequest()
         request.predicate = NSPredicate(format: "patient == %@ AND testDate >= %@ AND testDate <= %@",
                                         patient, startDate as NSDate, endDate as NSDate)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicalTest.testDate, ascending: true)]
-        
+
         do {
             let tests = try viewContext.fetch(request)
             var parameters = Set<String>()
@@ -145,42 +144,36 @@ class TrendsAnalysisViewModel: ObservableObject {
                 }
             }
             let sortedParams = Array(parameters).sorted()
-            await MainActor.run {
-                self.organizationParameters = sortedParams
-                if self.selectedParameter == nil, let first = sortedParams.first {
-                    self.selectedParameter = first
-                }
-                self.isLoading = false
+            self.organizationParameters = sortedParams
+            if self.selectedParameter == nil, let first = sortedParams.first {
+                self.selectedParameter = first
             }
+            self.isLoading = false
             if let parameter = self.selectedParameter {
                 await loadParameterData(parameter: parameter)
             }
         } catch {
-            await MainActor.run {
-                self.errorMessage = "Error loading parameters: \(error.localizedDescription)"
-                self.isLoading = false
-            }
+            self.errorMessage = "Error loading parameters: \(error.localizedDescription)"
+            self.isLoading = false
         }
     }
     
     func loadParameterData(parameter: String) async {
         guard let patient = selectedPatient else {
-            await MainActor.run { errorMessage = "No patient selected" }
+            errorMessage = "No patient selected"
             return
         }
-        await MainActor.run {
-            selectedParameter = parameter
-            isLoading = true
-            errorMessage = nil
-        }
-        
+        selectedParameter = parameter
+        isLoading = true
+        errorMessage = nil
+
         let endDate = Date()
         let startDate = getStartDate(for: selectedTimeRange)
         let request: NSFetchRequest<MedicalTest> = MedicalTest.fetchRequest()
         request.predicate = NSPredicate(format: "patient == %@ AND testDate >= %@ AND testDate <= %@",
                                         patient, startDate as NSDate, endDate as NSDate)
         request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicalTest.testDate, ascending: true)]
-        
+
         do {
             let tests = try viewContext.fetch(request)
             var dataPoints: [ParameterDataPoint] = []
@@ -204,30 +197,24 @@ class TrendsAnalysisViewModel: ObservableObject {
                     }
                 }
             }
-            await MainActor.run {
-                self.parameterData = dataPoints.sorted(by: { $0.date < $1.date })
-                self.isLoading = false
-                if dataPoints.count > 1 {
-                    self.calculateStatistics()
-                } else {
-                    self.statisticalSummary = nil
-                }
+            self.parameterData = dataPoints.sorted(by: { $0.date < $1.date })
+            self.isLoading = false
+            if dataPoints.count > 1 {
+                self.calculateStatistics()
+            } else {
+                self.statisticalSummary = nil
             }
         } catch {
-            await MainActor.run {
-                self.errorMessage = "Error loading parameter data: \(error.localizedDescription)"
-                self.isLoading = false
-            }
+            self.errorMessage = "Error loading parameter data: \(error.localizedDescription)"
+            self.isLoading = false
         }
     }
     
     func switchAnalysisLevel(to level: AnalysisLevel) async {
-        await MainActor.run {
-            selectedLevel = level
-            parameterData = []
-            statisticalSummary = nil
-            errorMessage = nil
-        }
+        selectedLevel = level
+        parameterData = []
+        statisticalSummary = nil
+        errorMessage = nil
         switch level {
         case .individual:
             if let patient = selectedPatient, let parameter = selectedParameter {
@@ -239,23 +226,19 @@ class TrendsAnalysisViewModel: ObservableObject {
             await loadOrganizationData()
         }
     }
-    
+
     func loadCohortData() async {
-        await MainActor.run { isLoading = true }
+        isLoading = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
-        await MainActor.run {
-            isLoading = false
-            errorMessage = "Cohort analysis will be available in the next phase."
-        }
+        isLoading = false
+        errorMessage = "Cohort analysis will be available in the next phase."
     }
-    
+
     func loadOrganizationData() async {
-        await MainActor.run { isLoading = true }
+        isLoading = true
         try? await Task.sleep(nanoseconds: 1_000_000_000)
-        await MainActor.run {
-            isLoading = false
-            errorMessage = "Organization-wide analysis will be available in the next phase."
-        }
+        isLoading = false
+        errorMessage = "Organization-wide analysis will be available in the next phase."
     }
     
     // MARK: - Helper Methods

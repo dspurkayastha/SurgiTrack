@@ -118,22 +118,11 @@ struct RiskAssessmentSegment: View {
     // EmptyState view for risk assessment
     private var emptyRiskAssessmentView: some View {
         EmptyStateView(
+            icon: "function",
             title: "No Risk Assessments",
             message: "Perform risk calculations to help with clinical decision-making",
-            iconName: "function",
-            color: DetailSegment.riskAssessment.color,
-            actionButton: AnyView(
-                NavigationLink(destination: RiskCalculatorListView(patient: patient)) {
-                    Text("Perform Risk Assessment")
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(DetailSegment.riskAssessment.color)
-                        .cornerRadius(8)
-                }
-                .buttonStyle(PlainButtonStyle())
-            )
+            actionTitle: "Perform Risk Assessment",
+            iconColor: DetailSegment.riskAssessment.color
         )
     }
     

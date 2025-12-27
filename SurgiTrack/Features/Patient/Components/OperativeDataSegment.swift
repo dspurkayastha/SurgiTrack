@@ -29,11 +29,10 @@ struct OperativeDataSegment: View {
         Group {
             if operativeArray.isEmpty {
                 EmptyStateView(
+                    icon: "scalpel",
                     title: "No Surgical Procedures",
                     message: "Add operative data when the patient undergoes a procedure",
-                    iconName: "scalpel",
-                    color: DetailSegment.operative.color,
-                    actionButton: AnyView(addButton)
+                    iconColor: DetailSegment.operative.color
                 )
             } else {
                 VStack(spacing: 16) {

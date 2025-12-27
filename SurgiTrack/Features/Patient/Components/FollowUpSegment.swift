@@ -30,11 +30,10 @@ struct FollowUpSegment: View {
         Group {
             if followUpsArray.isEmpty {
                 EmptyStateView(
+                    icon: "calendar.badge.clock",
                     title: "No Follow-up Records",
                     message: "Add follow-up visits to track patient progress",
-                    iconName: "calendar.badge.clock",
-                    color: DetailSegment.followup.color,
-                    actionButton: AnyView(addButton)
+                    iconColor: DetailSegment.followup.color
                 )
             } else {
                 VStack(spacing: 16) {

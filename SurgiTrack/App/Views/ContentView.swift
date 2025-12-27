@@ -46,15 +46,11 @@ struct ContentView: View {
                                     
                                     // Use main thread for view model animations
                                     DispatchQueue.main.async {
-                                        if let loginViewModel = (authManager as? LoginViewModel) {
-                                            loginViewModel.animationCoordinator.forceUIUpdate()
-                                            loginViewModel.startEntryAnimations()
-                                        } else {
-                                            NotificationCenter.default.post(
-                                                name: Notification.Name("StartLoginAnimations"),
-                                                object: nil
-                                            )
-                                        }
+                                        // Post notification to trigger animations in LoginView
+                                        NotificationCenter.default.post(
+                                            name: Notification.Name("StartLoginAnimations"),
+                                            object: nil
+                                        )
                                     }
                                 }
                             }
@@ -68,7 +64,7 @@ struct ContentView: View {
             // FOR TESTING: Uncomment this line to force logout
             UserDefaults.standard.set(false, forKey: "isAuthenticated")
         }
-        .onChange(of: authManager.isAuthenticated) { newValue in
+        .onChange(of: authManager.isAuthenticated) { _, newValue in
             if newValue {
                 isAuthenticated = true
             }

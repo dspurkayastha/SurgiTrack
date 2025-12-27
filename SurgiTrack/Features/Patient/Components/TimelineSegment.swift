@@ -28,10 +28,10 @@ struct TimelineSegment: View {
         VStack(spacing: 20) {
             if viewModel.events.isEmpty {
                 EmptyStateView(
+                    icon: "clock",
                     title: "No Timeline Data",
                     message: "This patient has no recorded events to display on the timeline.",
-                    iconName: "clock",
-                    color: DetailSegment.timeline.color
+                    iconColor: DetailSegment.timeline.color
                 )
             } else {
                 // Timeline filter buttons

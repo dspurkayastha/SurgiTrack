@@ -49,7 +49,7 @@ struct SurgiTrackApp: App {
                         Logger.error("Clerk API key not configured", category: .authentication)
                         return
                     }
-                    await Clerk.shared.configure(publishableKey: clerkKey)
+                    Clerk.shared.configure(publishableKey: clerkKey)
                     Logger.info("Clerk configured successfully", category: .authentication)
                 }
         }

@@ -180,7 +180,7 @@ struct AuthHeaderView: View {
                 startAnimations()
             }
         }
-        .onChange(of: animating) { isAnimating in
+        .onChange(of: animating) { _, isAnimating in
             if isAnimating {
                 startAnimations()
             }

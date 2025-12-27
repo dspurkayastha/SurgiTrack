@@ -41,7 +41,7 @@ struct ReportBugView: View {
             // Bug details
             Section(header: Text("Bug Details")) {
                 TextField("Title", text: $bugTitle)
-                    .onChange(of: bugTitle) { _ in validateForm() }
+                    .onChange(of: bugTitle) { _, _ in validateForm() }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Description")
@@ -66,7 +66,7 @@ struct ReportBugView: View {
                             .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                     )
                 }
-                .onChange(of: bugDescription) { _ in validateForm() }
+                .onChange(of: bugDescription) { _, _ in validateForm() }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Steps to Reproduce")

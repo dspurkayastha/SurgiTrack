@@ -25,11 +25,10 @@ struct InitialPresentationSegment: View {
                 presentationView(presentation)
             } else {
                 EmptyStateView(
+                    icon: "clipboard.fill",
                     title: "No Initial Presentation Data",
                     message: "Add initial presentation details to complete the patient record",
-                    iconName: "clipboard.fill",
-                    color: DetailSegment.initial.color,
-                    actionButton: AnyView(addButton)
+                    iconColor: DetailSegment.initial.color
                 )
             }
         }

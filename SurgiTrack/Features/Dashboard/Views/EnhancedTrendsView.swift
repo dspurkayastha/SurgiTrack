@@ -111,7 +111,7 @@ struct EnhancedTrendsView: View {
             }
             .sheet(isPresented: $showingShareSheet) {
                 if let file = generatedFileURL {
-                    ShareSheet(items: [file])
+                    ShareSheet(activityItems: [file])
                 }
             }
             .confirmationDialog("Export Options", isPresented: $showingExportOptions, titleVisibility: .visible) {
@@ -146,7 +146,7 @@ struct EnhancedTrendsView: View {
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
-            .onChange(of: viewModel.selectedLevel) { newValue in
+            .onChange(of: viewModel.selectedLevel) { _, newValue in
                 Task { await viewModel.switchAnalysisLevel(to: newValue) }
             }
             .accessibilityLabel("Analysis Level")
@@ -166,7 +166,7 @@ struct EnhancedTrendsView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .frame(width: 280)
-                .onChange(of: viewModel.selectedTimeRange) { _ in
+                .onChange(of: viewModel.selectedTimeRange) { _, _ in
                     if let parameter = viewModel.selectedParameter {
                         Task { await viewModel.loadParameterData(parameter: parameter) }
                     }
@@ -692,7 +692,7 @@ struct EnhancedTrendsView: View {
                 generatedFileURL = fileURL
                 showingShareSheet = true
             } catch {
-                Logger.error("Error creating PDF", error: error, category: .export)
+                Logger.error("Error creating PDF", error: error, category: .reports)
             }
             
         case .csv:
@@ -710,7 +710,7 @@ struct EnhancedTrendsView: View {
                 generatedFileURL = fileURL
                 showingShareSheet = true
             } catch {
-                Logger.error("Error creating CSV", error: error, category: .export)
+                Logger.error("Error creating CSV", error: error, category: .reports)
             }
         }
     }
