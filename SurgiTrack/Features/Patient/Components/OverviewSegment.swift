@@ -145,7 +145,8 @@ struct OverviewSegment: View {
                 } else {
                     InfoRow(label: "Tests", value: "None")
                         .accessibilityLabel("Medical Tests, None")
-                
+                }
+
                 // Show upcoming appointments if any
                 let upcomingAppointments = (patient.appointments as? Set<Appointment>)?.filter {
                     ($0.startTime ?? Date()) > Date() && !$0.isCompleted
