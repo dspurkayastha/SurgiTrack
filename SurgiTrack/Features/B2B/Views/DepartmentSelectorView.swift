@@ -166,7 +166,8 @@ struct DepartmentSelectorView: View {
     // MARK: - Facility Header
 
     private func facilityHeader(_ facility: String) -> some View {
-        HStack {
+        let departmentCount = filteredDepartments(for: facility).count
+        return HStack {
             Image(systemName: "building.2.fill")
                 .font(.system(size: 14))
                 .foregroundColor(MedicalColors.Neutral.textSecondary)
@@ -178,8 +179,7 @@ struct DepartmentSelectorView: View {
 
             Spacer()
 
-            let count = filteredDepartments(for: facility).count
-            Text("\(count) dept\(count == 1 ? "" : "s")")
+            Text("\(departmentCount) dept\(departmentCount == 1 ? "" : "s")")
                 .font(MedicalTypography.caption)
                 .foregroundColor(MedicalColors.Neutral.textTertiary)
         }
@@ -187,7 +187,7 @@ struct DepartmentSelectorView: View {
         .padding(.vertical, MedicalSpacing.sm)
         .background(Color(.systemGroupedBackground))
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(facility) facility, \(count) departments")
+        .accessibilityLabel("\(facility) facility, \(departmentCount) departments")
     }
 
     // MARK: - Computed Properties

@@ -1014,7 +1014,7 @@ struct ShareSheetView: View {
                 let fileURL = tempDir.appendingPathComponent(filename)
                 
                 if (try? data.write(to: fileURL)) != nil {
-                    ShareSheet(items: [fileURL])
+                    ShareSheet(activityItems: [fileURL])
                 } else {
                     Text("Unable to share file")
                         .padding()

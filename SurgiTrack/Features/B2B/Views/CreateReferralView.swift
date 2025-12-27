@@ -375,7 +375,7 @@ struct CreateReferralView: View {
     private var submitButton: some View {
         Button(action: submitReferral) {
             Text("Create Referral")
-                .font(MedicalTypography.button)
+                .font(MedicalTypography.labelLarge)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, MedicalSpacing.lg)
